@@ -1,0 +1,3 @@
+[submodule "em-viz"]
+	path = em-viz
+	url = git@github.com:scheda74/em-viz.git
