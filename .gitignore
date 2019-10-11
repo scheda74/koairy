@@ -1,3 +1,4 @@
 /em-viz/node_modules
 sumo/simulation/emission-input/*
 sumo/simulation/emission-output/*
+flask/app/main/simulation/data

@@ -1,0 +1,12 @@
+flask
+flask-restplus
+pymongo
+docker
+requests
+schedule
+lxml
+xmltodict
+pandas
+numpy
+asyncio
+quart
