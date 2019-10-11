@@ -37,7 +37,7 @@ def Main():
     parser.add_argument('--input', default="./emission-input/", type=str, help='path of emission inputs (= fcdoutput of sumo simulation)')
     parser.add_argument('--output', default="./emission-output/", type=str, help='path of emission outputs')
     args = parser.parse_args()
-    sumo_emission_cmd = [sumo_emission, "-v", "--netstat-file", args.input + "trajoutput.xml", "--phemlight-path", sumo_phemlight, "--output", args.output + "emission_cycle_output.xml", "--emission-output", args.output + "emission_output.xml", "--sum-output", args.output + "emission_sum_output.xml"]
+    sumo_emission_cmd = [sumo_emission, "-v", "-t", args.input + "trajoutput.xml", "--phemlight-path", sumo_phemlight, "--output", args.output + "emission_cycle_output.xml", "--emission-output", args.output + "emission_output.xml", "--sum-output", args.output + "emission_sum_output.xml"]
     cmd = ""
     for val in sumo_emission_cmd:
         cmd += val + " "
