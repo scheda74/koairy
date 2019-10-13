@@ -16,7 +16,7 @@ async def get_emissions():
     emission_cycle = await parser.parse_emissions()
     return emission_cycle
 
-@app.route('/get/aqi')
+@app.route('/get/caqi')
 async def get_aqi():
     # TODO: implement method; query database for historic data
     """

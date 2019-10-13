@@ -32,13 +32,16 @@ def calc_co_index(val):
 def calc_overall_caqi(si_pm, si_no, si_co):
     return max(si_pm, si_no, si_co)
 
-def calc_indices(data):
-    result = {}
-    for key, value in data.items():
-        value["NOX"] = calc_nox_index(value["NOX"])
-        value["PMX"] = calc_pmx_index(value["PMX"])
-        value["CO"] = calc_co_index(value["CO"])
-        value["CAQI"] = calc_overall_caqi(value["PMX"], value["NOX"], value["CO"])
-        result[key] = value
+def calc_indices(row):
+    # result = {}
+    # for key, value in data.items():
+    #     value["NOX"] = calc_nox_index(value["NOX"])
+    #     value["PMX"] = calc_pmx_index(value["PMX"])
+    #     value["CO"] = calc_co_index(value["CO"])
+    #     value["CAQI"] = calc_overall_caqi(value["PMX"], value["NOX"], value["CO"])
+    #     result[key] = value
     # print(result)
-    return result
+    row['NOx'] = calc_nox_index(row['NOx'])
+    row['PMx'] = calc_pmx_index(row['PMx'])
+    row['CO'] = calc_co_index(row['CO'])
+    return row
