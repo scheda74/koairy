@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-# from flask import Flask
-from quart import Quart
-from quart_openapi import Pint
+from flask import Flask
+# from quart import Quart
+# from quart_openapi import Pint
 
 def create_app(config):
     # app = Flask(__name__)
     # app = Pint(__name__, title="EM-VIZ BACKEND")
-    app = Quart(__name__)
+    app = Flask(__name__)
     register_blueprints(app)
     return app
 

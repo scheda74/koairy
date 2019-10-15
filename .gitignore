@@ -3,3 +3,5 @@ sumo/simulation/emission-input/*
 sumo/simulation/emission-output/*
 flask/app/main/simulation/data
 api/simulation/data/*
+api/app/simulation/data/*
+api/app/simulation/data/*/*

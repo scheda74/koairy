@@ -1,22 +1,4 @@
 
-
-# import argparse
-# import uuid
-# import datetime
-# import requests
-# import xmltodict
-
-# import json
-# import xml.etree.ElementTree as ET
-# from simulation import calc_caqi as caqi
-
-# import calc_caqi as caqi
-# import xml.etree.cElementTree as etree
-# from lxml import etree
-# from operator import itemgetter
-
-# _fields = ('CO2', 'CO', 'NOx', 'PMx')
-# _empty = dict.fromkeys(_fields, 0.0)
 import os
 import sys
 import json
@@ -27,7 +9,9 @@ import numpy as np
 from lxml import etree
 from operator import itemgetter
 from timeit import default_timer as timer
-from simulation import calc_caqi as caqi
+from app.simulation import calc_caqi as caqi
+from app.simulation import preprocessor as ip
+from app.simulation.constants import Constants
 
 if 'SUMO_HOME' in os.environ:
     tools = os.path.join(os.environ['SUMO_HOME'], 'tools')
@@ -36,7 +20,7 @@ else:
     sys.exit("please declare environment variable 'SUMO_HOME'")
 
 import sumolib
-net = sumolib.net.readNet(os.path.dirname(__file__) + "/data/traffic-input/kirchheim-street-names.net.xml")
+net = sumolib.net.readNet(Constants.DEFAULT_NET_INPUT)
 
 def extract_attributes(context, fields):
     values = itemgetter(*fields)
@@ -71,9 +55,10 @@ def parse_emissions(filename):
     # aggregate the results and return summed dataframe
     return df.groupby(latlng)[entries].sum()
 
-async def get_caqi_data():
+def get_caqi_data():
     timer_start = timer()
-    emissions = parse_emissions(os.path.dirname(__file__) + "/data/emission-output/emission_output.xml")
+
+    emissions = parse_emissions(Constants.EMISSION_OUTPUT)
     seconds = timer() - timer_start
     print(emissions)
     print("[etree] Finished parsing XML in %s seconds" % seconds)
@@ -83,9 +68,6 @@ async def get_caqi_data():
     # df = pd.DataFrame(emissions)
     # df.app
     # return emissions
-
-
-
 
 
 
