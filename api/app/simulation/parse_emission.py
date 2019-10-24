@@ -5,10 +5,12 @@ import json
 import asyncio
 import pandas as pd
 import numpy as np
+import datetime
 
 from lxml import etree
 from operator import itemgetter
 from timeit import default_timer as timer
+from app.database.database import DB
 from app.simulation import calc_caqi as caqi
 from app.simulation import preprocessor as ip
 from app.simulation.constants import Constants
@@ -56,15 +58,22 @@ def parse_emissions(filename):
     return df.groupby(latlng)[entries].sum()
 
 def get_caqi_data():
+    print("[PARSER] parsing XML emission outputs from traffic simulation")
     timer_start = timer()
-
     emissions = parse_emissions(Constants.EMISSION_OUTPUT)
     seconds = timer() - timer_start
     print(emissions)
     print("[etree] Finished parsing XML in %s seconds" % seconds)
+    
+    print("[CAQI] calculating subindices and overall CAQI")
     caqi_emissions = emissions.apply(caqi.calc_indices, axis=1)
-    # print(caqi_emissions)
-    return caqi_emissions.to_json(orient='index')
+    result = caqi_emissions.reset_index().to_json(orient='index')
+    DB.insert(collection='caqi_emissions', data={ "created_at:": datetime.datetime.utcnow(), "emissions": result })
+    return result
+    # return result.to_json(orient='index')
+    # return json.dumps(result)
+    # print(json_val)
+    # return caqi_emissions.to_json(orient='index')
     # df = pd.DataFrame(emissions)
     # df.app
     # return emissions

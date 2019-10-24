@@ -36,7 +36,7 @@ class Simulator:
         sys.stdout.flush()
 
     async def start(self):
-        sumoBinary = Constants.SUMO_GUI
+        sumoBinary = Constants.SUMO_COMMANDLINE
         # sumo_emission_cmd = [sumo_emission, "-v", "--net", args.input + "trajoutput.xml", "--phemlight-path", sumo_phemlight, "--output", args.output + "emission_cycle_output.xml", "--emission-output", args.output + "emission_output.xml", "--sum-output", args.output + "emission_sum_output.xml"]
         # cmd = ""
         # for val in sumo_emission_cmd:
@@ -50,7 +50,7 @@ class Simulator:
 
         sumoCMD = [
             sumoBinary, 
-            "-c", Constants.SUMO_CFG + "default.sumocfg",
+            "-c", self.cfg_filepath,
             # "-c", self.cfg_filepath,
             "--tripinfo-output", 
             Constants.EMISSION_OUTPUT_BASE + 'tripinfo.xml', 

@@ -29,9 +29,21 @@ class PreProcessor(Constants):
             'heimstetten_industrial_1': 0.01,
             'heimstetten_industrial_2': 0.01,
             'heimstetten_residential': 0.18,
-            'kirchheim_industrial_east': 0.1,
-            'kirchheim_industrial_west': 0.1,
-            'kirchheim_residential': 0.18,
+            'kirchheim_industrial_east': 0.01,
+            'kirchheim_industrial_west': 0.01,
+            'kirchheim_residential': 0.16,
+            'unassigned_edges': 0.05
+        },
+        weights_per_area_dst={
+            'aschheim_west': 0.16,
+            'ebersberg_east': 0.07,
+            'feldkirchen_west': 0.16,
+            'heimstetten_industrial_1': 0.14,
+            'heimstetten_industrial_2': 0.14,
+            'heimstetten_residential': 0.06,
+            'kirchheim_industrial_east': 0.06,
+            'kirchheim_industrial_west': 0.11,
+            'kirchheim_residential': 0.05,
             'unassigned_edges': 0.05
         },
         weight_type='src',
@@ -40,16 +52,18 @@ class PreProcessor(Constants):
         self.timesteps = timesteps
         self.agents = agents
         self.weights_per_area = weights_per_area
+        self.weights_per_area_dst = weights_per_area_dst
         self.weight_type = weight_type
         self.fringe_factor = fringe_factor
         self.new_net_path = new_net_path
 
-        weights = "".join([str(v).replace('.', '') for v in self.weights_per_area.values()])
-        self.weights_filepath = Constants.WEIGHT_INPUT + "%s%s-%s.%s.xml" % (self.agents, self.timesteps, weights, self.weight_type)
-        self.trip_filepath = Constants.TRIP_OUTPUT + weights + ".trip.xml"
-        self.route_filepath = Constants.ROUTE_OUTPUT + weights + ".rou.xml"
+        self.weights = "".join([str(v).replace('.', '') for v in self.weights_per_area.values()])
+        self.weights_filepath = Constants.WEIGHT_INPUT + "-%s.%s.xml" % (self.weights, self.weight_type)
+        self.weights_filepath_prefix = Constants.WEIGHT_INPUT + self.weights
+        self.trip_filepath = Constants.TRIP_OUTPUT + self.weights + ".trip.xml"
+        self.route_filepath = Constants.ROUTE_OUTPUT + self.weights + ".rou.xml"
         self.net_filepath = new_net_path if new_net_path != None else Constants.DEFAULT_NET_INPUT
-        self.cfg_filepath = Constants.SUMO_CFG + weights + ".sumocfg"
+        self.cfg_filepath = Constants.SUMO_CFG + self.weights + ".sumocfg"
 
     def write_sumocfg_file(self):
         configuration_tag = ET.Element('configuration')
@@ -89,7 +103,12 @@ class PreProcessor(Constants):
         tree = etree.parse(self.cfg_filepath, parser)
         tree.write(self.cfg_filepath, pretty_print=True)
 
-    def init_weight_file(self, edges_per_area):
+    def generate_trip_file(self, begin, end):
+        if os.path.exists(self.trip_filepath):
+            return
+        cmd = 'python %s --net-file %s --weight-files' 
+
+    def init_weight_file(self, edges_per_area, filepath):
         print("Weight file not found - Initializing new weight file...")
         root = ET.Element('edgedata')
         interval = ET.SubElement(root, 'interval', {'begin': '0', 'end': str(self.timesteps)})
@@ -99,17 +118,33 @@ class PreProcessor(Constants):
                 ET.SubElement(interval, 'edge', {'id': edge, 'value': '0'})
 
         tree = ET.ElementTree(root)
-        tree.write(self.weights_filepath)
+        tree.write(filepath)
 
         #pretty formatting
         parser = etree.XMLParser(remove_blank_text=True)
-        tree = etree.parse(self.weights_filepath, parser)
-        tree.write(self.weights_filepath, pretty_print=True)
+        tree = etree.parse(filepath, parser)
+        tree.write(filepath, pretty_print=True)
 
 
-    def write_weight_file(self):
+    def write_weight_file(
+        self, 
+        weight_type='dst', 
+        weights_per_area={
+            'aschheim_west': 0.16,
+            'ebersberg_east': 0.07,
+            'feldkirchen_west': 0.16,
+            'heimstetten_industrial_1': 0.14,
+            'heimstetten_industrial_2': 0.14,
+            'heimstetten_residential': 0.06,
+            'kirchheim_industrial_east': 0.06,
+            'kirchheim_industrial_west': 0.11,
+            'kirchheim_residential': 0.05,
+            'unassigned_edges': 0.05
+        }
+    ):
+        filepath = self.weights_filepath_prefix + ".%s.xml" % weight_type
         print("Writing/Formatting weight file...")
-        weights_per_area_keys = set(self.weights_per_area.keys())
+        weights_per_area_keys = set(weights_per_area.keys())
 
         if (weights_per_area_keys.symmetric_difference(Constants.VALID_AREA_IDS) != set()):
             raise ValueError('area_ids must only be exactly %r.' % Constants.VALID_AREA_IDS)
@@ -124,46 +159,46 @@ class PreProcessor(Constants):
             if (taz.get('id') in Constants.VALID_AREA_IDS):
                 edges_per_area['{0}'.format(taz.get('id'))] = taz.get('edges').split()
         
-        if not os.path.exists(self.weights_filepath):
-            self.init_weight_file(edges_per_area)
+        if not os.path.exists(filepath):
+            self.init_weight_file(edges_per_area, filepath)
         
-        scenario_weights_tree = ET.parse(self.weights_filepath)
+        scenario_weights_tree = ET.parse(filepath)
         scenario_weights_root = scenario_weights_tree.getroot()
 
         for edge in scenario_weights_root.iter('edge'):
             edge_id = edge.get('id')
             if (edge_id in edges_per_area['aschheim_west']):
                 edge.set('value', '{0}'\
-                .format(self.weights_per_area['aschheim_west']/len(edges_per_area['aschheim_west'])))
+                .format(weights_per_area['aschheim_west']/len(edges_per_area['aschheim_west'])))
             elif (edge_id in edges_per_area['ebersberg_east']):
                 edge.set('value', '{0}'\
-                .format(self.weights_per_area['ebersberg_east']/len(edges_per_area['ebersberg_east'])))
+                .format(weights_per_area['ebersberg_east']/len(edges_per_area['ebersberg_east'])))
             elif (edge_id in edges_per_area['feldkirchen_west']):
                 edge.set('value', '{0}'\
-                .format(self.weights_per_area['feldkirchen_west']/len(edges_per_area['feldkirchen_west'])))
+                .format(weights_per_area['feldkirchen_west']/len(edges_per_area['feldkirchen_west'])))
             elif (edge_id in edges_per_area['heimstetten_industrial_1']):
                 edge.set('value', '{0}'\
-                .format(self.weights_per_area['heimstetten_industrial_1']/len(edges_per_area['heimstetten_industrial_1'])))
+                .format(weights_per_area['heimstetten_industrial_1']/len(edges_per_area['heimstetten_industrial_1'])))
             elif (edge_id in edges_per_area['heimstetten_industrial_2']):
                 edge.set('value', '{0}'\
-                .format(self.weights_per_area['heimstetten_industrial_2']/len(edges_per_area['heimstetten_industrial_2'])))
+                .format(weights_per_area['heimstetten_industrial_2']/len(edges_per_area['heimstetten_industrial_2'])))
             elif (edge_id in edges_per_area['heimstetten_residential']):
                 edge.set('value', '{0}'\
-                .format(self.weights_per_area['heimstetten_residential']/len(edges_per_area['heimstetten_residential'])))
+                .format(weights_per_area['heimstetten_residential']/len(edges_per_area['heimstetten_residential'])))
             elif (edge_id in edges_per_area['kirchheim_industrial_east']):
                 edge.set('value', '{0}'\
-                .format(self.weights_per_area['kirchheim_industrial_east']/len(edges_per_area['kirchheim_industrial_east'])))
+                .format(weights_per_area['kirchheim_industrial_east']/len(edges_per_area['kirchheim_industrial_east'])))
             elif (edge_id in edges_per_area['kirchheim_industrial_west']):
                 edge.set('value', '{0}'\
-                .format(self.weights_per_area['kirchheim_industrial_west']/len(edges_per_area['kirchheim_industrial_west'])))
+                .format(weights_per_area['kirchheim_industrial_west']/len(edges_per_area['kirchheim_industrial_west'])))
             elif (edge_id in edges_per_area['kirchheim_residential']):
                 edge.set('value', '{0}'\
-                .format(self.weights_per_area['kirchheim_residential']/len(edges_per_area['kirchheim_residential'])))
+                .format(weights_per_area['kirchheim_residential']/len(edges_per_area['kirchheim_residential'])))
             elif (edge_id in edges_per_area['unassigned_edges']):
                 edge.set('value', '{0}'\
-                .format(self.weights_per_area['unassigned_edges']/len(edges_per_area['unassigned_edges'])))
+                .format(weights_per_area['unassigned_edges']/len(edges_per_area['unassigned_edges'])))
 
-        scenario_weights_tree.write(self.weights_filepath)
+        scenario_weights_tree.write(filepath)
         return
 
     def write_random_trips_and_routes(self):
@@ -177,7 +212,7 @@ class PreProcessor(Constants):
                     self.route_filepath,
                     self.fringe_factor, 
                     ((self.timesteps-0) / (self.agents * 1.0)),
-                    self.weights_filepath
+                    self.weights_filepath_prefix
                 )
         subprocess.call(cmd.split())
 
@@ -189,7 +224,8 @@ class PreProcessor(Constants):
         #         '../data/input-simulation/areas-of-interest.taz.xml'
         #     )
         if not os.path.exists(self.weights_filepath):
-            self.write_weight_file()
+            self.write_weight_file(self.weight_type, self.weights_per_area) # create .src file
+            self.write_weight_file() # create .dst file
             self.write_random_trips_and_routes()
             self.write_sumocfg_file()
         

@@ -10,3 +10,4 @@ pandas
 numpy
 asyncio
 quart
+quart_cors
