@@ -1,6 +1,6 @@
-from quart_openapi import Pint, Resource
-from quart_openapi import PintBlueprint
-from quart_openapi import Swagger
+from quart_openapi import Pint, Resource, PintBlueprint, Swagger
+from quart_cors import cors
+from quart import request
 
 from simulation import parse_emission as parser
 from simulation.simulator import Simulator
@@ -9,8 +9,10 @@ from database.database import DB
 import database.query_database as query
 
 app = Pint(__name__, title="EM-ViZ API")
+
 DB.init()
 blueprint = PintBlueprint('main', __name__, url_prefix='/api')
+blueprint = cors(blueprint, allow_origin="*")
 
 @blueprint.route('/')
 class Root(Resource):
@@ -34,13 +36,15 @@ class Emission(Resource):
         # return emission_cycle
         return 'Emission'
 
-@blueprint.route('/get/caqi')
+@blueprint.route('/get/caqi', methods=['GET', 'POST'])
 class CAQI(Resource):
     async def get(self):
         """
         Looks up database if same simulation has already been run
         If not: New simulation with input parameters will start
         """
+        body = await request.get_data()
+        print(body)
         # emission_cycle = await parser.parse_simulated_emissions()
         caqi = query.get_latest_emissions()
         if caqi != None:
@@ -77,6 +81,6 @@ class Simulation(Resource):
         # return await parser.parse_emissions()
         # return "OK"
 
-Swagger(blueprint)
+# Swagger(blueprint)
 app.register_blueprint(blueprint)
 app.run()
