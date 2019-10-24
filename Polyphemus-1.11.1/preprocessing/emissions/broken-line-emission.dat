@@ -1,0 +1,11 @@
+## -Trajectory: broken line. All nodes are linked by a single line.
+## -Rates : source rates (mass.s^(-1).m^(-1)) of each species, for each source
+## section. Each rate is associated to the first extremity of the section.
+## -Number of elements per line: 4 + number of emitted species, except for the
+## last line, which does not correspond to any line section first extremities.
+#X(m)	Y(m)	Z(m)	Width	Rate 1	Rate 2
+0.	0.	30.	10.	56.5	56.5
+0.	20.	30.	10.	56.5	56.5
+30.	10.	30.	4.	56.5	56.5
+30.	20.	30.	0.	56.5	56.5
+30.	40.	50.

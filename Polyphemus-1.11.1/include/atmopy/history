@@ -1,0 +1,190 @@
+o----------------o
+| ATMOPY HISTORY |
+o----------------o
+
+Version 1.8.1 (2018-04-10)
+-------------
+
+- Ported SConstruct files to the new build system.
+- Added a user message when Verdandi is needed and cannot be found.
+- Added error checking in configuration parsing.
+- Added to "extract_configuration" an health test option '-t'.
+- Disables 'TALOS_DEBUG' for "extract_configuration".
+- Fixed the SConstruct files related to SWIG.
+
+Version 1.8 (2015-04-20)
+-----------
+
+- Added the submodule "model", with a SWIG interface to 'Polair3DVerdandi'.
+- Added the submodule "manager", with a SWIG interface to
+  'GroundNetworkObservationManager' and 'EnsembleObservationManager'.
+- Added two versions of 'Vector2::Flatten' to the submodule "manager".
+- Added 'HasSameShapeDouble and 'HasSameShapeInt' to the interface to 'Vector2'.
+- Added "Aircraft" observations class.
+- Added Basemap functions to plot cross sections.
+
+** Bug fixes:
+
+- An instantiation of 'Vector3::Flatten' was missing.
+
+
+Version 1.7.2 (2010-12-02)
+-------------
+
+** Bug fixes:
+
+- AtmoPy could not be imported anymore because of an indentation error.
+
+
+Version 1.7.1 (2010-11-03)
+-------------
+
+** Improvements:
+
+- Added support for AERONET data (tropospheric column optical depth) in class
+  'Station'.
+
+
+Version 1.7 (2009-05-18)
+-----------
+
+** Improvements:
+
+- Added the class 'Source' with the related functions 'read_sources',
+  'get_sources_coordinates', 'get_species_sources_coordinates' and
+  'get_level_sources_coordinates' to display point sources.
+- Added functions 'fac2', 'fac5', 'nmse_1', 'mg', 'vg' and 'fmt'. Also
+  renamed 'nmse' to 'rnmse_2'.
+
+
+Version 1.6 (2008-11-12)
+-----------
+
+** Improvements:
+
+- Added the ability to penalize the 2-norm of the weight vector in 'ELS' and
+  'ELSd'.
+- Added 'w_penalized_least_squares'.
+- Added the normalized mean square error (NMSE).
+- Improved the support of the default string format in 'Station': the
+  latitude, the longitude and the altitude of the station may now be missing.
+- Took into account an API change that occurred in Matplotlib so that
+  Matplotlib 0.98.x may be supported.
+
+** Bug fixes:
+
+- 'segplot', 'segplot_logx' and 'segplot_date' raised an exception whatever
+  their arguments may be.
+- For some locations outside the domain, 'get_simulated_at_location' raised
+  an exception (because of indices out of range) instead of returning an empty
+  array.
+
+
+Version 1.5.1 (2008-05-09)
+-------------
+
+** Bug fix:
+
+- Fixed a bug in 'get_daily_obs_peaks' and 'get_daily_peaks': the keyword
+  argument 'nb_range_min' was not properly handled and it was de facto lower
+  than 2. This bug has slight consequences: the only AtmoPy code using this
+  function is in 'EnsembleData'. This class has been slightly modified so that
+  the results remain the same as previously.
+
+
+Version 1.5 (2008-04-22)
+-----------
+
+** Improvements:
+
+- Added the learning methods
+  'ExponentiatedGradientAdaptive',
+  'RidgeRegressionDiscounted',
+  'RidgeRegressionWindow',
+  'Polynomial',
+  'PolynomialGradient',
+  'FixedShare',
+  'FixedShareGradient',
+  'VariableShareGradient',
+  'OnlineNewtonStep',
+  'InternalZink',
+  'InternalPolynomialGradient',
+  'InternalExponentiatedGradientDiscounted'
+  and 'DynamicLinearRegression'.
+- In ensemble methods, added support for per-station predictions, for hourly
+  predictions and for learning with extended weights.
+- Added bias removal in 'EnsembleMean' and 'EnsembleMedian'.
+- Added 'EnsembleData.AddSimulation', 'EnsembleData.ComputeStationStatistics',
+  'EnsembleData.DuplicateEnsemble' and 'EnsembleData.RankArray'.
+- Added 'EnsembleMethod.ComputeStationStatistics'.
+- Added the keyword argument 'states' to 'disp' and 'dispcf', so that these
+  functions may display the state boundaries.
+- Added the options 'open_figure', 'resolution' and 'area_thresh' to the
+  function 'getm'.
+- Improved 'w_least_squares' to deal with few observations.
+- Added a makefile and a SConstruct file to compile
+  "extract_configuration.cpp".
+- Added an error message if the configuration file for visualization is not
+  found.
+- Added 'Station.GetClosestIndex'.
+- Improved 'compute_stat_step' so that the keyword argument 'period' may be
+  a list of datetime.
+
+** Bug fixes:
+
+- In 'ELSd', 'ELSdN' and 'BestModelStep', a complete lack of observations
+  could not be handled at the first aggregation step. This bug resulted in
+  raising an exception.
+
+
+Version 1.4 (2007-10-09)
+-----------
+
+** Improvements:
+
+- Added access methods 'GetName', 'GetLatitude', 'GetLongitude',
+  'GetAltitude', 'GetCountry', 'GetType' and 'GetNetwork' for class 'Station'.
+- Added method 'FromDefaultString' for class 'Station'.
+- Added option 'restricted' in 'combine_station_step'.
+- Added an option so that an instance of 'Config' may launch an exception in
+  case an error occurs.
+
+
+Version 1.3 (2007-04-24)
+-----------
+
+** Improvements:
+
+- Added a test to check that AtmoPy is working.
+- Improved the call to "extract_configuration" so that it should work under
+  Windows.
+- Modified 'getm' so a configuration file is not necessary anymore. Parameters
+  'y_min', 'x_min', 'Delta_y', 'Delta_x', 'Ny' and 'Nx' are now keyword
+  arguments.
+- Added programs for ensemble forecasting.
+- Added 'get_simulated_at_station_closest'.
+- Added 'w_least_squares_simplex'.
+
+** Bug fixes:
+
+ - Map extent had an extra space step along latitude and longitude.
+
+** Other changes:
+
+- Moved from Numarray to NumPy.
+
+
+Version 1.2 (2006-09-29)
+-----------
+
+
+Version 1.1 (2005-07-09)
+-----------
+
+
+Version 0.2 (2004-04-10)
+-----------
+
+
+Version 0.1 (2004-03-15)
+-----------

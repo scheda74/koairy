@@ -1,0 +1,101 @@
+#!/usr/bin/env python
+
+# Copyright (C)  2004-2008, ENPC - INRIA - EDF R&D
+#     Author(s): Vivien Mallet
+#
+# This file is part of the air quality modeling system Polyphemus.
+#
+# Polyphemus is developed in the INRIA - ENPC joint project-team CLIME and in
+# the ENPC - EDF R&D joint laboratory CEREA.
+#
+# Polyphemus is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free
+# Software Foundation; either version 2 of the License, or (at your option)
+# any later version.
+#
+# Polyphemus is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# For more information, visit the Polyphemus web site:
+#      http://cerea.enpc.fr/polyphemus/
+
+# This program applies a given command to a list of files.
+
+
+import optparse, sys, string, os
+
+usage = "%prog [command] [file(s)]\n\n"
+usage += "This program applies a given command to a list of files.\n\n"
+usage += "The command is the first argument. It may contain special"
+usage += " references.\nFor instance, from directory \"/local\","
+usage += " the file \"path/file.txt\" may be referred to as:\n"
+usage += "  %f\tFile path\t\t\t\tpath/file.txt\n"
+usage += "  %F\tFile absolute path\t\t\t/local/path/file.txt\n"
+usage += "  %n\tFile path without extension\t\tpath/file\n"
+usage += "  %N\tFile absolute path without extension\t/local/path/file\n"
+usage += "  %b\tFile basename\t\t\t\tfile.txt\n"
+usage += "  %B\tFile basename without extension\t\tfile\n"
+usage += "  %e\tFile extension\t\t\t\ttxt\n"
+usage += "If no special reference is given, the filename is simply"
+usage += " appended at the end of the command.\n\n"
+usage += "Examples:\n"
+usage += "  %prog echo /usr/*\n"
+usage += "  %prog \"echo Test: command %f -- %B\" /usr/*\n"
+usage += "  %prog \"ln -s %f %n.link\" /somewhere/*.py"
+
+parser = optparse.OptionParser(usage = usage)
+(options, args) = parser.parse_args()
+
+if len(args) < 2:
+    print "Improper usage!"
+    print "Use option -h or --help for information about usage."
+    sys.exit(1)
+
+file_list = args[1:]
+raw_command = args[0]
+
+def remove_extension(filename):
+    decomposition = os.path.basename(filename).split('.')
+    if len(decomposition) == 1:
+        basename = decomposition[0]
+    else:
+        basename = ".".join(decomposition[:-1])
+    return os.path.join(os.path.dirname(filename), basename)
+
+def get_extension(filename):
+    decomposition = os.path.basename(filename).split('.')
+    if len(decomposition) == 1:
+        return ""
+    else:
+        return decomposition[-1]
+
+flag_list = "fFnNbBe"
+flag_list = ["%" + x for x in flag_list]
+
+need_replacement = True in [x in raw_command for x in flag_list]
+if need_replacement:
+    replace = {}
+
+for filename in file_list:
+
+    if need_replacement:
+        replace["%f"] = filename
+        replace["%F"] = os.path.abspath(filename)
+        replace["%n"] = remove_extension(replace["%f"])
+        replace["%N"] = remove_extension(replace["%F"])
+        replace["%b"] = os.path.basename(filename)
+        replace["%B"] = remove_extension(replace["%b"])
+        replace["%e"] = get_extension(filename)
+        command = raw_command
+        for key, name in replace.items():
+            command = string.replace(command, key, name)
+    else:
+        command = raw_command + " " + filename
+
+    status = os.system(command)
+
+    if status != 0:
+        print "\"" + command + "\" failed with status " + str(status) + "."
+        sys.exit(status)

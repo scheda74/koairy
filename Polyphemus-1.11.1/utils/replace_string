@@ -1,0 +1,62 @@
+#!/usr/bin/env python
+
+# Copyright (C)  2004-2008, ENPC - INRIA - EDF R&D
+#     Author(s): Vivien Mallet
+#
+# This file is part of the air quality modeling system Polyphemus.
+#
+# Polyphemus is developed in the INRIA - ENPC joint project-team CLIME and in
+# the ENPC - EDF R&D joint laboratory CEREA.
+#
+# Polyphemus is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free
+# Software Foundation; either version 2 of the License, or (at your option)
+# any later version.
+#
+# Polyphemus is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# For more information, visit the Polyphemus web site:
+#      http://cerea.enpc.fr/polyphemus/
+
+# This program proceeds string replacement in one or more files.
+
+
+import optparse, sys, string, os, fileinput
+
+usage = "%prog [string to be replaced] [new string] [file(s)]\n\n"
+usage += "This program proceeds string replacement in one or more files.\n"
+usage += "It can handle string escapes like '\\t'.\n\n"
+usage += "Examples:\n"
+usage += "  %prog old_string new_string file.txt directory/file.dat\n"
+usage += "  %prog 'old string' 'new string' *.txt\n"
+usage += "  # To replace every tabulation with a single space in all files\n"
+usage += "  # in current directory and all subdirectories (recursively):\n"
+usage += "  %prog '\\t' ' ' `find . -name '*'`\n"
+
+parser = optparse.OptionParser(usage = usage)
+(options, args) = parser.parse_args()
+
+if len(args) < 3:
+    print "Improper usage!"
+    print "Use option -h or --help for information about usage."
+    sys.exit(1)
+
+old_string = args[0].decode("string_escape")
+new_string = args[1].decode("string_escape")
+
+file_list_in = args[2:]
+file_list = []
+for filename in file_list_in:
+    if os.path.isfile(filename):
+        file_list.append(filename)
+    else:
+        print "Warning: \"" + filename \
+              + "\" is ignored because it is not a file."
+
+if len(file_list) != 0:
+    for line in fileinput.input(file_list, 1):
+        print line.replace(old_string, new_string),
+fileinput.close()

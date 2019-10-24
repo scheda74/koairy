@@ -1,0 +1,387 @@
+file /Users/david/Development/tum/thesis/Polyphemus-1.11.1/scons/scons_ext/utils.py,line 492:
+	Configure(confdir = /Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp)
+scons: Configure: Checking for C library ifcore... 
+scons: Configure: "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_0.c" is up to date.
+scons: Configure: The original builder output was:
+  |/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_0.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_0.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_0.c
+  |
+scons: Configure: Building "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_0" failed in a previous run and all its sources are up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_0
+  |
+scons: Configure: (cached) no
+
+scons: Configure: Checking for C library imf... 
+scons: Configure: "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_1.c" is up to date.
+scons: Configure: The original builder output was:
+  |/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_1.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_1.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_1.c
+  |
+scons: Configure: Building "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_1" failed in a previous run and all its sources are up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_1
+  |
+scons: Configure: (cached) no
+
+scons: Configure: Checking for C library svml... 
+scons: Configure: "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_2.c" is up to date.
+scons: Configure: The original builder output was:
+  |/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_2.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_2.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_2.c
+  |
+scons: Configure: Building "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_2" failed in a previous run and all its sources are up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_2
+  |
+scons: Configure: (cached) no
+
+scons: Configure: Checking for C library intlc... 
+scons: Configure: "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_3.c" is up to date.
+scons: Configure: The original builder output was:
+  |/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_3.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_3.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_3.c
+  |
+scons: Configure: Building "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_3" failed in a previous run and all its sources are up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_3
+  |
+scons: Configure: (cached) no
+
+scons: Configure: Checking for C library dl... 
+scons: Configure: "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_4.c" is up to date.
+scons: Configure: The original builder output was:
+  |/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_4.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_4.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_4.c
+  |
+scons: Configure: "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_4" is up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_4
+  |
+scons: Configure: (cached) yes
+
+scons: Configure: Checking for C library m... 
+scons: Configure: "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_5.c" is up to date.
+scons: Configure: The original builder output was:
+  |/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_5.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_5.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_5.c
+  |
+scons: Configure: "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_5" is up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_5
+  |
+scons: Configure: (cached) yes
+
+scons: Configure: Checking for C library stdc++... 
+scons: Configure: "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_6.c" is up to date.
+scons: Configure: The original builder output was:
+  |/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_6.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_6.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_6.c
+  |
+scons: Configure: "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_6" is up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_6
+  |
+scons: Configure: (cached) yes
+
+scons: Configure: Checking for C library blas... 
+scons: Configure: "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_7.c" is up to date.
+scons: Configure: The original builder output was:
+  |/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_7.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_7.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_7.c
+  |
+scons: Configure: "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_7" is up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_7
+  |
+scons: Configure: (cached) yes
+
+scons: Configure: Checking for C library atlas... 
+scons: Configure: "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_8.c" is up to date.
+scons: Configure: The original builder output was:
+  |/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_8.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_8.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_8.c
+  |
+scons: Configure: Building "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_8" failed in a previous run and all its sources are up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_8
+  |
+scons: Configure: (cached) no
+
+scons: Configure: Checking for C library lapack... 
+scons: Configure: "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_9.c" is up to date.
+scons: Configure: The original builder output was:
+  |/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_9.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_9.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_9.c
+  |
+scons: Configure: "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_9" is up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_9
+  |
+scons: Configure: (cached) yes
+
+scons: Configure: Checking for C library g2c... 
+scons: Configure: "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_10.c" is up to date.
+scons: Configure: The original builder output was:
+  |/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_10.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_10.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_10.c
+  |
+scons: Configure: Building "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_10" failed in a previous run and all its sources are up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_10
+  |
+scons: Configure: (cached) no
+
+scons: Configure: Checking for C library gfortran... 
+scons: Configure: "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_11.c" is up to date.
+scons: Configure: The original builder output was:
+  |/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_11.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_11.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_11.c
+  |
+scons: Configure: Building "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_11" failed in a previous run and all its sources are up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_11
+  |
+scons: Configure: (cached) no
+
+scons: Configure: Checking for C library gslcblas... 
+scons: Configure: "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_12.c" is up to date.
+scons: Configure: The original builder output was:
+  |/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_12.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_12.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_12.c
+  |
+scons: Configure: Building "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_12" failed in a previous run and all its sources are up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_12
+  |
+scons: Configure: (cached) no
+
+scons: Configure: Checking for C library blitz... 
+scons: Configure: "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_13.c" is up to date.
+scons: Configure: The original builder output was:
+  |/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_13.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_13.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_13.c
+  |
+scons: Configure: Building "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_13" failed in a previous run and all its sources are up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_13
+  |
+scons: Configure: (cached) no
+
+scons: Configure: Checking for C library netcdf... 
+scons: Configure: "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_14.c" is up to date.
+scons: Configure: The original builder output was:
+  |/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_14.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_14.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_14.c
+  |
+scons: Configure: Building "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_14" failed in a previous run and all its sources are up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_14
+  |
+scons: Configure: (cached) no
+
+scons: Configure: Checking for C library netcdf_c++... 
+scons: Configure: "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_15.c" is up to date.
+scons: Configure: The original builder output was:
+  |/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_15.c <-
+  |  |
+  |  |
+  |  |
+  |  |int
+  |  |main() {
+  |  |  
+  |  |return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_15.o" is up to date.
+scons: Configure: The original builder output was:
+  |[C] /Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_15.c
+  |
+scons: Configure: Building "/Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_15" failed in a previous run and all its sources are up to date.
+scons: Configure: The original builder output was:
+  |[Linking] /Users/david/Development/tum/thesis/Polyphemus-1.11.1/.sconf_temp/conftest_15
+  |
+scons: Configure: (cached) no
+
+

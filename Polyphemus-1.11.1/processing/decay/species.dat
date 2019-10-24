@@ -1,0 +1,47 @@
+[species]
+
+Sp1 Sp2 Sp3 Sp4
+
+[aerosol_species]
+
+Aer1 Aer2
+
+[half_life]
+
+# Half-lives in days, put 0 for species without decay.
+Sp1 300
+Sp2 216
+Sp3 0
+Sp4 41
+
+[half_life_time]
+
+# Half-lives in days, put 0 for species without decay.
+# First value for day, second for night.
+Sp1 300 500
+Sp2 216 300
+Sp3 0 0
+Sp4 41 72
+
+[half_life_aerosol]
+
+# Half-lives in days, put 0 for species without decay.
+Aer1	250
+Aer2	120
+
+[half_life_time_aerosol]
+
+# Half-lives in days, put 0 for species without decay.
+# First value for day, second for night.
+Aer1: 250 350
+Aer2: 120 180
+
+[filiation_matrix]
+File: matrix.dat
+
+[filiation_matrix_aerosol]
+File: matrix_aer.dat
+
+
+
+

@@ -1,0 +1,189 @@
+C-----------------------------------------------------------------------
+C     Copyright (C) 2001-2007, ENPC - INRIA - EDF R&D
+C
+C     This file is part of the air quality modeling system Polyphemus.
+C
+C     Polyphemus is developed in the INRIA - ENPC joint project-team
+C     CLIME and in the ENPC - EDF R&D joint laboratory CEREA.
+C
+C     Polyphemus is free software; you can redistribute it and/or modify
+C     it under the terms of the GNU General Public License as published
+C     by the Free Software Foundation; either version 2 of the License,
+C     or (at your option) any later version.
+C
+C     Polyphemus is distributed in the hope that it will be useful, but
+C     WITHOUT ANY WARRANTY; without even the implied warranty of
+C     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+C     General Public License for more details.
+C
+C     For more information, visit the Polyphemus web site:
+C     http://cerea.enpc.fr/polyphemus/
+C-----------------------------------------------------------------------
+
+
+      SUBROUTINE surface_rst(Nland, LUC, Iseason, Temperature,
+     $     Pressure, SettlingVelocity, FrictionVelocity,
+     $     AirMeanFreePath, Diameter, Gamma, Alpha, SmallRadius,
+     $     LargeRadius, Rsol)
+
+C------------------------------------------------------------------------
+C
+C     -- DESCRIPTION
+C
+C     This routine computes surface resistance.
+C
+C------------------------------------------------------------------------
+C
+C     -- INPUT VARIABLES
+C
+C     Nland: Number of land use coverage.
+C     LUC: Land Use Coverage percentages in the cell. ([0,1])
+C     Iseason: season index.
+C     Temperature: Temperature in the cell. ([K])
+C     Pressure: Pressure in the cell. ([Pa])
+C     SettlingVelocity: Gravitationnal settling velocity. ([m/s])
+C     FrictionVelocity: Friction velocity. ([m/s])
+C     AirMeanFreePath: Air mean free path. ([m])
+C     Diameter: Representative diameter of aerosol particles. ([m])
+C     Gamma: Zhang model coefficient.
+C     Alpha: Zhang model coefficient.
+C     SmallRadius: Characteristic radius of small receptors. ([m])
+C     LargeRadius: Characteristic radius of large receptors. ([m])
+C
+C     -- OUTPUT VARIABLES
+C
+C     Rsol: Surface resistance. ([s/m]) (Zhang)
+C
+C------------------------------------------------------------------------
+
+      IMPLICIT NONE
+
+C     -- Input.
+      INTEGER Nland
+      DOUBLE PRECISION LUC(Nland)
+      INTEGER Iseason
+      DOUBLE PRECISION Temperature
+      DOUBLE PRECISION Pressure
+      DOUBLE PRECISION SettlingVelocity
+      DOUBLE PRECISION FrictionVelocity(Nland)
+      DOUBLE PRECISION AirMeanFreePath
+      DOUBLE PRECISION Diameter
+      DOUBLE PRECISION Gamma(Nland)
+      DOUBLE PRECISION Alpha(Nland)
+      DOUBLE PRECISION SmallRadius(Nland,5)
+      DOUBLE PRECISION LargeRadius(Nland,5)
+
+C     -- Local variables.
+      INTEGER Iland
+      DOUBLE PRECISION Muair,roair,nuair
+C     Molar mass of air. ([kg.mol-1])
+      DOUBLE PRECISION MMair
+C     Gravity acceleration. ([m/s^2])
+      DOUBLE PRECISION g
+C     Perfect gas constant. ([J.mol-1.K-1])
+      DOUBLE PRECISION RGAS
+C     Pi.
+      DOUBLE PRECISION PI
+C     Boltzmann constant
+      DOUBLE PRECISION Kboltz
+C     Brownian diffusivity
+      DOUBLE PRECISION Dbrownian
+C     Stokes number
+      DOUBLE PRECISION St
+      DOUBLE PRECISION CC
+      DOUBLE PRECISION Eb,Eim,Eint
+      DOUBLE PRECISION sol
+      INTEGER Ilandsea
+      INTEGER Ilandbarren
+      INTEGER Ilandtundra1, Ilandtundra2,
+     &     Ilandtundra3, Ilandtundra4
+      INTEGER Ilandice
+
+C     -- Output.
+      DOUBLE PRECISION Rsol(Nland)
+
+C----------------------------------------------------------------------
+      Ilandsea=16
+      Ilandbarren=19
+      Ilandtundra1=20
+      Ilandtundra2=21
+      Ilandtundra3=22
+      Ilandtundra4=23
+      Ilandice=24
+
+      MMair = 2.897D-02
+      RGAS = 8.314D0
+      PI=3.14159265358979323846D0
+      Kboltz = 1.38d-23
+      g = 9.81d0
+
+C     Computation of dynamic viscosity through Sutherland's law.
+      call compute_dynamic_viscosity(Temperature,Muair)
+
+C     Computation of air density
+      roair = (Pressure*MMair)/( RGAS*Temperature) !Perfect gas law
+
+C     Computation of kinematic viscosity.
+      nuair = muair / roair
+
+C     Cuningham correction.
+      call compute_CC(AirMeanFreePath, Diameter, CC)
+
+C     Computation of Brownian diffusivity coefficient.
+      Dbrownian = CC * Temperature/(3.d0*Pi*Muair*Diameter)*Kboltz
+
+C-----------------------------------------------------------------------
+C     1 - Computing Eint and  Stokes number
+
+      DO Iland=1,Nland
+         Rsol(Iland) = 0.d0
+         IF (LUC(Iland).GT.0.D0) THEN
+
+            IF(Iland.EQ.Ilandsea)THEN
+               Eint = 0.d0
+               St = SettlingVelocity * FrictionVelocity(Iland)**2.d0
+               St = St / (g * nuair)
+
+            ELSEIF ( (Iland.EQ.Ilandbarren).OR.
+     &              (Iland.EQ.Ilandtundra1).OR.
+     &              (Iland.EQ.Ilandtundra2).OR.
+     &              (Iland.EQ.Ilandtundra3).OR.
+     &              (Iland.EQ.Ilandtundra4).OR.
+     &              (Iland.EQ.Ilandice) ) THEN
+               Eint = 0.d0
+               St = SettlingVelocity * FrictionVelocity(Iland)**2.d0
+               St = st / (g * nuair)
+
+            ELSE
+
+               Eint = 0.99d0*
+     $              Diameter/(LargeRadius(Iland,Iseason)+Diameter)
+     $              + 0.01d0
+     $              *Diameter/(SmallRadius(Iland,Iseason)+Diameter)
+
+               St = SettlingVelocity * FrictionVelocity(Iland)
+     &              / (g * LargeRadius(Iland,Iseason))
+            ENDIF
+
+C-----------------------------------------------------------------------
+C     3 - Computing Eb
+
+            Eb = nuair / Dbrownian
+            Eb = Eb**(-Gamma(Iland))
+
+C-----------------------------------------------------------------------
+C     4 - Computing Eim
+
+            Eim = ( St/(St+Alpha(Iland)) )**2.d0
+
+C-----------------------------------------------------------------------
+C     5 - Computing rsol
+
+            sol = Eb + Eim + Eint
+            sol = FrictionVelocity(Iland) * sol * DEXP(-DSQRT(st))
+            Rsol(Iland) = 1.d0 / (3.d0 * sol)
+
+         ENDIF
+      ENDDO                     !End of cycle on Land.
+
+      END

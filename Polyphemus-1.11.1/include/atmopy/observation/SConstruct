@@ -1,0 +1,65 @@
+# Copyright (C) 2010 INRIA
+# Author(s): Vivien Mallet, Claire Mouton
+#
+# This file is part of AtmoPy library, a tool for data processing and
+# visualization in atmospheric sciences.
+#
+# AtmoPy is developed in the INRIA - ENPC joint project-team CLIME and in
+# the ENPC - EDF R&D joint laboratory CEREA.
+#
+# AtmoPy is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free
+# Software Foundation; either version 2 of the License, or (at your option)
+# any later version.
+#
+# AtmoPy is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# For more information, visit the AtmoPy home page:
+#     http://cerea.enpc.fr/polyphemus/atmopy.html
+
+import distutils.sysconfig, os, glob, sys
+
+# Put the path to Polyphemus.
+# Also editable from command line with option "polyphemus".
+polyphemus_path = "../../../"
+verdandi_path = "../../verdandi/"
+
+if not os.path.isdir(verdandi_path):
+    print "[ERROR] In Atmopy \"observation/\":"
+    print "    Verdandi not found at \"" + verdandi_path + "\""
+    print "    Please install Verdandi to use the Atmopy observation module."
+    Return()
+
+include_path = """../../
+                  ../../Talos
+                  ../../verdandi
+                  ../../verdandi/share
+                  """
+
+library_list = "python lua"
+
+exclude_target = glob.glob("*.cpp") # excludes all default targets.
+
+SConscript(polyphemus_path + "/scons/main")(globals())
+
+########
+# SWIG #
+########
+
+
+env_swig = env.Clone()
+
+env_swig.Replace(SWIGFLAGS = ["-Wall", "-c++", "-python"])
+env_swig.Append(SWIGPATH = env_swig["CPPPATH"])
+env_swig.Append(CPPFLAGS = ["-DSELDON_EXCLUDE_FROM_EXPLICIT_INSTANTIATION",
+                            "-DSELDON_DEBUG_LEVEL_4"])
+env_swig.Replace(SHLIBPREFIX = "")
+
+env_swig.SharedLibrary("_manager.so", ["manager.cpp", "manager.i"])
+if env_swig['PLATFORM'] != 'win32':
+    env_swig['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 1
+
+env_swig.Alias(["swig", "manager.py"], "_manager.so")

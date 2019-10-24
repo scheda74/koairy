@@ -1,4 +1,4 @@
-from app.database.database import DB
+from database.database import DB
 import json
 from bson import ObjectId
 

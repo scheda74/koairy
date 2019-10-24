@@ -1,0 +1,34 @@
+[situation]
+
+# Temperature (Celsius degrees)
+Temperature = 10
+
+# Wind angle (degrees)
+Wind_angle = 0
+
+# Wind speed (m/s)
+Wind = 3
+
+# Boundary height (m)
+Boundary_height = 1000
+
+# Stability class
+Stability = C
+
+# Pressure (Pa)
+Pressure = 101325.
+
+# Attenuation
+Attenuation = 0.99
+
+# Specific humidity
+Specific_humidity = 0.011
+
+# Photolysis rates of the species
+Photolysis_rate =
+ALD 2.74581e-06 GLYform 4.58622e-05 GLYmol 4.63453e-05 H2O2 5.04327e-06 HCHOmol 2.95972e-05 HCHOrad 1.90028e-05 HKET 4.91193e-07 HNO3 2.13667e-07 HNO4 3.87569e-06 HONO 0.00131391 HOP 4.96263e-06 KETONE 4.91193e-07 MACR 0.000358261 MGLY 0.00013251 MHP 4.96263e-06 NO2 0.00731999 NO3NO 0.0193996 NO3NO2 0.157498 O3O1D 1.06414e-05 O3O3P 0.0004013 ORGNIT 6.41837e-07 PAA 1.41212e-06 UDC 0.000397305
+
+# Background concentrations of the species
+Background_concentration =
+O3 40.
+

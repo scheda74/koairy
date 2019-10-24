@@ -1,0 +1,200 @@
+C-----------------------------------------------------------------------
+C     Copyright (C) 2001-2007, ENPC - INRIA - EDF R&D
+C
+C     This file is part of the air quality modeling system Polyphemus.
+C
+C     Polyphemus is developed in the INRIA - ENPC joint project-team
+C     CLIME and in the ENPC - EDF R&D joint laboratory CEREA.
+C
+C     Polyphemus is free software; you can redistribute it and/or modify
+C     it under the terms of the GNU General Public License as published
+C     by the Free Software Foundation; either version 2 of the License,
+C     or (at your option) any later version.
+C
+C     Polyphemus is distributed in the hope that it will be useful, but
+C     WITHOUT ANY WARRANTY; without even the implied warranty of
+C     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+C     General Public License for more details.
+C
+C     For more information, visit the Polyphemus web site:
+C     http://cerea.enpc.fr/polyphemus/
+C-----------------------------------------------------------------------
+
+
+      SUBROUTINE aero_rst (Iseason, Nland, LUC, Zref,
+     $     Temperature, SurfaceTemperature, Pressure, SurfacePressure,
+     $     SnowHeight, FirstLevelWindModule, RoughnessHeight,
+     $     FrictionVelocity, Ra)
+
+C------------------------------------------------------------------------
+C
+C     -- DESCRIPTION
+C
+C     This routine computes aerodynamic resistances.
+C
+C------------------------------------------------------------------------
+C
+C     -- INPUT VARIABLES
+C
+C     Iseason: season index.
+C     Nland: Number of land use coverage.
+C     LUC: Land Use Coverage percentage in the cell. ([0,1])
+C     Zref: Height of the first vertical node. ([m])
+C     Temperature: Temperature in the cell. ([K])
+C     SurfaceTemperature: Surface temperature in the cell. ([K])
+C     Pressure: Pressure in the cell. ([Pa])
+C     SurfacePressure: Surface pressure in the cell. ([Pa])
+C     SnowHeight: Snow height in the cell. ([m])
+C     FirstLevelWindModule: First level wind module in the cell. ([m/s])
+C     RoughnessHeight: Roughness height in the cell. ([m])
+C
+C     -- OUTPUT VARIABLES
+C
+C     FrictionVelocity: Friction velocity. ([m/s])
+C     Ra: aerodynamic resistance ([s/m])
+C
+C------------------------------------------------------------------------
+
+      IMPLICIT NONE
+
+C     -- Inputs.
+      INTEGER Nland
+      DOUBLE PRECISION LUC(Nland)
+      DOUBLE PRECISION Zref
+      DOUBLE PRECISION Temperature
+      DOUBLE PRECISION SurfaceTemperature
+      DOUBLE PRECISION Pressure
+      DOUBLE PRECISION SurfacePressure
+      DOUBLE PRECISION SnowHeight
+      DOUBLE PRECISION FirstLevelWindModule
+      DOUBLE PRECISION RoughnessHeight(Nland,5)
+
+C     -- Local variables.
+C     Perfect gas constant for air. ([J/Kg/K])
+      DOUBLE PRECISION Rair
+C     Specific heat to constant pressure. ([J/Kg/K])
+      DOUBLE PRECISION Cp
+C     Gravity acceleration. ([m/s^2])
+      DOUBLE PRECISION g
+C     Van Karman constant.
+      DOUBLE PRECISION Ka
+C     Potential temperature. ([K])
+      DOUBLE PRECISION PotentialTemperature
+      DOUBLE PRECISION SurfacePotentialTemperature
+C     Richardson number.
+      DOUBLE PRECISION Richardson
+C     Local roughness height. ([m])
+      DOUBLE PRECISION z0
+C     Local heat roughness height. ([m])
+      DOUBLE PRECISION z0t
+      DOUBLE PRECISION alu
+      DOUBLE PRECISION alt
+      DOUBLE PRECISION Zsz0t
+      DOUBLE PRECISION AbsRichardson
+      DOUBLE PRECISION ThermalStability
+C     Constants of J.F. LOUIS's formulas.
+      DOUBLE PRECISION b,d,c
+      PARAMETER (b=5.d0,c=b,d=b)
+      INTEGER i
+C     LUC index.
+      INTEGER Iland
+C     LUC index for water body.
+      INTEGER Ilandsea
+C     Season index.
+      INTEGER Iseason
+
+C     -- Outputs.
+      DOUBLE PRECISION FrictionVelocity(Nland)
+      DOUBLE PRECISION Ra(Nland)
+
+      do i=1,Nland
+         Ra(i)=0.D0
+         FrictionVelocity(i)=0.D0
+      enddo
+
+C------------------------------------------------------------------------
+C     0. Setup
+
+      Rair = 282.d0             ! Pr * 1.013D5 * 1.d3 / 28.8d-3
+      Cp = 1005.d0
+      g = 9.81d0
+      Ka = 0.4d0
+      Ilandsea=16
+
+C------------------------------------------------------------------------
+C     1. Computation of potential temperature and Richardson number.
+
+      SurfacePotentialTemperature=SurfaceTemperature*
+     $     (SurfacePressure/1.d5)**(-Rair/Cp)
+      PotentialTemperature=Temperature*(Pressure/1.d5)**(-Rair/Cp)
+
+      DO Iland=1,Nland
+         FrictionVelocity(Iland)=0.d0
+
+         IF (LUC(Iland).GT.0.D0) THEN
+            Richardson = 2.d0 * g * Zref *
+     &           (PotentialTemperature-SurfacePotentialTemperature) /
+     $           (PotentialTemperature+SurfacePotentialTemperature) /
+     &           FirstLevelWindModule**2.D0
+
+C------------------------------------------------------------------------
+C     2. Computation of dynamical and thermal roughness length
+
+C     If Iland is sea and zo depends on u*, it is then recompute
+C     iteratively using Charnock formula.
+            IF(Iland.EQ.Ilandsea) THEN ! Case of the sea
+
+               z0 = RoughnessHeight(Iland,Iseason)
+               z0t = z0 * DEXP(-2.d0)
+
+               DO i=1,5         ! 5 loops are necessary to converge
+                  CALL ustar(Richardson, FirstLevelWindModule, Zref, z0,
+     $                 z0t, FrictionVelocity(Iland))
+
+                  z0 = 0.0144d0 * FrictionVelocity(Iland)**2.d0 / g
+                  z0t = z0 * DEXP(-2.d0)
+               ENDDO
+
+C     When snow depth is > 1cm, ground's characteristics change,
+C     we take then Iseason=5.
+            ELSEIF(SnowHeight.GE.1.D-2) THEN ! Case of snow
+               z0 = RoughnessHeight(Iland,5)
+               z0t = z0 * DEXP(-2.d0)
+            ELSE
+               z0 = RoughnessHeight(Iland,Iseason)
+               z0t = z0 * DEXP(-2.d0)
+            ENDIF
+
+C------------------------------------------------------------------------
+C     3. Computation of thermic stability
+
+            alu =  Ka / DLOG( (Zref+z0)/z0)
+            Zsz0t=(Zref+z0t)/z0t
+            alt = Ka / DLOG( Zsz0t )
+            AbsRichardson=dabs(Richardson)
+
+            IF(Richardson.LE.0.d0)THEN
+               ThermalStability = 1.d0 + 3.d0*b*AbsRichardson /
+     $              (1.d0 + 3.d0*b*c*alu*alt*sqrt(AbsRichardson)*
+     $              sqrt(1.d0-1.d0/Zsz0t)*((Zsz0t**0.33d0-1.d0)**1.5D0))
+            ELSE
+               ThermalStability = 1.d0 / (1.d0 + 3.d0*b*AbsRichardson*
+     $              (1.d0+d*AbsRichardson)**.5d0)
+            ENDIF
+
+C------------------------------------------------------------------------
+C     4. Computation of aerodynamic resistance
+
+            Ra(Iland) = alu*alt* ThermalStability * FirstLevelWindModule
+            Ra(Iland) = DMAX1(Ra(Iland),1.d-10)
+            Ra(Iland) = 1.d0/Ra(Iland)
+
+C------------------------------------------------------------------------
+C     5. Computation of friction velocity
+
+            CALL ustar(Richardson, FirstLevelWindModule, Zref, z0, z0t,
+     $           FrictionVelocity(Iland))
+         ENDIF
+      ENDDO                     ! End loop on LUC
+
+      END

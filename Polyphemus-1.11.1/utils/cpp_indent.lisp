@@ -1,0 +1,15 @@
+(defun cpp_indent ()
+  (c-set-style "gnu")
+  (c++-mode)
+  (indent-region (point-min) (point-max) ())
+  (save-buffer))
+
+(defun cpp_indent_all ()
+  (save-excursion
+    (interactive)
+    (dolist (buffer (buffer-list))
+      (when (not  (string= "*scratch*" (buffer-name)))
+	(set-buffer buffer)
+	(c++-mode)
+	(indent-region (point-min) (point-max) nil)
+	(save-buffer)))))

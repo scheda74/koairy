@@ -1,0 +1,5 @@
+# species, molecular weight (g/mol), speciation for each SNAP.
+
+NO	30.    90.    90.    90.    90.    90.    90.    90.    90.    90.    90.
+NO2	46.    9.2    9.2    9.2    9.2    9.2    9.2    9.2    9.2    9.2    9.2
+HONO	47.    0.8    0.8    0.8    0.8    0.8    0.8    0.8    0.8    0.8    0.8

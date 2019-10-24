@@ -1,0 +1,45 @@
+[source]
+
+Abscissa: 2.05
+Ordinate: 46.85
+Altitude: 25.
+
+Species: NO2 SO2
+
+Type: puff
+Rate: 1.e+9 1.e+9
+Quantity: 600.e+9 600.e+9
+Date_beg: 2001-04-22-12h10
+Date_end: 2001-04-22-12h20
+
+# Source velocity (m/s)
+Velocity = 10.1
+
+# Source temperature (Celsius degrees)
+Temperature = 60.
+
+# Source diameter (m)
+Diameter = 2.7
+
+
+[source]
+
+Abscissa: 2.05
+Ordinate: 48.0
+Altitude: 25.
+
+Species: NO2 SO2
+
+Type: continuous
+Rate: 1.e+9 1.e+9
+Date_beg: 2001-04-22-12h10
+Date_end: 2001-04-22-16h00
+
+# Source velocity (m/s)
+Velocity = 10.1
+
+# Source temperature (Celsius degrees)
+Temperature = 60.
+
+# Source diameter (m)
+Diameter = 2.7

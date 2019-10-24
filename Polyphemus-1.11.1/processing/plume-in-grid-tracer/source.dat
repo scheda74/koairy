@@ -1,0 +1,27 @@
+[source]
+
+ID: 1
+
+Abscissa: 30.25 # degrees
+Ordinate: 51.28 # degrees
+Altitude: 300. # meters
+
+Species: Cs137
+
+Type: continuous
+# Rate per second, calculate so the total release is about 8.5e16 Bq.
+Rate: 9.8e11
+Date_beg: 1986-04-25_21h23
+Date_end: 1986-05-05_21h23
+
+# The following values are not used.
+# Source velocity (m/s)
+Velocity = 0.
+# Source temperature (Celsius degrees)
+Temperature = 0.
+
+# Source diameter (m)
+Diameter = 0.
+
+IsVolumeSource : no
+Source_water: 0.0

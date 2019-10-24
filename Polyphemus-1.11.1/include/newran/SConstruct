@@ -1,0 +1,108 @@
+# Copyright (C) 2007-2008, ENPC - INRIA - EDF R&D
+#     Author(s): Pierre Tran
+#
+# This file is part of the air quality modeling system Polyphemus.
+#
+# Polyphemus is developed in the INRIA - ENPC joint project-team CLIME and in
+# the ENPC - EDF R&D joint laboratory CEREA.
+#
+# Polyphemus is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free
+# Software Foundation; either version 2 of the License, or (at your option)
+# any later version.
+#
+# Polyphemus is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# For more information, visit the Polyphemus web site:
+#      http://cerea.enpc.fr/polyphemus/
+
+import commands, os, shutil, sys, tempfile
+
+newran_pkg = "newran03.tar.gz"
+
+# Downloads the newran package if necessary.
+if not os.path.isfile(newran_pkg):
+    cache_path = os.path.join(tempfile.gettempdir(), "polyphemus")
+    cached_newran_pkg = os.path.join(cache_path, newran_pkg)
+    if not os.path.isfile(cached_newran_pkg):
+        if not os.path.exists(cache_path):
+            os.makedirs(cache_path)
+        newran_host="http://www.robertnz.net"
+        print "Downloading Newran library from \"" + newran_host + "\"."
+
+        newran_url = newran_host + "/ftp/" + newran_pkg
+        download_cmd = "wget " + newran_url  + " -O " + cached_newran_pkg
+        s, o = commands.getstatusoutput(download_cmd)
+        if s != 0:
+            print "[WARNING] Failed downloading Newran library:"
+            print o
+            print "return status: ", s
+            exit(s)
+    shutil.copyfile(cached_newran_pkg, newran_pkg)
+
+
+newran_source_file_list = """
+newran1.cpp
+newran2.cpp
+myexcept.cpp
+simpstr.cpp
+extreal.cpp
+include.h
+newran.h
+myexcept.h
+extreal.h
+simpstr.h
+""".split()
+
+for source_file in newran_source_file_list:
+    if not os.path.isfile(source_file):
+        # Extracts the missing source file.
+        if os.path.isfile(newran_pkg):
+            tar_cmd = "tar -zxvf " + newran_pkg + " " + source_file
+            s, o = commands.getstatusoutput(tar_cmd)
+            if source_file == "include.h" and s == 0:
+                l = "//#define use_namespace"
+                import fileinput
+                for line in fileinput.input("include.h", inplace = 1):
+                    if l in line:
+                        line = line.lstrip("/")
+                    sys.stdout.write(line)
+
+# Ensures the directory .newran does exist in the HOME directory with the
+# required files.
+dot_newran_file_list = """
+fm.txt
+lgm.txt
+lgm_mix.txt
+mother.txt
+mt19937.txt
+multwc.txt
+wh.txt
+""".split()
+
+dot_newran_dir = os.environ['HOME'] + "/.newran/"
+if not os.path.isdir(dot_newran_dir):
+    os.mkdir(dot_newran_dir)
+
+for txt_file in dot_newran_file_list:
+    if not os.path.isfile(dot_newran_dir + txt_file):
+        # Extracts the missing source file.
+        if os.path.isfile(newran_pkg):
+            tar_cmd = "tar -zxvf " + newran_pkg + " " + txt_file
+            commands.getstatusoutput(tar_cmd)
+
+        if os.path.isfile(txt_file):
+            s, o = \
+            commands.getstatusoutput("cp " + txt_file + " " + dot_newran_dir)
+            if s != 0:
+                print "[WARNING] \"" + txt_file + "\" could not be copied" + \
+                      " in \".newran\"."
+
+env = Environment(ENV = os.environ)
+env.Append(CCFLAGS = "-fPIC")
+lib = env.Library('newran', ['newran1.cpp', 'newran2.cpp', 'myexcept.cpp',
+                             'simpstr.cpp', 'extreal.cpp'])
+Return("lib")

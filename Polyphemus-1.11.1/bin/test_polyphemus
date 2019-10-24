@@ -1,0 +1,203 @@
+#!/usr/bin/env bash
+
+# Copyright (C) 2015, ENPC
+#     Author(s): Sylvain Doré
+#
+# This file is part of the air quality modeling system Polyphemus.
+#
+# Polyphemus is developed in the INRIA - ENPC joint project-team CLIME and in
+# the ENPC - EDF R&D joint laboratory CEREA.
+#
+# Polyphemus is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free
+# Software Foundation; either version 2 of the License, or (at your option)
+# any later version.
+#
+# Polyphemus is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# For more information, visit the Polyphemus web site:
+#      http://cerea.enpc.fr/polyphemus/
+
+script_directory=$(dirname $(readlink -f $0))
+current_directory=$(readlink -f $(pwd))
+polyphemus_root=$($script_directory/polyphemus_dir)
+
+if [[ ! $polyphemus_root ]]; then
+  echo "Cannot find the Polyphemus root from the current directory." 1>&2
+  exit 1
+fi
+
+export PATH=$polyphemus_root/bin:$PATH
+
+function help {
+    cat <<EOF
+This script can be used to run ipython notebook or pytest in a Polyphemus environment.
+
+To launch ipython notebook:
+==========================
+  $0 notebook [--polyphemus|-p POLYPHEMUS] [--ref-polyphemus|-r REF_POLYPHEMUS] [-- IPYTHON_NOTEBOOK_ARGS...]
+** Arguments:
+- POLYPHEMUS: the path to the target Polyphemus, by default the enclosing Polyphemus.
+- REF_POLYPHEMUS: the path to a reference version of Polyphemus used to compare results. By default, is a "reference/" directory is side by side with the current Polyphemus, it is taken as reference.
+- IPYTHON_NOTEBOOK_ARGS...: additional arguments to pass to the "ipython notebook" command.
+
+To launch pytest automatic testing:
+==================================
+  $0 pytest [--polyphemus|-p POLYPHEMUS] [--ref-polyphemus|-r REF_POLYPHEMUS] [--log LOG_FILE] [--disable-build] [--no-parallel] [-- PYTEST_ARGS...]
+** Arguments:
+- POLYPHEMUS: the path to the target Polyphemus, by default the enclosing Polyphemus.
+- REF_POLYPHEMUS: the path to a reference version of Polyphemus used to compare results. By default, is a "reference/" directory is side by side with the current Polyphemus, it is taken as reference.
+- LOG_FILE: set the log filename, by default "test.log".
+- PYTEST_ARGS...: additional arguments to pass to the "py.test" command.
+** Switches:
+- --disable-build: disables Polyphemus build (usefull when running tests in parallel that would try to build the same files at the same time)
+- --no-parallel: disables pytest parallel test execution (usefull running several tests that use OpenMP/MPI)
+
+To display this help message:
+============================
+  $0 help
+
+EOF
+}
+
+function abort {
+    echo -e "\n*** Bad command line argument. ***\n"
+    help
+    exit 1
+}
+
+command=
+log_file="test.log"
+core_count=$(grep -e "^processor.*:" < /proc/cpuinfo |wc -l)
+if [[ ! $core_count ]]; then
+    core_count=6
+fi
+
+case "$1" in
+    notebook)
+        command="notebook"
+        shift
+        ;;
+    pytest)
+        command="pytest"
+        shift
+        ;;
+    help)
+        help
+        exit 0
+        ;;
+    *)
+        abort
+        ;;
+esac
+
+if [[ ! $command ]]; then
+    abort
+fi
+
+while [[ $# > 0 ]]; do
+    case "$1" in
+        --polyphemus|-p)
+            POLYPHEMUS=$2
+            shift; shift
+            ;;
+        --ref-polyphemus|-r)
+            REF_POLYPHEMUS=$2
+            shift; shift
+            ;;
+        --interactive|-i)
+            is_interactive="true"
+            shift;
+            ;;
+        --disable-build)
+            export PATH=$script_directory/disabled_build:$PATH
+            shift;
+            ;;
+        --log)
+            log_file=$2
+            shift; shift
+            ;;
+        --no-parallel)
+            core_count=1
+            shift
+            ;;
+        @*)
+            # TODO: put flag config inside SConstruct files that gets included
+            # according to scons arguments.
+            if ! type scons-all >& /dev/null; then
+                echo "*** Error: cannot find scons-all"
+                echo "*** scons-all is needed for @ argument"
+            else
+                option_file=$(which scons-all).${1:1}
+                if [[ ! -r $option_file ]]; then
+                    echo "*** Error: cannot open \"$option_file\""
+                    exit 1
+                fi
+                SCONSFLAGS+=" "$(while read line; do eval echo -n \" \" $line; done < $option_file)
+                export SCONSFLAGS
+            fi
+            shift
+            ;;
+        --)
+            shift
+            break # The remaining arguments are for pytest of ipython notebook.
+            ;;
+        *)
+            abort
+            ;;
+    esac
+done
+
+if [[ ! $POLYPHEMUS ]]; then
+    # Falls back to the enclosing Polyphemus installation.
+    POLYPHEMUS=$polyphemus_root
+fi
+
+if [[ ! $REF_POLYPHEMUS && $(basename $POLYPHEMUS) != "reference" ]]; then
+    # Falls back to a "reference" directory side by side with the current Polyphemus.
+    REF_POLYPHEMUS=$(dirname "$POLYPHEMUS")/reference
+fi
+
+export POLYPHEMUS REF_POLYPHEMUS
+
+export PYTHONPATH=$POLYPHEMUS/include:$PYTHONPATH
+
+# Avoids stopping a notebook for a mem leak (when using '-fno-sanitize-recover').
+export LSAN_OPTIONS=exitcode=0
+
+cat <<EOF
+
+POLYPHEMUS=$POLYPHEMUS
+($(head -n 1 $POLYPHEMUS/version))
+
+EOF
+
+if [[ $REF_POLYPHEMUS ]]; then
+    cat <<EOF
+REF_POLYPHEMUS=$REF_POLYPHEMUS
+($(head -n 1 $REF_POLYPHEMUS/version))
+
+EOF
+fi
+
+if [[ $core_count > 1 ]]; then
+    PYTEST_ARGS="-n $core_count $PYTEST_ARGS"
+fi
+
+case "$command" in
+    notebook)
+        ipython notebook "$@"
+        ;;
+    pytest)
+    py.test -l -c $POLYPHEMUS/include/test_utils/pytest.ini \
+            $PYTEST_ARGS "$@" 2>&1 | tee $log_file
+        status=${PIPESTATUS[0]}
+        if [[ $status != 0 ]]; then
+            echo "[ERROR] Test failure with $status exit status."
+            exit $status
+        fi
+        ;;
+esac

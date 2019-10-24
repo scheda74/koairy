@@ -1,0 +1,118 @@
+2              O3              NO                                 1             NO2
+2              O3             NO2                                 1             NO3
+2              O3              OH                                 1             HO2
+2              O3             HO2                                 1              OH
+2              NO             HO2                                 2              OH             NO2
+3             NO2              OH               M                 1            HNO3
+2             HO2              OH                                 0
+2            H2O2              OH                                 1             HO2
+2            HNO3              OH                                 1             NO3
+2              CO              OH                                 2             HO2             CO2
+2             HO2             HO2                                 1            H2O2
+3             HO2             HO2             H2O                 1            H2O2
+2             NO3             HO2                                 2             NO2              OH
+2             NO3            H2O2                                 2            HNO3             HO2
+2             NO3              NO                                 1             NO2
+2             NO2             NO3                                 2              NO             NO2
+3             NO2             NO3               M                 1            N2O5
+2            N2O5               M                                 2             NO3             NO2
+3              NO              OH               M                 1            HONO
+2            HONO              OH                                 1             NO2
+3              NO              NO              O2                 1             NO2
+2            N2O5             H2O                                 1            HNO3
+3            N2O5             H2O             H2O                 1            HNO3
+1             NO2                                                 2            HONO             NO2
+2             SO2           CH3O2                                 3           H2SO4            HCHO             HO2
+3             SO2              OH               M                 2           H2SO4             HO2
+2            obio              NO                                 3             NO2             HO2            ISNI
+2            obio             HO2                                 1           obioH
+2            obio             NO3                                 2             NO2             HO2
+2           CH3O2            obio                                 2             HO2            HCHO
+2          CH3COO            obio                                 3            HCHO             HO2             CO2
+2           obioH              OH                                 1              OH
+2            oRO2              NO                                 2             NO2             HO2
+2            oRO2             HO2                                 1           oROOH
+2            oRO2            oRO2                                 1             HO2
+2            oRO2             NO3                                 2             NO2             HO2
+2           CH3O2            oRO2                                 3            HCHO             HO2           CH3OH
+2          CH3COO            oRO2                                 3           CH3O2             CO2             HO2
+2           oROOH              OH                                 2              OH            oRO2
+2             MAC              OH                                 3          CH3COE             CO2            oPAN
+2            oPAN              NO                                 2             NO2             HO2
+2            oPAN             NO3                                 2             NO2             HO2
+2            oPAN             HO2                                 1            PANH
+2            PANH              OH                                 1            oPAN
+2            oPAN           CH3O2                                 2            HCHO             HO2
+2            oPAN          CH3COO                                 3           CH3O2             CO2             HO2
+3            oPAN             NO2               M                 1           toPAN
+2           toPAN               M                                 2            oPAN             NO2
+2           toPAN              OH                                 2             NO3             CO2
+2            C2H4             NO3                                 3          CARNIT            HCHO            oRN1
+2            C3H6             NO3                                 5          CARNIT            HCHO          CH3CHO             HO2            oRN1
+2          APINEN             NO3                                 3          CH3CHO          CH3COE            oRN1
+2            ISNI              OH                                 6            oRN1          CH3CHO          CH3COE          MGLYOX            ISNI             HO2
+2            C5H8             NO3                                 6            oRN1            ISNI             MAC             MVK            HCHO             HO2
+2            oRN1              NO                                 1             NO2
+2            oRN1             NO3                                 1             NO2
+2            oRN1             HO2                                 1               X
+2             CH4              OH                                 1           CH3O2
+2            C2H6              OH                                 2          CH3CHO            oRO2
+2          NC4H10              OH                                 5          CH3COE          CH3CHO          CH3COO            oRO2             SOA
+3            C2H4              OH               M                 2            HCHO            oRO2
+3            C3H6              OH               M                 3            HCHO          CH3CHO            oRO2
+2            OXYL              OH                                 4          MEMALD          MGLYOX            oRO2             SOA
+2            C5H8              OH                                 4             MAC             MVK            HCHO            obio
+2          APINEN              OH                                 4          CH3CHO          CH3COE            obio             SOA
+2            HCHO              OH                                 2              CO             HO2
+2          CH3CHO              OH                                 1          CH3COO
+2          MEMALD              OH                                 3           GLYOX          MGLYOX            oRO2
+2          CH3COE              OH                                 2          CH3COY            oRO2
+2           GLYOX              OH                                 2              CO             HO2
+2          MGLYOX              OH                                 2          CH3COO              CO
+2             MVK              OH                                 6          MGLYOX            HCHO          CH3CHO          CH3COO            ISNI            oRO2
+2          CH3O2H              OH                                 1           CH3O2
+2             PPA              OH                                 1          CH3COO
+2          CH3O2H              OH                                 2            HCHO              OH
+2            HCHO             NO3                                 3              CO            HNO3             HO2
+2          CH3CHO             NO3                                 2          CH3COO            HNO3
+2           CH3O2             NO3                                 3            HCHO             HO2             NO2
+2          CH3COO             NO3                                 3           CH3O2             NO2             CO2
+2            C2H4              O3                                 4            HCHO             HO2              H2              CO
+2            C3H6              O3                                 8            HCHO          CH3CHO           CH3O2             HO2              OH              H2              CO             CH4
+2            C5H8              O3                                 8             MAC             MVK              OH            C3H6            HCHO             HO2              CO              O3
+2             MAC              O3                                 6          MGLYOX            HCHO              OH             HO2              CO              O3
+2             MVK              O3                                 7          MGLYOX            HCHO          CH3CHO              OH             HO2              CO              O3
+2          APINEN              O3                                 8          CH3CHO          CH3COE              CO            oRO2            HCHO              OH             HO2             SOA
+2           CH3O2              NO                                 3            HCHO             NO2             HO2
+2          CH3COO              NO                                 3           CH3O2             NO2             CO2
+2           CH3O2             HO2                                 1          CH3O2H
+2          CH3COO             HO2                                 2             PPA              O3
+2           CH3O2           CH3O2                                 2            HCHO             HO2
+2          CH3COO           CH3O2                                 4           CH3O2             CO2            HCHO             HO2
+2          CH3COO          CH3COO                                 2           CH3O2             CO2
+3          CH3COO             NO2               M                 1             PAN
+2             PAN               M                                 2          CH3COO             NO2
+2             PAN              OH                                 3            HCHO             NO3             CO2
+2          CARNIT              OH                                 3          CH3CHO              CO             NO2
+1              O3                                                 1              OH
+1             NO2                                                 2              NO              O3
+1             NO3                                                 1              NO
+1             NO3                                                 2             NO2              O3
+1            H2O2                                                 1              OH
+1            HNO3                                                 2             NO2              OH
+1            HONO                                                 2              NO              OH
+1            HCHO                                                 2              CO             HO2
+1            HCHO                                                 2              CO              H2
+1          CH3CHO                                                 3           CH3O2             HO2              CO
+1          CH3COY                                                 1          CH3COO
+1          MGLYOX                                                 3          CH3COO             HO2              CO
+1           GLYOX                                                 3             HO2              CO              H2
+1          MEMALD                                                 5             MVK          MALEIC            oPAN            HCHO             HO2
+1          CH3COE                                                 3          CH3COO          CH3CHO            oRO2
+1            N2O5                                                 2             NO2             NO3
+1          CH3O2H                                                 3            HCHO              OH             HO2
+1             PPA                                                 3           CH3O2             CO2              OH
+1             PAN                                                 2          CH3COO             NO2
+1            PANH                                                 2              OH             HO2
+1           oROOH                                                 2              OH             HO2
+1           obioH                                                 2              OH             HO2

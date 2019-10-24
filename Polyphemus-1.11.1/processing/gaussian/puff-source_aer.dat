@@ -1,0 +1,86 @@
+[aerosol_source]
+
+# Source coordinates (meters)
+Abscissa: 0.
+Ordinate: 0.
+Altitude: 05.
+# Species name
+Species_name: aer1
+
+# Release time (seconds)
+Release_time: 0.
+# Total mass released (mass)
+Quantity: 10.
+
+# Source velocity (m/s)
+Velocity = 10.1
+# Source temperature (Celsius degrees)
+Temperature = 60.
+# Source diameter (m)
+Diameter = 0.08
+
+
+[aerosol_source]
+
+# Source coordinates (meters)
+Abscissa: 15.
+Ordinate: 10.
+Altitude: 0.5
+# Species name
+Species_name: aer1
+
+# Release time (seconds)
+Release_time: 2.
+# Total mass released (mass)
+Quantity: 10.
+
+
+# Source velocity (m/s)
+Velocity = 10.1
+# Source temperature (Celsius degrees)
+Temperature = 60.
+# Source diameter (m)
+Diameter = 0.08
+
+[aerosol_source]
+
+# Source coordinates (meters)
+Abscissa: 0.
+Ordinate: 0.
+Altitude: 0.5
+# Species name
+Species_name: aer2
+
+# Release time (seconds)
+Release_time: 3.
+# Total mass released (mass)
+Quantity: 10.
+
+# Source velocity (m/s)
+Velocity = 10.1
+# Source temperature (Celsius degrees)
+Temperature = 60.
+# Source diameter (m)
+Diameter = 0.08
+
+
+[aerosol_source]
+
+# Source coordinates (meters)
+Abscissa: 0.
+Ordinate: 10.
+Altitude: 0.5
+# Species name
+Species_name: aer3
+
+# Release time (seconds)
+Release_time: 0.
+# Total mass released (mass)
+Quantity: 10.
+
+# Source velocity (m/s)
+Velocity = 10.1
+# Source temperature (Celsius degrees)
+Temperature = 60.
+# Source diameter (m)
+Diameter = 0.08

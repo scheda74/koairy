@@ -9,7 +9,7 @@ import xmltodict
 import json
 import asyncio
 from lxml import etree
-from app.simulation.constants import Constants
+from simulation.constants import Constants
 
 # export SUMO_HOME="/usr/local/opt/sumo/share/sumo"
 

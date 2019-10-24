@@ -1,0 +1,64 @@
+# Copyright (C) 2008, ENPC - INRIA - EDF R&D
+#     Author(s): Vivien Mallet
+#
+# This file is part of the air quality modeling system Polyphemus.
+#
+# Polyphemus is developed in the INRIA - ENPC joint project-team CLIME and in
+# the ENPC - EDF R&D joint laboratory CEREA.
+#
+# Polyphemus is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free
+# Software Foundation; either version 2 of the License, or (at your option)
+# any later version.
+#
+# Polyphemus is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# For more information, visit the Polyphemus web site:
+#      http://cerea.enpc.fr/polyphemus/
+
+# Put the path to Polyphemus.
+# Also editable from command line with option "polyphemus".
+
+import os, sys
+
+polyphemus_path = "../../"
+verdandi_path = polyphemus_path + "include/verdandi/"
+
+if not os.path.isdir(verdandi_path):
+    print "[ERROR] In \"postprocessing/ground_observation\":"
+    print "    Verdandi not found at \"" + verdandi_path + "\"."
+    print "    Please install Verdandi to use the ground observation postprocessing."
+    Return()
+
+# Include paths: put the absolute paths, the relative paths or the paths into
+# the Polyphemus directory.
+include_path = """include/
+                  include/Talos
+                  include/verdandi
+                  include/verdandi/share
+                  """
+
+library_list = "python lua"
+
+# [Optional] Compilers: put 'None' to use your default compilers.
+# Also editable from command line with options "cpp" and "fortran".
+cpp_compiler = None
+fortran_compiler = None
+
+# [Optional] Linker: put 'None' to use your C++ compiler (recommended).
+# Also editable from command line with option "link".
+linker = None
+
+# [Optional] Compiled library paths: put absolute paths, relative paths or
+# paths that are in the Polyphemus directory. Put the list of paths to
+# compiled libraries that may not be installed in your system root.
+library_path = None
+
+# [Optional] List of targets not to be compiled. Put 'None' is no target is to
+# be discarded.
+exclude_target = ""
+
+SConscript(polyphemus_path + "/scons/main")(globals())

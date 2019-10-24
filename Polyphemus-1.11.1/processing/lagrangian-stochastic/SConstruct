@@ -1,0 +1,68 @@
+# Copyright (C) 2008, ENPC - INRIA - EDF R&D
+#     Author(s): Vivien Mallet
+#
+# This file is part of the air quality modeling system Polyphemus.
+#
+# Polyphemus is developed in the INRIA - ENPC joint project-team CLIME and in
+# the ENPC - EDF R&D joint laboratory CEREA.
+#
+# Polyphemus is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free
+# Software Foundation; either version 2 of the License, or (at your option)
+# any later version.
+#
+# Polyphemus is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# For more information, visit the Polyphemus web site:
+#      http://cerea.enpc.fr/polyphemus/
+
+# Put the path to Polyphemus.
+# Also editable from command line with option "polyphemus".
+polyphemus_path = "../../"
+
+# Include paths: put the absolute paths, the relative paths or the paths into
+# the Polyphemus directory.
+include_path = """include/Talos
+                  include/SeldonData
+                  include/AtmoData
+                  include/newran
+                  include/modules/common
+                  include/modules/transport
+                  include/models
+                  include/driver/common
+                  include/driver/common/output_saver
+                  """
+
+# [Optional] Compilers: put 'None' to use your default compilers.
+# Also editable from command line with options "cpp" and "fortran".
+cpp_compiler = None
+fortran_compiler = None
+
+# [Optional] Linker: put 'None' to use your C++ compiler (recommended).
+# Also editable from command line with option "link".
+linker = None
+
+# [Optional] Compiled library paths: put absolute paths, relative paths or
+# paths that are in the Polyphemus directory. Put the list of paths to
+# compiled libraries that may not be installed in your system root.
+library_path = None
+
+# [Optional] List of targets not to be compiled. Put 'None' is no target is to
+# be discarded.
+# Here, "polair3d-unsplit" is excluded because it has not the same
+# dependencies as "polair3d". In order to compile "polair3d-unsplit", replace
+# "SplitAdvectionDST3" with "AdvectionDST3" in the 'include_path' list, and
+# replace "polair3d-unsplit" with "polair3d" in the 'exclude_target' list.
+exclude_target = None
+
+# [Optional] Exclude dependencies from the directories of
+# 'include_path'. Please provide a regular expression or a list of regular
+# expressions. Put 'None' to exclude nothing.
+# Example: to exclude all files in the form "*cl.f", set 'exclude_dependency'
+# to "cl\.f$".
+exclude_dependency = None
+
+SConscript(polyphemus_path + "/scons/main")(globals())

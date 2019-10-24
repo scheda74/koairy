@@ -1,0 +1,235 @@
+#n-alkanes
+ALK:1:methane:330000:
+ALK:2:ethane:36900:
+ALK:3:propane:9300:
+ALK:4:n-butane:191000:
+ALK:5:n-pentane:536000:
+ALK:6:n-hexane:410000:
+ALK:7:n-heptane:268000:
+ALK:8:n-octane:131000:
+ALK:9:n-nonane:45300:
+ALK:10:n-decane:42600:
+ALK:11:n-undecane::
+ALK:12:n-dodecane:1770:
+ALK:13:n-tridecane:1280:
+ALK:14:n-tetradecane:212:
+ALK:15:n-pentadecane:112:
+ALK:16:n-hexadecane:92:
+ALK:17:n-heptadecane:130:
+ALK:18:n-octadecane:150:13
+ALK:19:n-nonadecane:92:75
+ALK:20:n-eicosane:100:190
+ALK:21:n-heneicosane:32.0:214
+ALK:22:n-docosane:29.8:228
+ALK:23:n-tricosane:11.9:191
+ALK:24:n-tetracosane:8.9:503
+ALK:25:n-pentacosane:14.3:489
+ALK:26:n-hexacosane:9.6:764
+ALK:27:n-heptacosane:2.4:391
+ALK:28:n-octacosane:3.0:119
+ALK:29:n-nonacosane:2.8:95
+#branched alkanes
+ALK:4:isobutane::
+ALK:5:2,2-dimethylpropane::
+ALK:5:isopentane:1720000:
+ALK:6:2,2-dimethylbutane:195000:
+ALK:6:2,3-dimethylbutane:298000:
+ALK:6:2-methylpentane:827000:
+ALK:6:3-methylpentane:512000:
+ALK:7:2,4-dimethylpentane:354000:
+ALK:7:2-methylhexane:372000:
+ALK:7:2,3-dimethylpentane:714000:
+ALK:7:3-methylhexane:415000:
+ALK:8:2,2,4-trimethylpentane:1080000:
+ALK:8:2,5-dimethylhexane:205000:
+ALK:8:2,4-dimethylhexane:219000:
+ALK:8:2,3,4-trimethylpentane:412000:
+ALK:8:2,3-dimethylhexane:148000:
+ALK:8:2-methylheptane:159000:
+ALK:8:3-ethylhexane:205000:
+ALK:9:2,2,4-trimethylhexane::
+ALK:15:norfarnesane:638:
+ALK:15:farnesane:332:
+ALK:16:2,6,10-trimethyltridecane:80:
+ALK:18:norpristane:188:
+ALK:19:pristane:225:
+ALK:20:phytane:252:
+#n-alkenes
+OTH:2:ethene:716000:
+OTH:3:propene:436000:
+OTH:4:1-butene::
+OTH:4:trans-2-butene:69300:
+OTH:4:cis-2-butene:36100:
+OTH:5:1-pentene:51800:
+OTH:5:trans-2-pentene:77400:
+OTH:5:cis-2-pentene:42300:
+OTH:6:1-hexene:18400:
+OTH:6:trans-2-hexene:31600:
+OTH:6:cis-2-hexene:17300:
+#branched alkenes
+OTH:4:isobutene:427000:
+OTH:5:3-methyl-1-butene:22500:
+OTH:5:2-methyl-1-butene:84600:
+OTH:5:2-methyl-2-butene:126000:
+OTH:6:4-methyl-1-pentene::
+OTH:6:2-methyl-1-pentene:26600:
+OTH:6:2-methyl-2-pentene:50400:
+#diolefins
+OTH:4:1,3-butadiene::
+#alkynes
+OTH:2:ethyne:865000:
+#saturated cycloalkanes
+ALK:5:cyclopentane:85400:
+ALK:6:methylcyclopentane:604000:
+ALK:6:cyclohexane:238000:
+ALK:7:methylcyclohexane:274000:
+ALK:8:ethylcyclohexane::
+ALK:15:nonylcyclohexane:17:
+ALK:16:decylcyclohexane:14:
+ALK:17:undecylcyclohexane:16.7:
+ALK:18:dodecylcyclohexane:15.9:
+ALK:19:tridecylcyclohexane:22.4:21.5
+ALK:20:tetradecylcyclohexane:21.3:66.1
+ALK:21:pentadecylcyclohexane:20.4:162
+ALK:22:hexadecylcyclohexane::206
+ALK:23:heptadecylcyclohexane::362
+ALK:24:octadecylcyclohexane::265
+ALK:25:nonadecylcyclohexane::241
+ALK:26:eicosylcyclohexane::144
+ALK:27:heneicosylcyclohexane::75
+#unsaturated cycloalkenes
+OTH:5:cyclopentene:31700:
+#aromatic hydrocarbons
+HAP:6:benzene:473000:
+HAP:7:toluene:2360000:
+HAP:7:ethylbenzene:434000:
+HAP:8:m- & p-xylene:1720000:
+HAP:8:o-xylene:562000:
+HAP:9:isopropylbenzene::
+HAP:9:n-propylbenzene:97900:
+HAP:9:p-ethyltoluene:385000:
+HAP:9:m-ethyltoluene:175000:
+HAP:9:1,3,5-trimethylbenzene:210000:
+HAP:9:o-ethyltoluene:142000:
+HAP:9:1,2,4-trimethylbenzene:602000:
+HAP:10:naphthalene:50000:
+HAP:11:2-methylnaphthalene:50000:
+HAP:11:1-methylnaphthalene:30000:
+HAP:11:C2-naphthalenes:28500:
+HAP:11:C3-naphthalenes:5860:
+HAP:11:C4-naphthalenes:950:
+HAP:12:acenaphthylene:2180:
+HAP:12:acenaphthene:177:
+HAP:13:fluorene:358:20.1
+HAP:13:C1-fluorene:398:388
+HAP:13:C2-fluorene:490:384
+HAP:14:phenanthrene:622:434
+HAP:14:anthracene:148:106
+HAP:15:3-methylphenanthrene:236:181
+HAP:15:2-methylphenanthrene:291:195
+HAP:15:2-methylanthracene:94.1:66.7
+HAP:15:9-methylphenanthrene:131:107
+HAP:15:1-methylphenanthrene:122:65.1
+HAP:15:C2-MW 178 PAH:464:575
+HAP:15:C3-MW 178 PAH:176:216
+HAP:15:fluoranthene:160:152
+HAP:15:acephenanthrylene:50.8:57.8
+HAP:16:pyrene:160:217
+HAP:17:C1-MW 202 PAH:96.5:233
+HAP:18:benzo[ghi]fluoranthene:10.7:46.8
+HAP:18:cyclopenta[cd]pyrene:5.00:55.6
+HAP:18:benz[a]anthracene:4.80:51.9
+HAP:18:chrysene & triphenylene:5.07:52.1
+HAP:19:C1-MW 226 PAH::
+HAP:19:C1-MW 228 PAH:4.13:103
+HAP:20:benzo[k]fluoranthene::32.7
+HAP:20:benzo[b]fluoranthene::37.3
+HAP:20:benzo[j]fluoranthene::1.52
+HAP:20:benzo[e]pyrene::38.2
+HAP:20:benzo[a]pyrene::41.0
+HAP:20:perylene::
+HAP:22:indeno[1,2,3-cd]fluoranthene::28.5
+HAP:22:indeno[1,2,3-cd]pyrene::92.0
+HAP:24:coronene::101
+#tricyclic terpanes
+HAP:21:8beta,13alfa-dimethyl-14beta-n-butylpodocarpane:46.9:119
+HAP:21:8beta,13alfa-dimethyl-14beta-[3'-methylbutyl]podocarpane:20.2:76.0
+#diasteranes
+HAP:27:20S-13beta(H),17alfa(H)-diacholestane::73.6
+HAP:27:20R-13beta(H),17alfa(H)-diacholestane::45.2
+#hopanes
+HAP:27:22,29,30-trisnorneohopane:0.038:125
+HAP:27:17alfa(H)-22,29,30-trisnorhopane::69.0
+HAP:27:17alfa(H),21beta(H),29-norhopane:0.019:282
+HAP:27:17alfa(H),21beta(H)-hopane:0.033:321
+HAP:27:22R&S,17alfa(H),21beta(H)-30-homohopane::259
+HAP:27:22R&S,17alfa(H),21beta(H)-30-bishomohopane::196
+#steranes
+HAP:27:20R-5alfa(H),14beta(H),17beta(H)-cholestane::109
+HAP:27:20S-5alfa(H),14beta(H),17beta(H)-cholestane::61
+HAP:27:20R-5alfa(H),14alfa(H),17alfa(H)-cholestane::119
+HAP:27:20R&S-5alfa(H),14beta(H),17beta(H)-ergostane::139
+HAP:27:20R&S-5alfa(H),14beta(H),17beta(H)-sitostane::136
+#ethers
+OTH:5:MTBE:1620000:
+OTH:6:ETBE:34600:
+OTH:6:TAME:550:
+#aliphatic aldehydes
+OTH:1:formaldehyde:884000:
+OTH:2:acetaldehyde:301000:
+OTH:3:propanal:60000:
+OTH:4:butanal & isobutanal:31000:
+OTH:5:pentanal:27000:
+OTH:5:isopentanal:22080:
+OTH:6:hexanal:19000:
+OTH:7:heptanal:7300:
+OTH:8:octanal:2600:
+OTH:9:nonanal:2300:
+OTH:10:decanal:2200:
+OTH:11:undecanal:2500:
+OTH:12:dodecanal:870:
+OTH:13:tridecanal:5800:
+#olefinic aldehydes
+OTH:4:crotonaldehyde:114000:
+OTH:3:acrolein:3800:
+OTH:4:methacrolein:23000:
+#aliphatic ketones
+OTH:2:acetone:42000:
+OTH:4:2-butanone:32000:
+#aromatic aldehydes
+OTH:7:benzaldehyde:159000:
+OTH:8:o-tolualdehyde 390:45000:
+OTH:8:m- & p-tolualdehyde 1340:145000:
+OTH:9:2,5-dimethylbenzaldehyde 240:35000:
+OTH:10:naphthalenecarboxaldehydes 5.3::
+#aromatic ketones
+OTH:9:indanone:908:
+OTH:13:fluorenone::
+OTH:13:xanthone:30.8:
+OTH:14:9,10-anthracenedione:25.4:
+#dicarbonyls
+OTH:2:glyoxal:28000:
+OTH:3:methylglyoxal:10000:
+OTH:4:biacetyl:1800:
+#other carbonyls
+OTH:5:2-furaldehyde:1700:
+#n-alkanoic acids
+ALK:8:octanoic acid:86.0:
+ALK:9:nonanoic acid:80.6:
+ALK:10:decanoic acid:54.7:
+ALK:11:undecanoic acid:75.6:
+ALK:17:heptadecanoic acid::90.6
+ALK:18:octadecanoic acid::147
+ALK:19:nonadecanoic acid::9.3
+ALK:20:eicosanoic acid::14.0
+#alkanedioic acids
+ALK:18:octadecanedioic acid::42.4
+ALK:19:nonadecanedioic acid::177
+#aromatic acids
+OTH:6:benzoic acid::
+OTH:7:methylbenzoic acids::55.4
+#other compounds
+OTH:8:benzofuran:200:29.2
+OTH:12:dibenzofuran:42.2:4.0
+OTH:12:dibenzothiophene:25.6:
+OTH:12:dibenzothiazole::

@@ -1,0 +1,108 @@
+# Copyright (C) 2008, ENPC - INRIA - EDF R&D
+#     Author(s): Vivien Mallet
+#
+# This file is part of the air quality modeling system Polyphemus.
+#
+# Polyphemus is developed in the INRIA - ENPC joint project-team CLIME and in
+# the ENPC - EDF R&D joint laboratory CEREA.
+#
+# Polyphemus is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free
+# Software Foundation; either version 2 of the License, or (at your option)
+# any later version.
+#
+# Polyphemus is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# For more information, visit the Polyphemus web site:
+#      http://cerea.enpc.fr/polyphemus/
+
+# Put the path to Polyphemus.
+# Also editable from command line with option "polyphemus".
+polyphemus_path = "../../"
+
+utils = SConscript(polyphemus_path + '/scons/utils')(globals())
+
+
+# Include paths: put the absolute paths, the relative paths or the paths
+# into the Polyphemus directory.
+include_path_template = """
+    include/common
+    include/Talos
+    include/SeldonData
+    include/AtmoData
+    include/isorropia
+    include/fastJX
+    include/modules/common
+    include/modules/transport
+    include/modules/transport/SplitAdvectionDST3
+    include/modules/transport/DiffusionROS2
+    include/modules/aerosol
+    include/modules/aerosol/Aerosol_SIREAM_SORGAM
+    include/modules/aerosol/Aerosol_SIREAM_SORGAM/INC
+    include/modules/aerosol/Aerosol_SIREAM_SORGAM/INC/{chemistry}
+    include/modules/aerosol/Aerosol_SIREAM_SORGAM/CHEMISTRY/common
+    include/modules/aerosol/Aerosol_SIREAM_SORGAM/CHEMISTRY/{chemistry}
+    include/modules/aerosol/Aerosol_SIREAM_SORGAM/SIMPLE_AQUEOUS
+    include/modules/aerosol/Aerosol_SIREAM_SORGAM/VSRM
+    include/modules/aerosol/Aerosol_SIREAM_SORGAM/SIREAM
+    include/models
+    include/driver/common
+    include/driver/common/output_saver
+    """
+
+# [Optional] Compiled library paths: put absolute paths, relative paths or
+# paths that are in the Polyphemus directory. Put the list of paths to
+# compiled libraries that may not be installed in your system root.
+library_path = None
+
+
+# Default chemistry: cb05
+if 'chemistry' not in ARGUMENTS:
+    ARGUMENTS["chemistry"] = 'cb05'
+
+# Default: without nacl in thermodynamics
+if 'nacl' not in ARGUMENTS:
+    ARGUMENTS["nacl"] = 'no'
+
+# Default: no eqsam
+if 'eqsam' not in ARGUMENTS:
+    ARGUMENTS["eqsam"] = 'no'
+
+chemistry_list = utils.create_list("chemistry", ["racm", "racm2", "cb05"], "*")
+eqsam_list = utils.create_list("eqsam", ["yes", "no"], "*")
+nacl_list = utils.create_list("nacl", ["yes", "no"], "*")
+
+
+for chemistry in chemistry_list:
+    for eqsam in eqsam_list:
+        for nacl in nacl_list:
+            include_path = include_path_template.format(chemistry=chemistry)
+            exclude_dependency = ["\.c$"]
+
+            # Hack in Polair3DChemistry.
+            preprocessor_defines = ["POLYPHEMUS_WITH_AEROSOL_MODULE"]
+            # build_flavor = ["aer"]            
+            build_flavor = []
+
+            program_suffix = [chemistry]
+
+            if eqsam == "yes":
+                program_suffix.append("eqsam")
+                include_path += "\n include/eqsam"
+                exclude_dependency += ["bulkequi\.F"]
+            else:
+                exclude_dependency += ["bulkequi-with-eqsam\.F"]
+
+            if nacl == "no":
+                preprocessor_defines.append("WITHOUT_NACL_IN_THERMODYNAMICS")
+            elif nacl == "yes":
+                build_flavor.append("nacl")
+
+            utils.create_programs()
+
+            # Avoids displaying the libraries checking next time since libraries
+            # does not change in this case.
+            utils.run.quiet(True)

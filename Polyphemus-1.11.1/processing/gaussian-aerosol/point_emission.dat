@@ -1,0 +1,16 @@
+[source]
+
+Abscissa: 250.
+Ordinate: 750.
+Altitude: 25.
+
+Species: NO2 SO2
+Rate: 1.e+7 1.e+7
+
+Date_beg: 20010102_00-00
+Date_end: 20010103_12-01
+
+Type: continuous
+Velocity: 0.
+Temperature: 0.
+Diameter: 0.

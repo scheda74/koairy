@@ -1,0 +1,71 @@
+[species]
+
+# List of the species
+
+Caesium	Iodine	Biological	NO	NO2	O3
+
+
+[half_life]
+
+# Half-lives of the species (days)
+# Put 0. for non-radioactive species
+
+Caesium: 1.1e4
+Iodine: 8.04
+Biological: 0.
+NO:0.
+NO2:0.
+O3:0.
+
+
+[half_life_time]
+
+# Half-lives of the species (seconds)
+# First value: day, second value: night
+# Put 0. for non biological species.
+
+Caesium: 0.	0.
+Iodine:  0.	0.
+Biological: 1000.  500.
+
+
+[scavenging]
+
+# List of the species for which scavenging occurs.
+# The scavenging coefficients of the others will be set to 0.
+
+Caesium  Iodine
+
+
+[deposition]
+
+# List of the species for which deposition occurs.
+# The deposition velocities of the others will be set to 0.
+
+Caesium  Iodine
+
+
+[scavenging_constant]
+
+# Scavenging coefficients ( seconds^(-1) )
+
+Caesium: 1.e-4
+Iodine: 1.e-4
+
+
+[scavenging_belot]
+
+# Coefficients a and b for the Belot parameterization (a * po ^ b)
+# where po is the rainfall rate (mm/hour).
+
+# Species 	a 		b
+  Caesium 	2.8e-5		0.51
+  Iodine	7.e-5		0.69
+
+
+[deposition_constant]
+
+# Dry deposition velocities (m/s)
+
+Caesium: 5.e-4
+Iodine: 5.e-3

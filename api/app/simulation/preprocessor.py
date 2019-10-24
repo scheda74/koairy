@@ -2,7 +2,7 @@ import os, sys
 import subprocess
 import xml.etree.ElementTree as ET
 from lxml import etree
-from app.simulation.constants import Constants
+from simulation.constants import Constants
 
 
 # path_to_net,

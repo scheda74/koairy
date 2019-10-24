@@ -1,0 +1,68 @@
+[situation]
+
+# Temperature (Celsius degrees)
+Temperature = 10
+
+# Wind angle (degrees)
+Wind_angle = 30
+
+# Wind speed (m/s)
+Wind = 3
+
+# Boundary height (m)
+Boundary_height = 1000
+
+# Stability class
+Stability = D
+
+# Scavenging coefficients of gaseous species (s^-1)
+Scavenging_coefficient =
+Caesium  4.29976e-07	Iodine  2.46178e-07	Biological  0
+
+# Deposition velocities of gaseous species (m/s)
+Deposition_velocity =
+Caesium  0.0005	Iodine  0.005	Biological  0.  NO 0.  NO2 0.  O3 0.
+
+# Scavenging coefficients of aerosol species (s^-1)
+Scavenging_coefficient_aer =
+aer1_0  5.95238e-05	aer1_1  0.000212585	aer1_2  0.000327381	aer1_3  0.000729167	aer2_0  5.95238e-05	aer2_1  0.000212585	aer2_2  0.000327381	aer2_3  0.000729167	aer3_0  5.95238e-05	aer3_1  0.000212585	aer3_2  0.000327381	aer3_3  0.000729167
+
+# Deposition velocity of the aerosol species (m/s)
+Deposition_velocity_aer =
+aer1_0  6.69479	aer1_1  11.5957	aer1_2  13.3896	aer1_3  16.3988	aer2_0  4.88268	aer2_1  8.45705	aer2_2  9.76536	aer2_3  11.9601	aer3_0  10.8413	aer3_1  18.7777	aer3_2  21.6826	aer3_3  26.5557
+
+
+[situation]
+
+# Temperature (Celsius degrees)
+Temperature = 15
+
+# Wind angle (degrees)
+Wind_angle = -100
+
+# Wind speed (m/s)
+Wind = 2
+
+# Boundary height (m)
+Boundary_height = 1000
+
+# Stability class
+Stability = D
+
+# Scavenging coefficients of gaseous species (s^-1)
+Scavenging_coefficient =
+Caesium  3.16168e-06	Iodine  3.66048e-06	Biological  0
+
+# Deposition velocities of gaseous species (m/s)
+Deposition_velocity =
+Caesium  0.0005	Iodine  0.005	Biological  0.  NO 0.  NO2 0.  O3 0.
+
+# Scavenging coefficients of aerosol species (s^-1)
+Scavenging_coefficient_aer =
+aer1_0  0.00111923	aer1_1  0.00399724	aer1_2  0.00615575	aer1_3  0.0137105	aer2_0  0.00111923	aer2_1  0.00399724	aer2_2  0.00615575	aer2_3  0.0137105	aer3_0  0.00111923	aer3_1  0.00399724	aer3_2  0.00615575	aer3_3  0.0137105
+
+# Deposition velocity of the aerosol species (m/s)
+Deposition_velocity_aer =
+aer1_0  6.75365	aer1_1  11.6977	aer1_2  13.5073	aer1_3  16.543	aer2_0  4.9256	aer2_1  8.53139	aer2_2  9.8512	aer2_3  12.0652	aer3_0  10.9366	aer3_1  18.9428	aer3_2  21.8732	aer3_3  26.7891
+
+

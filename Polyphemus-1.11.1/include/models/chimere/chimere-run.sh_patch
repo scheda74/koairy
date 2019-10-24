@@ -1,0 +1,14 @@
+129a130
+>  if [ -z "${chimere_interface_script}" ] ; then
+133a135,138
+>  else
+>    export golam goopi nzdoms nmdoms
+>    $chimere_interface_script
+>  fi
+134a140
+>  if [ -z "${chimere_interface_script}" ] ; then
+135a142,145
+>  else
+>    export golam goopi nzdoms nmdoms
+>    $chimere_interface_script
+>  fi

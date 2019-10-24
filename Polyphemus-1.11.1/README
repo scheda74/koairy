@@ -1,0 +1,32 @@
+*** What is Polyphemus ***
+
+Polyphemus is a full modeling system for air quality. It is designed to yield
+up-to-date simulations in a reliable framework: aerosols, data assimilation,
+ensemble forecast and daily forecasts. Its completeness allows to deal with
+many fields: photochemistry, heavy metals, radionuclides, etc. It is able to
+handle simulations from local to continental scale.
+
+For more information on Polyphemus, see http://cerea.enpc.fr/polyphemus/
+
+Polyphemus is distributed under the GNU General Public License.
+
+
+*** Installation ***
+
+See file INSTALL on how to install Polyphemus.
+
+
+*** Links and contacts ***
+
+- Polyphemus home page
+  http://cerea.enpc.fr/polyphemus/
+
+- Polyphemus under INRIA forge (bugs and features requests)
+  http://gforge.inria.fr/projects/polyphemus/
+
+- Polyphemus user's guide can be found on
+  http://cerea.enpc.fr/polyphemus/download.html
+
+- Polyphemus support team
+  polyphemus-help@lists.gforge.inria.fr
+  Please use this address for any question regarding Polyphemus.

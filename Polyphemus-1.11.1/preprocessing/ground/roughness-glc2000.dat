@@ -1,0 +1,26 @@
+# Cat.   Roughness      Description
+
+1      0.4              Tree Cover - broadleaved - evergreen
+2      0.5              Tree Cover - broadleaved - deciduous - closed
+3      0.55             Tree Cover - broadleaved - deciduous - open
+4      0.5              Tree Cover - needle-leaved - evergreen
+5      0.5              Tree Cover - needle-leaved - deciduous
+6      0.5              Tree Cover - mixed leaf type
+7      0.4              Tree Cover - regularly flooded - fresh water
+8      0.4              Tree Cover - regularly flooded - saline water
+9      0.3              Mosaic: Tree Cover - Other natural vegetation
+10     0.2              Tree Cover - burnt
+11     0.05             Shrub Cover - closed-open - evergreen
+12     0.05             Shrub Cover - closed-open - deciduous
+13     0.12             Herbaceous Cover, closed-open
+14     0.1              Sparse herbaceous or sparse shrub cover
+15     0.2              Reg. flooded shrub and-or herbaceous cover
+16     0.125            Cultivated and managed areas
+17     0.2              Mosaic: Cropland - Tree Cover - Oth. nat. veg
+18     0.14             Mosaic: Cropland - Shrub and-or grass cover
+19     0.01             Bare Areas
+20     0.0001           Water Bodies
+21     0.05             Snow and Ice
+22     0.8              Artificial surfaces and associated areas
+23     0.0              Unknown (missing data)
+

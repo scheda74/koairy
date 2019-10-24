@@ -1,0 +1,314 @@
+--- isorropia/isrpia.inc	2015-04-19 13:47:54.331890515 +0200
++++ polyphemus/src/reference/include/isorropia/isrpia.inc	2015-04-18 17:03:03.081660738 +0200
+@@ -66,6 +66,8 @@
+       COMMON /EQUK/ XK1, XK2, XK3, XK4, XK5, XK6, XK7, XK8, XK9, XK10,
+      &              XK11,XK12,XK13,XK14,XKW, XK21,XK22,XK31,XK32,XK41,
+      &              XK42
++!$OMP THREADPRIVATE(/EQUK/)
++
+ C
+ C *** MOLECULAR WEIGHTS ************************************************
+ C
+--- isorropia/isofwd.f	2015-04-18 16:48:44.217657713 +0200
++++ polyphemus/src/reference/include/isorropia/isofwd.f	2015-04-18 16:50:30.360658087 +0200
+@@ -1766,8 +1766,10 @@
+ 50    CONTINUE
+       IF (MOLAL(1).GT.TINY) THEN
+          CALL CALCHS4 (MOLAL(1), MOLAL(5), ZERO, DELTA)
+-         MOLAL(1) = MOLAL(1) - DELTA                     ! H+   EFFECT
+-         MOLAL(5) = MOLAL(5) - DELTA                     ! SO4  EFFECT
++c         MOLAL(1) = MOLAL(1) - DELTA                     ! H+   EFFECT
++         MOLAL(1) = MAX(MOLAL(1) - DELTA,ZERO) ! YK
++c         MOLAL(5) = MOLAL(5) - DELTA                     ! SO4  EFFECT
++         MOLAL(5) = MAX(MOLAL(5) - DELTA,ZERO) ! YK
+          MOLAL(6) = DELTA                                ! HSO4 EFFECT
+       ENDIF
+       RETURN
+@@ -1990,8 +1992,10 @@
+ 50    CONTINUE
+       IF (MOLAL(1).GT.TINY) THEN
+          CALL CALCHS4 (MOLAL(1), MOLAL(5), ZERO, DELTA)
+-         MOLAL(1) = MOLAL(1) - DELTA                     ! H+   EFFECT
+-         MOLAL(5) = MOLAL(5) - DELTA                     ! SO4  EFFECT
++c         MOLAL(1) = MOLAL(1) - DELTA                     ! H+   EFFECT
++         MOLAL(1) = MAX(MOLAL(1) - DELTA,ZERO) ! YK
++c         MOLAL(5) = MOLAL(5) - DELTA                     ! SO4  EFFECT
++         MOLAL(5) = MAX(MOLAL(5) - DELTA,ZERO) ! YK
+          MOLAL(6) = DELTA                                ! HSO4 EFFECT
+       ENDIF
+       RETURN
+@@ -2281,8 +2285,10 @@
+ 50    CONTINUE
+       IF (MOLAL(1).GT.TINY .AND. MOLAL(5).GT.TINY) THEN  ! If quadrat.called
+          CALL CALCHS4 (MOLAL(1), MOLAL(5), ZERO, DELTA)
+-         MOLAL(1) = MOLAL(1) - DELTA                    ! H+   EFFECT
+-         MOLAL(5) = MOLAL(5) - DELTA                    ! SO4  EFFECT
++c         MOLAL(1) = MOLAL(1) - DELTA                     ! H+   EFFECT
++         MOLAL(1) = MAX(MOLAL(1) - DELTA,ZERO) ! YK
++c         MOLAL(5) = MOLAL(5) - DELTA                     ! SO4  EFFECT
++         MOLAL(5) = MAX(MOLAL(5) - DELTA,ZERO) ! YK
+          MOLAL(6) = DELTA                               ! HSO4 EFFECT
+       ENDIF
+ C
+@@ -2491,8 +2497,10 @@
+ 50    CONTINUE
+       IF (MOLAL(1).GT.TINY .AND. MOLAL(5).GT.TINY) THEN
+          CALL CALCHS4 (MOLAL(1), MOLAL(5), ZERO, DELTA)
+-         MOLAL(1) = MOLAL(1) - DELTA                     ! H+   EFFECT
+-         MOLAL(5) = MOLAL(5) - DELTA                     ! SO4  EFFECT
++c         MOLAL(1) = MOLAL(1) - DELTA                     ! H+   EFFECT
++         MOLAL(1) = MAX(MOLAL(1) - DELTA,ZERO) ! YK
++c         MOLAL(5) = MOLAL(5) - DELTA                     ! SO4  EFFECT
++         MOLAL(5) = MAX(MOLAL(5) - DELTA,ZERO) ! YK
+          MOLAL(6) = DELTA                                ! HSO4 EFFECT
+       ENDIF
+ C
+@@ -2802,8 +2810,10 @@
+ C 
+       IF (MOLAL(1).GT.TINY .AND. MOLAL(5).GT.TINY) THEN
+          CALL CALCHS4 (MOLAL(1), MOLAL(5), ZERO, DELTA)
+-         MOLAL(1) = MOLAL(1) - DELTA                     ! H+   EFFECT
+-         MOLAL(5) = MOLAL(5) - DELTA                     ! SO4  EFFECT
++c         MOLAL(1) = MOLAL(1) - DELTA                     ! H+   EFFECT
++         MOLAL(1) = MAX(MOLAL(1) - DELTA,ZERO) ! YK
++c         MOLAL(5) = MOLAL(5) - DELTA                     ! SO4  EFFECT
++         MOLAL(5) = MAX(MOLAL(5) - DELTA,ZERO) ! YK
+          MOLAL(6) = DELTA                                ! HSO4 EFFECT
+       ENDIF
+ C
+@@ -3111,8 +3121,10 @@
+ C 
+       IF (MOLAL(1).GT.TINY .AND. MOLAL(5).GT.TINY) THEN
+          CALL CALCHS4 (MOLAL(1), MOLAL(5), ZERO, DELTA)
+-         MOLAL(1) = MOLAL(1) - DELTA     ! H+   AFFECT
+-         MOLAL(5) = MOLAL(5) - DELTA     ! SO4  AFFECT
++c         MOLAL(1) = MOLAL(1) - DELTA                     ! H+   EFFECT
++         MOLAL(1) = MAX(MOLAL(1) - DELTA,ZERO) ! YK
++c         MOLAL(5) = MOLAL(5) - DELTA                     ! SO4  EFFECT
++         MOLAL(5) = MAX(MOLAL(5) - DELTA,ZERO) ! YK
+          MOLAL(6) = DELTA                ! HSO4 AFFECT
+       ENDIF
+ C
+@@ -3532,8 +3544,10 @@
+ 50    CONTINUE
+       IF (MOLAL(1).GT.TINY .AND. MOLAL(5).GT.TINY) THEN
+          CALL CALCHS4 (MOLAL(1), MOLAL(5), ZERO, DELTA)
+-         MOLAL(1) = MOLAL(1) - DELTA                     ! H+   EFFECT
+-         MOLAL(5) = MOLAL(5) - DELTA                     ! SO4  EFFECT
++c         MOLAL(1) = MOLAL(1) - DELTA                     ! H+   EFFECT
++         MOLAL(1) = MAX(MOLAL(1) - DELTA,ZERO) ! YK
++c         MOLAL(5) = MOLAL(5) - DELTA                     ! SO4  EFFECT
++         MOLAL(5) = MAX(MOLAL(5) - DELTA,ZERO) ! YK
+          MOLAL(6) = DELTA                                ! HSO4 EFFECT
+       ENDIF
+ C
+@@ -3752,8 +3766,10 @@
+ 50    CONTINUE
+       IF (MOLAL(1).GT.TINY .AND. MOLAL(5).GT.TINY) THEN
+          CALL CALCHS4 (MOLAL(1), MOLAL(5), ZERO, DELTA)
+-         MOLAL(1) = MOLAL(1) - DELTA                     ! H+   EFECT
+-         MOLAL(5) = MOLAL(5) - DELTA                     ! SO4  EFFECT
++c         MOLAL(1) = MOLAL(1) - DELTA                     ! H+   EFFECT
++         MOLAL(1) = MAX(MOLAL(1) - DELTA,ZERO) ! YK
++c         MOLAL(5) = MOLAL(5) - DELTA                     ! SO4  EFFECT
++         MOLAL(5) = MAX(MOLAL(5) - DELTA,ZERO) ! YK
+          MOLAL(6) = DELTA                                ! HSO4 EFFECT
+       ENDIF
+ C
+@@ -3984,8 +4000,10 @@
+ 50    CONTINUE
+       IF (MOLAL(1).GT.TINY .AND. MOLAL(5).GT.TINY) THEN
+          CALL CALCHS4 (MOLAL(1), MOLAL(5), ZERO, DELTA)
+-         MOLAL(1) = MOLAL(1) - DELTA                      ! H+   EFFECT
+-         MOLAL(5) = MOLAL(5) - DELTA                      ! SO4  EFFECT
++c         MOLAL(1) = MOLAL(1) - DELTA                     ! H+   EFFECT
++         MOLAL(1) = MAX(MOLAL(1) - DELTA,ZERO) ! YK
++c         MOLAL(5) = MOLAL(5) - DELTA                     ! SO4  EFFECT
++         MOLAL(5) = MAX(MOLAL(5) - DELTA,ZERO) ! YK
+          MOLAL(6) = DELTA                                 ! HSO4 EFFECT
+       ENDIF
+ C
+@@ -4241,8 +4259,10 @@
+ 50    CONTINUE
+       IF (MOLAL(1).GT.TINY .AND. MOLAL(5).GT.TINY) THEN
+          CALL CALCHS4 (MOLAL(1), MOLAL(5), ZERO, DELTA)
+-         MOLAL(1) = MOLAL(1) - DELTA                     ! H+   EFFECT
+-         MOLAL(5) = MOLAL(5) - DELTA                     ! SO4  EFFECT
++c         MOLAL(1) = MOLAL(1) - DELTA                     ! H+   EFFECT
++         MOLAL(1) = MAX(MOLAL(1) - DELTA,ZERO) ! YK
++c         MOLAL(5) = MOLAL(5) - DELTA                     ! SO4  EFFECT
++         MOLAL(5) = MAX(MOLAL(5) - DELTA,ZERO) ! YK
+          MOLAL(6) = DELTA                                ! HSO4 EFFECT
+       ENDIF
+ C
+@@ -4555,8 +4575,10 @@
+ 50    CONTINUE
+       IF (MOLAL(1).GT.TINY .AND. MOLAL(5).GT.TINY) THEN
+          CALL CALCHS4 (MOLAL(1), MOLAL(5), ZERO, DELTA)
+-         MOLAL(1) = MOLAL(1) - DELTA                    ! H+   EFFECT
+-         MOLAL(5) = MOLAL(5) - DELTA                    ! SO4  EFFECT
++c         MOLAL(1) = MOLAL(1) - DELTA                     ! H+   EFFECT
++         MOLAL(1) = MAX(MOLAL(1) - DELTA,ZERO) ! YK
++c         MOLAL(5) = MOLAL(5) - DELTA                     ! SO4  EFFECT
++         MOLAL(5) = MAX(MOLAL(5) - DELTA,ZERO) ! YK
+          MOLAL(6) = DELTA                               ! HSO4 EFFECT
+       ENDIF
+ C
+--- isorropia/isorev.f	2015-04-18 16:48:44.219657713 +0200
++++ polyphemus/src/reference/include/isorropia/isorev.f	2015-04-18 16:50:30.362658087 +0200
+@@ -555,8 +555,10 @@
+          ENDIF
+ C
+          CALL CALCHS4 (HI, SO4I, ZERO, DEL)         ! SULFATE EQUILIBRIUM
+-         SO4I  = SO4I - DEL
+-         HI    = HI   - DEL
++c         SO4I  = SO4I - DEL
++         SO4I  = MAX (SO4I - DEL,ZERO) ! YK
++c         HI    = HI   - DEL
++         HI    = MAX (HI   - DEL,TINY) ! YK
+          HSO4I = DEL
+ C
+          NH3GI = NH4I/HI/A2   !    NH3AQ/A21
+@@ -692,8 +694,10 @@
+ C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
+ C
+             CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+-            SO4I  = SO4I  - DEL
+-            HI    = HI    - DEL
++c         SO4I  = SO4I - DEL
++            SO4I  = MAX (SO4I - DEL,ZERO) ! YK
++c         HI    = HI   - DEL
++            HI    = MAX (HI   - DEL,TINY) ! YK
+             HSO4I = DEL
+             OHI   = AKW/HI
+          ENDIF
+@@ -895,8 +899,10 @@
+ C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
+ C
+             CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+-            SO4I  = SO4I  - DEL
+-            HI    = HI    - DEL
++c         SO4I  = SO4I - DEL
++            SO4I  = MAX (SO4I - DEL,ZERO) ! YK
++c         HI    = HI   - DEL
++            HI    = MAX (HI   - DEL,TINY) ! YK
+             HSO4I = DEL
+             OHI   = AKW/HI
+          ENDIF
+@@ -1130,8 +1136,10 @@
+ C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
+ C
+          CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+-         SO4I  = SO4I  - DEL
+-         HI    = HI    - DEL
++c         SO4I  = SO4I - DEL
++         SO4I  = MAX (SO4I - DEL,ZERO) ! YK
++c         HI    = HI   - DEL
++         HI    = MAX (HI   - DEL,TINY) ! YK
+          HSO4I = DEL
+          OHI   = AKW/HI
+       ENDIF
+@@ -1304,8 +1312,10 @@
+ C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
+ C
+          CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+-         SO4I  = SO4I  - DEL
+-         HI    = HI    - DEL
++c         SO4I  = SO4I - DEL
++         SO4I  = MAX (SO4I - DEL,ZERO) ! YK
++c         HI    = HI   - DEL
++         HI    = MAX (HI   - DEL,TINY) ! YK
+          HSO4I = DEL
+          OHI   = AKW/HI
+       ENDIF
+@@ -1557,8 +1567,10 @@
+ C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
+ C
+          CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+-         SO4I  = SO4I  - DEL
+-         HI    = HI    - DEL
++c         SO4I  = SO4I - DEL
++         SO4I  = MAX (SO4I - DEL,ZERO) ! YK
++c         HI    = HI   - DEL
++         HI    = MAX (HI   - DEL,TINY) ! YK
+          HSO4I = DEL
+          OHI   = AKW/HI
+       ENDIF
+@@ -1849,8 +1861,10 @@
+ C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
+ C
+          CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+-         SO4I  = SO4I  - DEL
+-         HI    = HI    - DEL
++c         SO4I  = SO4I - DEL
++         SO4I  = MAX (SO4I - DEL,ZERO) ! YK
++c         HI    = HI   - DEL
++         HI    = MAX (HI   - DEL,TINY) ! YK
+          HSO4I = DEL
+          OHI   = AKW/HI
+       ENDIF
+@@ -2127,8 +2141,10 @@
+ C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
+ C
+          CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+-         SO4I  = SO4I  - DEL
+-         HI    = HI    - DEL
++c         SO4I  = SO4I - DEL
++         SO4I  = MAX (SO4I - DEL,ZERO) ! YK
++c         HI    = HI   - DEL
++         HI    = MAX (HI   - DEL,TINY) ! YK
+          HSO4I = DEL
+          OHI   = AKW/HI
+       ENDIF
+@@ -2310,8 +2326,10 @@
+ C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
+ C
+          CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+-         SO4I  = SO4I  - DEL
+-         HI    = HI    - DEL
++c         SO4I  = SO4I - DEL
++         SO4I  = MAX (SO4I - DEL,ZERO) ! YK
++c         HI    = HI   - DEL
++         HI    = MAX (HI   - DEL,TINY) ! YK
+          HSO4I = DEL
+          OHI   = AKW/HI
+       ENDIF
+@@ -2563,8 +2581,10 @@
+ C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
+ C
+          CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+-         SO4I  = SO4I  - DEL
+-         HI    = HI    - DEL
++c         SO4I  = SO4I - DEL
++         SO4I  = MAX (SO4I - DEL,ZERO) ! YK
++c         HI    = HI   - DEL
++         HI    = MAX (HI   - DEL,TINY) ! YK
+          HSO4I = DEL
+          OHI   = AKW/HI
+       ENDIF
+@@ -2873,8 +2893,10 @@
+ C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
+ C
+          CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+-         SO4I  = SO4I  - DEL
+-         HI    = HI    - DEL
++c         SO4I  = SO4I - DEL
++         SO4I  = MAX (SO4I - DEL,ZERO) ! YK
++c         HI    = HI   - DEL
++         HI    = MAX (HI   - DEL,TINY) ! YK
+          HSO4I = DEL
+          OHI   = AKW/HI
+       ENDIF
+@@ -3251,8 +3273,10 @@
+ C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
+ C
+          CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+-         SO4I  = SO4I  - DEL
+-         HI    = HI    - DEL
++c         SO4I  = SO4I - DEL
++         SO4I  = MAX (SO4I - DEL,ZERO) ! YK
++c         HI    = HI   - DEL
++         HI    = MAX (HI   - DEL,TINY) ! YK
+          HSO4I = DEL
+          OHI   = AKW/HI
+       ENDIF

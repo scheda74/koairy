@@ -1,0 +1,12 @@
+## Trajectory: independant segments. Two different nodes must have two
+## different Id numbers.
+## Width : line source width (in m).
+## VehicleVelocity : vehicle velocity (m/s))
+# Area : average horizontal area of a vehicle (m²)
+## Density : number of vehicles per length unit (in vehicle/m)
+## Rates : source rate (mass/(s.m²)) of each species for each source
+## section.
+## Number of elements per line: 12 + number of emitted species.
+#Id1	X1(m)	Y1(m)	Z1(m)	Id2	X2(m)	Y2(m)	Z2(m)	Width	VehicleVelocity	Area	Density	Rate 1	Rate 2	Rate 3
+1	20.	40.	2.	2	20.	60.	2.	0.	18.44	5.	0.015	3.3	1.1	2.
+3	60.	40.	2.	4	80.	40.	2.	0.	18.44	5.	0.015	3.3	1.1	2.

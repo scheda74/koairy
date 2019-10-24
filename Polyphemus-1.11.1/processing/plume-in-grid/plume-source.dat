@@ -1,0 +1,23 @@
+[source]
+
+# Species name.
+Species: NO2
+# Source type
+Type: continuous_line
+
+Date_beg: 2001-01-01_01-00-00
+Date_end: 2001-01-01_04-00-00
+
+# Source velocity, temperature and diameter are used with Gaussian Puff
+# model only (not with Gaussian Plume)
+# Source velocity (m/s)
+Velocity = 10.1
+
+# Source temperature (Celsius degrees)
+Temperature = 60.
+
+# Source diameter (m)
+Diameter = 0.0798
+
+#File containing the source coordinates and emission rates.
+Coordinate_file:line-emission.dat

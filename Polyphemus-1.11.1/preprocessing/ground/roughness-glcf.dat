@@ -1,0 +1,16 @@
+# Cat.   Roughness      Description
+
+0        0.0001         Water
+1        0.5            Evergreen Needleleaf Forest
+2        0.4            Evergreen Broadleaf Forest
+3        0.5            Deciduous Needleleaf Forest
+4        0.5            Deciduous Broadleaf Forest
+5        0.5            Mixed forest
+6        1.05           Woodland
+7        0.5            Wooded Grassland
+8        0.05           Closed Shrubland
+9        0.05           Open Shrubland
+10       0.12           Grassland
+11       0.2            Cropland
+12       0.1            Bare ground
+13       0.8            Urban and Built-up

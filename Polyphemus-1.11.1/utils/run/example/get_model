@@ -1,0 +1,25 @@
+#! /usr/bin/env python
+import os, sys
+from ensemble_generation import ensemble_parameter
+
+
+if len(sys.argv) == 1:
+    raise Exception, "You must put the model number (id_model) as first argument."
+elif len(sys.argv) == 2:
+    model_dir = sys.argv[1]
+    config_file = model_dir + "/../parameter.cfg"
+    file_list = os.listdir(model_dir + "/../")
+    model_dir = model_dir.strip("/")
+    imodel = model_dir.split('/')[-1]
+    if not os.path.isfile(config_file):
+        raise Exception, "Unable to find the file \"" + config_file + "\"."
+    parameter = ensemble_parameter.EnsembleParameter(config_file)
+elif len(sys.argv) == 3:
+    model_dir = sys.argv[1].strip('/')
+    config_file = sys.argv[2]
+    if not os.path.isfile(config_file):
+        raise Exception, "Unable to find the file \"" + config_file + "\"."
+    imodel = model_dir.split('/')[-1]
+    parameter = ensemble_parameter.EnsembleParameter(config_file)
+
+parameter.ShowModelParameter(imodel)

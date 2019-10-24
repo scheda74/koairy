@@ -1,0 +1,60 @@
+# -*- coding: utf-8 -*-
+# Copyright (C) 2015, ENPC - INRIA - EDF R&D
+#     Author(s): Sylvain Doré
+#
+# This file is part of the air quality modeling system Polyphemus.
+#
+# Polyphemus is developed in the INRIA - ENPC joint project-team CLIME and in
+# the ENPC - EDF R&D joint laboratory CEREA.
+#
+# Polyphemus is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free
+# Software Foundation; either version 2 of the License, or (at your option)
+# any later version.
+#
+# Polyphemus is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# For more information, visit the Polyphemus web site:
+#      http://cerea.enpc.fr/polyphemus/
+import os
+
+# Early test to speed up build time.
+if not os.path.isfile("bds.h"):
+    import commands, shutil, sys, tempfile, urlparse
+    from zipfile import ZipFile
+
+
+    cache_dir = os.path.join(tempfile.gettempdir(), "polyphemus")
+
+
+    def run(name, command):
+        print name, "..."
+        status, output = commands.getstatusoutput(command)
+        if status != 0:
+            print "[ERROR] " + name + " failed:"
+            print command
+            print output
+            print "return status:", status
+            sys.exit(status)
+        return output
+
+
+    wgrib_pkg = "wgrib.tar"
+    cached_wgrib_pkg=os.path.join(cache_dir, wgrib_pkg)
+    wgrib_url = urlparse.urljoin("ftp://ftp.cpc.ncep.noaa.gov/wd51we/wgrib/",
+                                 wgrib_pkg)
+
+    # Downloads Wgrib package if necessary.
+    if not os.path.isfile(wgrib_pkg):
+        if not os.path.isfile(cached_wgrib_pkg):
+            run("Wgrib download from " + wgrib_url, "wget " + wgrib_url)
+            if not os.path.exists(cache_dir):
+                os.makedirs(cache_dir)
+            shutil.copyfile(wgrib_pkg, cached_wgrib_pkg)
+        else:
+            shutil.copyfile(cached_wgrib_pkg, wgrib_pkg)
+
+    run("Wgrib extraction", "tar xf " + wgrib_pkg)

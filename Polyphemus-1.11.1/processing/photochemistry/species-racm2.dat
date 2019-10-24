@@ -1,0 +1,103 @@
+[species]
+
+O1D  SO2  SULF ACE  BEN
+HC3  HC5  HC8  TOL  TR2
+XYL  XY2  XYO  XYO2 HONO
+N2O5 NALD PHEN API  DIEN
+EOH  EPX  ETE  ETEG ISHP
+ISO  LIM  MAHP MCT  MEK
+OLT  CH4  ETH  OP1  PAN
+HNO4 PPN  H2O2 ISON MPAN
+O3P  BAL1 BAL2 PER1 TLP1
+TOLP XYL1 BALD BALP CHO
+CSL  XYLP PER2 ADCN XYOP
+DCB2 APIP ACT  ISOP HACE
+LIMP MACR ADDC HKET MEKP
+ACTP MVK  ORA1 MVKP OLTP
+PAA  DCB3 ETEP DCB1 BENP
+OLI  OLIP OLND OLNN UALD
+O3   MCTP MCTO UALP HC5P
+ROH  ACD  HC8P MOH  ORAP
+GLY  MACP MGLY HNO3 KETP
+CO   ORA2 RCO3 ONIT ALD
+KET  ETHP HO   MO2  HC3P
+XO2  ACO3 NO   NO2  NO3
+OP2  HO2  HCHO
+
+
+[molecular_weight]
+
+# Unit: g / mol.
+
+O1D  16.  SO2  64.   SULF 98.  ACE  26.  BEN  78.
+HC3  44.  HC5  72.   HC8  114. TOL  92.  TR2  109.
+XYL  106. XY2  124.  XYO  106. XYO2 155. HONO 47.
+N2O5 108. NALD 105.  PHEN 94.  API  136. DIEN 54.
+EOH  46.  EPX  122.5 ETE  28.  ETEG 62.  ISHP 118.
+ISO  68.  LIM  136.  MAHP 102. MCT  124. MEK  72.
+OLT  42.  CH4  16.   ETH  30.  OP1  48.  PAN  121.
+HNO4 79.  PPN  135.  H2O2 34.  ISON 147. MPAN 148.
+O3P  16.  BAL1 121.  BAL2 105. PER1 141. TLP1 91.
+TOLP 141. XYL1 156.  BALD 106. BALP 137. CHO  139.
+CSL  108. XYLP 155.  PER2 157. ADCN 243. XYOP 155.
+DCB2 110. APIP 185.  ACT  58.  ISOP 117. HACE 74.
+LIMP 185. MACR 70.   ADDC 125. HKET 74.  MEKP 103.
+ACTP 89.  MVK  70.   ORA1 46.  MVKP 119. OLTP 91.
+PAA  76.  DCB3 84.   ETEP 77.  DCB1 91.  BENP 127.
+OLI  68.  OLIP 117.  OLND 136. OLNN 136. UALD 84.
+O3   48.  MCTP 139.  MCTO 123. UALP 133. HC5P 103.
+ROH  60.  ACD  44.   HC8P 145. MOH  32.  ORAP 75.
+GLY  58.  MACP 101.  MGLY 72.  HNO3 63.  KETP 117.
+CO   28.  ORA2 60.   RCO3 90.  ONIT 119. ALD  58.
+KET  86.  ETHP 61.   HO   17.  MO2  47.  HC3P 75.
+XO2  44.  ACO3 75.   NO   30.  NO2  46.  NO3  62.
+OP2  62.  HO2  33.   HCHO 30.
+
+
+[photolysis_reaction_index]
+
+NO2     0  O3O1D  1  O3O3P   2  HONO  3  HNO3    4
+HNO4    5  NO3NO  6  NO3NO2  7  H2O2  8  HCHOmol 9
+HCHOrad 10 ACD    11 ALD     12 ACT   13 MEK     14
+KET     15 HKET   16 MACR    17 MVK   18 UALD    19
+GLYHO2  20 GLYH2  21 GLYHCHO 22 MGLY  23 DCB1    24
+DCB2    25 DCB3   26 BALD    27 OP1   28 OP2     29
+PAA     30 ONIT   31 PANNO2  32 PANNO3 33
+
+
+[diffusivity]
+
+# Gas-phase diffusivities: cm^2 / s.
+O3	     0.14	NO	 0.17   NO2	 0.14	H2O2 0.16
+HCHO 	     0.17	ACD  	 0.14   PAN	 0.08	HONO 0.14
+SO2  	     0.12   	HNO3 	 0.12   OP1  	 0.14	PAA  0.11
+ORA1 	     0.14	CO	 0.18   N2O5 	 0.1
+
+
+[henry]
+
+# Henry constant: [mol / L / atm].
+# It must be effective Henry constant.
+
+O3   1.14e-2 	NO	1.9e-3  NO2  1.2e-2	H2O2  1.02e5
+HCHO 4.9e3	ACD	15.0    PAN  5.         HONO  2.6e5
+SO2  2.65e5	HNO3    3.23e13 OP1  9.5e2	PAA   5.4e2
+ORA1 9.8e6	CO 	1.e3    N2O5 1.e14
+
+
+[belot_below_cloud]
+
+# Coefficients a and b for the Belot parameterization (a * po^b)
+# where po is the rain intensity  [mm / h].
+
+# species       a       b
+  all           1.e-05  0.8
+
+
+[scavenging_coefficient]
+
+# Scavenging is applied above the following threshold over rain [mm / h].
+Scavenging_rain_threshold: 1.
+
+# Scavenging coefficient of the species: [s^{-1}].
+all     1.e-5

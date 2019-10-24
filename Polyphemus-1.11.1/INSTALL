@@ -1,0 +1,72 @@
+Installation
+
+*** Requirements ***
+
+Polyphemus is based on three languages : C++, Fortran 77/90 and Python.
+
+What you need to use Polyphemus :
+
+- make or scons 0.98.5 or higher (that is ready to use from
+  Polyphemus-[version]/utils);
+
+- a decent C++ compiler,
+  such as GNU G++ 3.2 or higher, or Intel icc 7.1  and 8.0;
+
+- a Fortran 77 compiler,
+  such as GNU G77 3.2 or higher or GNU GFORTRAN 4.0 or Intel IFC 7.1 or
+  IFORT 8.0;
+
+- Python 2.3, 2.4 or 2.5;
+
+- Blitz++ 0.6 or higher;
+
+- Blas/Lapack, any recent version;
+
+- for other requirements (specific applications), see User's Guide.
+
+
+*** Installation ***
+
+- The first step is to download Polyphemus on
+  http://cerea.enpc.fr/polyphemus/download.html or
+  http://gforge.inria.fr/frs/?group_id=1173
+
+- Expand the tar.bz2 archive.
+  Under Unix or Linux, to extract it just type in command line:
+
+     tar -jxvf Polyphemus-[version].tar.bz2
+
+  where [version] is the latest version number of Polyphemus.
+  This will create a directory named Polyphemus-[version]/.
+
+- extract_configuration.cpp
+  The library AtmoPy makes calls to a C++ program called
+  extract_configuration. You need to compile it to have AtmoPy fully
+  installed. To do so, go to the directory where this file is located.
+
+     cd Polyphemus-[version]/include/atmopy/talos
+
+  Then, you can use SCons to manage the needed compilation. Just type in
+  command line:
+
+     ../../../utils/scons.py
+
+  Or if you don't want to use SCons:
+
+     g++ -I../../Talos -o extract_configuration extract_configuration.cpp
+
+  You may then need to replace g++ by your own C++ compiler.
+
+- For all other programs, SConstruct files are provided as well as makefiles.
+  Read the user's guide (in particular chapter 2) for more details.
+
+
+*** Further information ***
+
+- Read the user's guide, which can be found on
+  http://cerea.enpc.fr/polyphemus/download.html or
+  http://gforge.inria.fr/docman/?group_id=1173
+
+- Polyphemus support team
+  polyphemus-help@lists.gforge.inria.fr
+  Please use this address for any question regarding Polyphemus.

@@ -1,0 +1,121 @@
+#!/usr/bin/env python
+
+# Copyright (C)  2004-2007, ENPC - INRIA - EDF R&D
+#     Author(s): Vivien Mallet
+#
+# This file is part of the air quality modeling system Polyphemus.
+#
+# Polyphemus is developed in the INRIA - ENPC joint project-team CLIME and in
+# the ENPC - EDF R&D joint laboratory CEREA.
+#
+# Polyphemus is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free
+# Software Foundation; either version 2 of the License, or (at your option)
+# any later version.
+#
+# Polyphemus is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# For more information, visit the Polyphemus web site:
+#      http://cerea.enpc.fr/polyphemus
+
+# Calls a program over a range of dates.
+
+
+import os, sys, popen2, string
+
+nb_args = len(sys.argv) - 1
+
+script_name = os.path.split(sys.argv[0])[1]
+
+if nb_args < 3:
+    print
+    print "Script \"" + script_name + \
+        "\" calls a program over a range of dates."
+    print "Usage:"
+    print "  \"" + script_name + "\" [program] {arguments} [first date]" + \
+          " [second date / number of days]"
+    print "Arguments:"
+    print "  [program]: program to be launched over the range of dates."
+    print "  {arguments}: arguments. Any occurence of %D is " + \
+          "replaced with the date;"
+    print "               otherwise the date is assumed to " + \
+          "be the last argument."
+    print "  [first date]: first date of the range of dates " + \
+          "(format YYYYMMDD)."
+    print "  [second date / number of days]: last date of the range of dates"
+    print "                                  or number of days of this " + \
+          "range (format YYYYMMDD)."
+    print
+    sys.exit(1)
+
+print
+
+date = int(sys.argv[nb_args - 1])
+end = int(sys.argv[nb_args])
+dates = [date]
+
+month_lengths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+YYYY = int(date / 10000)
+MM = int((date - 10000 * YYYY) / 100)
+DD = int(date - 10000 * YYYY - 100 * MM)
+
+if YYYY % 4 == 0 and YYYY % 100 != 0 or YYYY % 400 == 0:
+    month_lengths[1] = 29
+
+if int(end) > 19000000:
+    while date != int(end):
+        DD += 1
+        if DD > month_lengths[MM-1]:
+            DD = 1
+            MM += 1
+        if MM == 13:
+            YYYY += 1
+            MM = 1
+            DD = 1
+            if YYYY % 4 == 0 and YYYY % 100 != 0 or YYYY % 400 == 0:
+                month_lengths[1] = 29
+            else:
+                month_lengths[1] = 28
+        date = 10000 * YYYY + 100 * MM + DD;
+        dates += [date]
+else:
+    while len(dates) != int(end):
+        DD += 1
+        if DD > month_lengths[MM-1]:
+            DD = 1
+            MM += 1
+        if MM == 13:
+            YYYY += 1
+            MM = 1
+            DD = 1
+            if YYYY % 4 == 0 and YYYY % 100 != 0 or YYYY % 400 == 0:
+                month_lengths[1] = 29
+            else:
+                month_lengths[1] = 28
+        date = 10000 * YYYY + 100 * MM + DD;
+        dates += [date]
+
+program = sys.argv[1]
+
+if nb_args == 3:
+    arguments = "%D"
+else:
+    arguments = string.join(sys.argv[2:nb_args-1])
+    if (string.find(arguments, "%D") == -1):
+        arguments += " %D"
+
+for i in dates:
+    print '-' * 78
+    print "nice time " + program + " " \
+          + string.replace(arguments, "%D", str(i))
+    s = os.system("nice time " + program + " "
+                  + string.replace(arguments, "%D", str(i)))
+    if s != 0:
+        print 'X' * 78
+        sys.exit(1)
+
+print '-' * 78
+print

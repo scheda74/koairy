@@ -1,0 +1,22 @@
+# Cat.	Description                                    Density		Emission factor (isoprene, terpenes, NOx)
+
+1       Water (and Goode's interrupted space)          0		0	0	0.0
+2       Evergreen Needleleaf Forest                    1200		0.1	1.5	0.07
+3       Evergreen Broadleaf Forest                     300		0	0	0.07
+4       Deciduous Needleleaf Forest                    1000		0	0	0.07
+5       Deciduous Broadleaf Forest                     300		60	0.2	0.07
+6       Mixed Forest                                   750		30	0.85	0.07
+7       Woodland                                       300		60	0.2	0.07
+8       Wooded Grassland                               350		0.1	0.15	0.5
+9       Closed Shrubland                               200		8	0.65	0.9
+10      Open Shrubland                                 200		8	0.65	0.9
+11      Grassland                                      400		0.1	0.1	0.9
+12      Cropland                                       1000		0	0.1	0.9
+13      Bare Ground                                    100		0	0	0.9
+14      Urban and Built-up                             0		0	0	0.9
+
+
+# Explanations
+# 6: 1/2 [2] + 1/2 [5]
+# 7: assumed to be the same as [5].
+# 8: 1/2 [11] + 1/2 [5]

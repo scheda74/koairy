@@ -1,0 +1,93 @@
+[source]
+
+ID: 1
+
+# Source coordinates (meters)
+Abscissa: 100.
+Ordinate: 100.
+Altitude: 0.5
+
+# Species name
+Species: Iodine Caesium
+
+Type: continuous
+Date_beg: 2001-01-02
+Date_end: 2001-01-02
+
+# Source rate (mass/s)
+Rate: 56.5 56.5
+
+# Source velocity (m/s)
+Velocity = 10.1
+
+# Source temperature (Celsius degrees)
+Temperature = 60.
+
+# Source diameter (m)
+Diameter = 2.7
+
+# For a volume source, 
+# Width and Length should be provided.
+IsVolumeSource: no
+
+Source_water: 0.0
+
+[source]
+
+ID: 2
+
+# Source coordinates (meters)
+Abscissa: 110.
+Ordinate: 110.
+Altitude: 0.5
+
+# Species name
+Species: Iodine Biological
+
+Type: continuous
+Date_beg: 2001-01-02
+Date_end: 2001-01-02
+
+# Source rate (mass/s)
+Rate: 56.5 56.5
+
+# Source velocity (m/s)
+Velocity = 10.1
+
+# Source temperature (Celsius degrees)
+Temperature = 60.
+
+# Source diameter (m)
+Diameter = 2.7
+
+# For a volume source, 
+# Width and Length should be provided.
+IsVolumeSource: no
+
+Source_water: 0.0
+
+[source]
+
+ID: 3
+
+# Species name.
+Species: NO O3 NO2
+# Source type
+Type: continuous_line
+
+Date_beg: 2001-01-01_01-00-00
+Date_end: 2001-01-01_04-00-00
+
+#File containing the source coordinates and emission rates.
+Coordinate_file:line-emission.dat
+
+# Source velocity, temperature and diameter are needed only for the Gaussian
+# Puff model.
+# Source velocity (m/s)
+Velocity = 10.1
+# Source temperature (Celsius degrees)
+Temperature = 60.
+# Source diameter (m)
+Diameter = 0.0798
+
+Source_water: 0.0

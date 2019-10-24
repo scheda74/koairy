@@ -1,0 +1,9 @@
+Polyphemus 1.11.1
+
+Depends on:
+    - Talos 1.4.1
+    - SeldonData 1.7.2
+    - AtmoPy 1.8.1
+    - AtmoData 1.5.3
+    - Spack 0.9.1
+    - Aerosol 1.11.1

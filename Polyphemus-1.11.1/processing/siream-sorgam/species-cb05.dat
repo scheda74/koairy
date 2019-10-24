@@ -1,0 +1,148 @@
+[species]
+
+NH3    HCL    O1D    ETOH   CH4
+ETHA   TOL    XYL    SO2    SULF
+HC8    CVALK1 HUM    BiBmP  PAN
+MEOH   TO2    N2O5   BiISO1 BiISO2
+PANX   ROR    H2O2   HCO3   MEPX
+HONO   API    CVAPI1 CVAPI2 LIM
+CVLIM1 CVLIM2 HNO4   PACD   ETH
+FACD   OLE    IOLE   CVOLE1 TERP
+CRES   OPEN   MGLY   CRO    ROOH
+ISOP   CVARO1 CVARO2 ISPD   NTR
+PAR    AnClP  ALDX   HNO3   AACD
+CO     TOLP   XYLP   XO2N   MEO2
+FORM   OH     NO3    O      O3
+CXO3   ALD2   HO2    XO2    C2O3
+NO     NO2
+
+
+[aerosol_species]
+
+PMD	PBC	PNA	PSO4	PNH4	PNO3
+PHCL	PARO1	PARO2	PALK1	POLE1	PAPI1
+PAPI2	PLIM1	PLIM2	PAnClP  PBiISO1 PBiISO2
+PBiBmP  PPOA	PH2O
+
+
+[molecular_weight]
+
+# Unit: g / mol
+NH3    17.
+HCL    36.5
+O1D    16.
+ETOH   46.07
+CH4    16.04
+ETHA   30.07
+TOL    92.14
+XYL    106.16
+SO2    64.06
+SULF   98.08
+HC8    114.
+CVALK1 140.
+HUM    204.36
+BiBmP  236.0
+PAN    121.05
+MEOH   32.04
+TO2    141.15
+N2O5   108.01
+BiISO1 118.
+BiISO2 136.
+PANX   120.04
+ROR    16.
+H2O2   34.01
+HCO3   63.03
+MEPX   48.04
+HONO   47.01
+API    136.
+CVAPI1 184.
+CVAPI2 184.
+LIM    136.
+CVLIM1 200.
+CVLIM2 200.
+HNO4   79.01
+PACD   76.05
+ETH    28.05
+FACD   46.03
+OLE    27.05
+IOLE   56.11
+CVOLE1 140.
+TERP   136.24
+CRES   108.14
+OPEN   48.04
+MGLY   72.06
+CRO    108.14
+ROOH   47.03
+ISOP   68.18
+CVARO1 150.
+CVARO2 150.
+ISPD   70.09
+NTR    77.04
+PAR    15.03
+AnClP  167.
+ALDX   43.04
+HNO3   63.01
+AACD   60.05
+CO     28.01
+TOLP   141.
+XYLP   155.
+XO2N   47.03
+MEO2   47.03
+FORM   30.03
+OH     17.01
+NO3    62.01
+O      16.
+O3     48.
+CXO3   74.04
+ALD2   44.05
+HO2    33.01
+XO2    47.03
+C2O3   75.04
+NO     30.
+NO2    46.
+
+
+[photolysis_reaction_index]
+
+NO2     0   O3O3P   7   O3O1D   8   NO3NO2 13
+NO3NO   14  HONO    23  H2O2    34  HNO4   49
+HNO3    50  N2O5    51  ORGNIT  60  HOP    62
+MHP     69  HCHOrad 72  HCHOmol 73  ALD    84
+PAN     88  PACD    94  C2CHO   99  PANX   103
+OPEN    133 MGLY    138 ISPD  146
+
+
+[diffusivity]
+
+# Gas-phase diffusivities: cm^2 / s
+
+NH3	 0.198	HCL	 0.14  	O3	 0.144	NO	 0.18
+NO2	 0.136	H2O2 0.182	FORM 0.194	ALD2 0.16
+PAN	 0.096	HONO 0.155  SO2  0.109  HNO3 0.134
+MEPX 0.153	PACD 0.11	FACD 0.156	CO	 0.18
+N2O5 0.1
+
+
+[henry]
+
+# Henry constant: [mol / L / atm]
+# Must be effective Henry constant except HONO, HNO3, HCL, NH3 and SO2 (see
+# Summary of below cloud scavenging in Polair3D by Sartelet and Roustan)
+
+NH3	 62.0	HCL	  1.1		O3  	1.14e-2	NO	1.9e-3
+NO2      1.2e-2	H2O2      1.02e5	FORM	4.9e3	ALD2	15.0
+PAN      5.0	HONO      49.0		SO2	1.23	HNO3	2.1e5
+MEPX     9.5e2	PACD      5.4e2		FACD	9.8e6	CO 	1.e3
+N2O5     1.e14
+
+
+
+[dissolution_heat]
+
+# Heat of dissolution: kcal / mol at 298K
+
+NH3	-8.34	HCL	-4.0	O3	-4.76	NO	-2.78
+NO2	-4.96	H2O2 -13.1	FORM -13.5	ALD2	-11.12
+PAN  -11.71	HONO -9.53	SO2	-6.15	HNO3	-17.27
+MEPX -11.91	PACD -10.52 FACD -11.31	CO	-2.58
+N2O5 0.0

@@ -1,0 +1,23 @@
+[species]
+
+Tracer
+Iode1
+Iode2
+Iode3
+Iode4
+
+[belot_below_cloud]
+
+# Coefficients a and b for the Belot parameterization (a * po^b)
+# where po is the rain intensity (in mm / h).
+# Species	a		b
+
+Iode1	1.000000e-04	0.640000
+Iode2	1.000000e-04	0.640000
+Iode3	1.000000e-04	0.640000
+Iode4	1.000000e-06	0.640000
+
+[scavenging_coefficient]
+
+# Scavenging is applied above the following threshold over rain [mm/h]
+Scavenging_rain_threshold: 1.

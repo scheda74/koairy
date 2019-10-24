@@ -1,0 +1,88 @@
+# -*- coding: utf-8 -*-
+# Copyright (C) 2015, ENPC - INRIA - EDF R&D
+#     Author(s): Sylvain Doré
+#
+# This file is part of the air quality modeling system Polyphemus.
+#
+# Polyphemus is developed in the INRIA - ENPC joint project-team CLIME and in
+# the ENPC - EDF R&D joint laboratory CEREA.
+#
+# Polyphemus is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free
+# Software Foundation; either version 2 of the License, or (at your option)
+# any later version.
+#
+# Polyphemus is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# For more information, visit the Polyphemus web site:
+#      http://cerea.enpc.fr/polyphemus/
+import os
+
+
+# Early test to speed up build time.
+if not os.path.isfile("libgtest.a"):
+    import commands, shutil, sys, tempfile, urlparse
+    from zipfile import ZipFile
+
+
+    cache_dir = os.path.join(tempfile.gettempdir(), "polyphemus")
+
+
+    def unzip(zip_filename):
+        with ZipFile(zip_filename) as zip_file:
+            zip_namelist = [os.path.normpath(f) for f in zip_file.namelist()]
+            base_directory = os.path.commonprefix(zip_namelist)
+            base_directory = base_directory.split(os.path.sep)[0] + os.path.sep
+            if base_directory in zip_file.namelist():
+                print "skipping base directory:", base_directory
+                offset = len(base_directory)
+            else:
+                offset = 0
+            for zipinfo in zip_file.infolist():
+                name = zipinfo.filename
+                if len(name) > offset:
+                    zipinfo.filename = name[offset:]
+                    print "deflating \"{}\"...".format(zipinfo.filename)
+                    zip_file.extract(zipinfo)
+
+
+    def run(name, command):
+        print name, "..."
+        status, output = commands.getstatusoutput(command)
+        if status != 0:
+            print "[ERROR] " + name + " failed:"
+            print command
+            print output
+            print "return status:", status
+            sys.exit(status)
+        return output
+
+
+    gtest_pkg = "gtest-1.7.0.zip"
+    cached_gtest_pkg=os.path.join(cache_dir, gtest_pkg)
+    gtest_url = urlparse.urljoin("https://googletest.googlecode.com/files/",
+                                 gtest_pkg)
+
+    # Downloads Gtest package if necessary.
+    if not os.path.isfile(gtest_pkg):
+        if not os.path.isfile(cached_gtest_pkg):
+            run("Gtest download from " + gtest_url, "wget " + gtest_url)
+            if not os.path.exists(cache_dir):
+                os.makedirs(cache_dir)
+            shutil.copyfile(gtest_pkg, cached_gtest_pkg)
+        else:
+            shutil.copyfile(cached_gtest_pkg, gtest_pkg)
+
+    print gtest_pkg, " extraction..."
+    unzip(gtest_pkg)
+
+    print "Building Gtest..."
+    # To install gtest in your system, add the following argument to cmake:
+    # "-DCMAKE_INSTALL_PREFIX:PATH=/your/path/to/gtest"
+    print run("Gtest cmake",
+              "cmake -DCMAKE_BUILD_TYPE=RELEASE .")
+    print run("Gtest make",
+              "make -j 8")

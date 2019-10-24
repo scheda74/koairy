@@ -1,84 +1,79 @@
-# from flask import jsonify
-from flask_restplus import Resource
-from flask import request
-from flask import make_response
-
-# from quart import request
-# from quart import make_response
-# from quart_openapi import Pint, Resource
-
-from app.main import api
+import asyncio
+import json
+from quart import Quart, request, url_for, jsonify, Blueprint
+from quart_cors import cors
+from quart_openapi import Resource
+# from app.simulation import parse_emission as parser
 from app.simulation import parse_emission as parser
-from app.simulation import simulator
+from app.simulation.simulator import Simulator
+from app.simulation import preprocessor as ip
+from app.database.database import DB
+import app.database.query_database as query
 from app.main import blueprint
 
-# import docker
-# import datetime
-# import io
-# import requests
-# import logging
-import asyncio
+@blueprint.route('/')
+class Root(Resource):
+    async def get(self):
+        '''Hello World Route
 
-# logger = logging.getLogger(__name__)
+        This docstring will show up as the description and short-description
+        for the openapi docs for this route.
+        '''
+        return "hello"
 
-@api.route('/get/emissions')
-# @app.route('/get/emissions')
-# @blueprint.route('/get/emissions')
-class SimulatedEmissions(Resource):
-    @staticmethod
-    def get():
-        # TODO: implement method; query database for historic data
+@blueprint.route('/get/emissions')
+class Emission(Resource):
+    async def get(self):
         """
         parses files and returns simulated emissions
-        """
-        # emission_cycle = await parser.parse_emissions()
-        # return emission_cycle
-        return 'Emissions'
-    # blueprint = Blueprint(__name__)
-    # blueprint.add_url_rule("/get/emissions", get)
-
-# This route gets real-time traffic data from MongoDB and passes it on
-# @blueprint.route('/client/traffic/realtime')
-@api.route('/client/traffic/realtime')
-class RealtimeTraffic(Resource):
-    @staticmethod
-    def get():
-        """
-        returns realtime traffic data
-        """
-        return 'real time traffic'
-
-@api.route('/get/caqi')
-class AirQuality(Resource):
-    @staticmethod
-    def get():
-        """
-        parses files and returns simulated emissions as CAQI
         """
         # emission_cycle = await parser.parse_simulated_emissions()
-        return parser.get_caqi_data()
+        # emission_cycle = await parser.parse_emissions()
+        # return emission_cycle
+        return 'Emission'
 
-@api.route('/start/simulation')
+@blueprint.route('/get/caqi')
+class CAQI(Resource):
+    async def get(self):
+        """
+        Looks up database if same simulation has already been run
+        If not: New simulation with input parameters will start
+        """
+        # emission_cycle = await parser.parse_simulated_emissions()
+        caqi = query.get_latest_emissions()
+        if caqi != None:
+            return caqi["emissions"] 
+        else: 
+            return parser.get_caqi_data()
+
+@blueprint.route('/generate/weights')
+class Weights(Resource):
+    async def post(self):
+        """
+        Writes new weights with the given inputs from area distribution
+        """
+        processor = ip.PreProcessor()
+        await processor.write_weight_file()
+        return "File written"
+
+@blueprint.route('/start/simulation')
 class Simulation(Resource):
-    @staticmethod
-    async def get():
+    async def get(self):
         """
-        parses files and returns simulated emissions
+        Starts a completely new simulation...
         """
-        # simulator.start()
-        print("now I'm parsing results")
-        # await simulator.start()
-        asyncio.gather(*simulator.start())
-        print("Now I'm using the emissions from simulation")
-        result = asyncio.gather(*parser.get_caqi_data())
-        # return await parser.get_caqi_data()
-        return result
-        # return await parser.parse_simulated_emissions()
-        # return parser.parse_emissions()
+        print("Starting PreProcessor...")
+        processor = ip.PreProcessor()
+        cfg_filepath = await processor.preprocess_simulation_input()
+
+        print("Starting SUMO...")
+        simulator = Simulator(cfg_filepath)
+        await simulator.start()
+        
+        print("Parsing results...")
+        return parser.get_caqi_data()
+        # return await parser.parse_emissions()
         # return "OK"
 
-@api.blueprint.after_request
-def after_request(response):
-    header = response.headers
-    header['Access-Control-Allow-Origin'] = '*'
-    return response
+# if __name__ == "__main__":
+#     app.run('localhost', port=5000, debug=True)
