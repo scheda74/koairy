@@ -24,56 +24,62 @@ else:
 import sumolib
 net = sumolib.net.readNet(Constants.DEFAULT_NET_INPUT)
 
-def extract_attributes(context, fields):
-    values = itemgetter(*fields)
-    for _, elem in context:
-        yield values(elem.attrib)
-        elem.clear()
-        while elem.getprevious() is not None:
-            del elem.getparent()[0]
-    del context
+class Parser():
+    def __init__(self, simulation_id):
+        self.sim_id = simulation_id
+        self.sim_output_path = Constants.EMISSION_OUTPUT_BASE + "emission_output_%s.xml" % self.sim_id
 
-def parse_emissions(filename):
-    context = etree.iterparse(filename, tag="vehicle")
+    def extract_attributes(self, context, fields):
+        values = itemgetter(*fields)
+        for _, elem in context:
+            yield values(elem.attrib)
+            elem.clear()
+            while elem.getprevious() is not None:
+                del elem.getparent()[0]
+        del context
 
-    # create a dataframe from XML data a single call
-    coords = ['x', 'y']
-    entries = ['CO2', 'CO', 'NOx', 'PMx', 'fuel']
-    df = pd.DataFrame(
-        extract_attributes(context, coords + entries),
-        columns=coords + entries, dtype=np.float)
+    def parse_emissions(self, filepath):
+        context = etree.iterparse(filepath, tag="vehicle")
 
-    # convert *all coordinates together*, remove the x, y columns
-    # note that the net.convertXY2LonLat() call *alters the 
-    # numpy arrays in-place* so we don’t want to keep them anyway. 
-    df['lng'], df['lat'] = net.convertXY2LonLat(df.x.to_numpy(), df.y.to_numpy())
-    df.drop(coords, axis=1, inplace=True)
+        # create a dataframe from XML data a single call
+        coords = ['x', 'y']
+        entries = ['CO2', 'CO', 'NOx', 'PMx', 'fuel']
+        df = pd.DataFrame(
+            self.extract_attributes(context, coords + entries),
+            columns=coords + entries, dtype=np.float)
 
-    # 'group' data by rounding the latitude and longitude
-    # effectively creating areas of 1/10000th degrees per side
-    latlng = ['lat', 'lng']
-    df[latlng] = df[latlng].round(4)
+        # convert *all coordinates together*, remove the x, y columns
+        # note that the net.convertXY2LonLat() call *alters the 
+        # numpy arrays in-place* so we don’t want to keep them anyway. 
+        df['lng'], df['lat'] = net.convertXY2LonLat(df.x.to_numpy(), df.y.to_numpy())
+        df.drop(coords, axis=1, inplace=True)
 
-    # aggregate the results and return summed dataframe
-    return df.groupby(latlng)[entries].sum()
+        # 'group' data by rounding the latitude and longitude
+        # effectively creating areas of 1/10000th degrees per side
+        latlng = ['lat', 'lng']
+        df[latlng] = df[latlng].round(4)
 
-def get_caqi_data():
-    print("[PARSER] parsing XML emission outputs from traffic simulation")
-    timer_start = timer()
-    emissions = parse_emissions(Constants.EMISSION_OUTPUT)
-    seconds = timer() - timer_start
-    print(emissions)
-    print("[etree] Finished parsing XML in %s seconds" % seconds)
-    
-    print("[CAQI] calculating subindices and overall CAQI")
-    caqi_emissions = emissions.apply(caqi.calc_indices, axis=1)
-    result = caqi_emissions.reset_index().to_json(orient='index')
-    DB.insert(collection='caqi_emissions', data={ "created_at:": datetime.datetime.utcnow(), "emissions": result })
-    return result
-    # return result.to_json(orient='index')
-    # return json.dumps(result)
-    # print(json_val)
-    # return caqi_emissions.to_json(orient='index')
-    # df = pd.DataFrame(emissions)
-    # df.app
-    # return emissions
+        # aggregate the results and return summed dataframe
+        return df.groupby(latlng)[entries].sum()
+
+    def get_caqi_data(self):
+        print("[PARSER] parsing XML emission outputs from traffic simulation")
+        timer_start = timer()
+        emissions = self.parse_emissions(self.sim_output_path)
+        seconds = timer() - timer_start
+        print(emissions)
+        print("[etree] Finished parsing XML in %s seconds" % seconds)
+        
+        print("[CAQI] calculating subindices and overall CAQI")
+        caqi_emissions = emissions.apply(caqi.calc_indices, axis=1)
+        result = caqi_emissions.reset_index().to_json(orient='index')
+        print("[PARSER] Saving calculated inidzes to database")
+        DB.insert(collection='caqi_emissions', data={ "created_at:": datetime.datetime.utcnow(), "sim_id": self.sim_id, "emissions": result })
+        return result
+        # return result.to_json(orient='index')
+        # return json.dumps(result)
+        # print(json_val)
+        # return caqi_emissions.to_json(orient='index')
+        # df = pd.DataFrame(emissions)
+        # df.app
+        # return emissions

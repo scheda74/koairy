@@ -19,10 +19,11 @@ from simulation.constants import Constants
 class PreProcessor(Constants):
     def __init__(
         self,
+        sim_id,
         new_net_path=None, 
         timesteps=10800, 
         agents=9500,
-        weights_per_area={
+        src_weights={
             'aschheim_west': 0.1,
             'ebersberg_east': 0.37,
             'feldkirchen_west': 0.1,
@@ -34,7 +35,7 @@ class PreProcessor(Constants):
             'kirchheim_residential': 0.16,
             'unassigned_edges': 0.05
         },
-        weights_per_area_dst={
+        dst_weights={
             'aschheim_west': 0.16,
             'ebersberg_east': 0.07,
             'feldkirchen_west': 0.16,
@@ -46,24 +47,24 @@ class PreProcessor(Constants):
             'kirchheim_residential': 0.05,
             'unassigned_edges': 0.05
         },
-        weight_type='src',
         fringe_factor=1
     ):
+        self.sim_id = sim_id
         self.timesteps = timesteps
         self.agents = agents
-        self.weights_per_area = weights_per_area
-        self.weights_per_area_dst = weights_per_area_dst
-        self.weight_type = weight_type
+        self.src_weights = src_weights
+        self.dst_weights = dst_weights
+        # self.weight_type = weight_type
         self.fringe_factor = fringe_factor
         self.new_net_path = new_net_path
 
-        self.weights = "".join([str(v).replace('.', '') for v in self.weights_per_area.values()])
-        self.weights_filepath = Constants.WEIGHT_INPUT + "-%s.%s.xml" % (self.weights, self.weight_type)
-        self.weights_filepath_prefix = Constants.WEIGHT_INPUT + self.weights
-        self.trip_filepath = Constants.TRIP_OUTPUT + self.weights + ".trip.xml"
-        self.route_filepath = Constants.ROUTE_OUTPUT + self.weights + ".rou.xml"
+        # self.weights = "".join([str(v).replace('.', '') for v in self.weights_per_area.values()])
+        self.weights_filepath = Constants.WEIGHT_INPUT + "%s.src.xml" % self.sim_id
+        self.weights_filepath_prefix = Constants.WEIGHT_INPUT + self.sim_id
+        self.trip_filepath = Constants.TRIP_OUTPUT + self.sim_id + ".trip.xml"
+        self.route_filepath = Constants.ROUTE_OUTPUT + self.sim_id + ".rou.xml"
         self.net_filepath = new_net_path if new_net_path != None else Constants.DEFAULT_NET_INPUT
-        self.cfg_filepath = Constants.SUMO_CFG + self.weights + ".sumocfg"
+        self.cfg_filepath = Constants.SUMO_CFG + self.sim_id + ".sumocfg"
 
     def write_sumocfg_file(self):
         configuration_tag = ET.Element('configuration')
@@ -148,7 +149,7 @@ class PreProcessor(Constants):
 
         if (weights_per_area_keys.symmetric_difference(Constants.VALID_AREA_IDS) != set()):
             raise ValueError('area_ids must only be exactly %r.' % Constants.VALID_AREA_IDS)
-        if (self.weight_type != 'src' and self.weight_type != 'dst'):
+        if (weight_type != 'src' and weight_type != 'dst'):
             raise ValueError("weight_type must be 'src' or 'dst'")
 
         edges_per_area = {}
@@ -223,10 +224,13 @@ class PreProcessor(Constants):
         #         '../data/input-simulation/areas-of-interest.boundaries.xml',
         #         '../data/input-simulation/areas-of-interest.taz.xml'
         #     )
+        print("path: %s" % self.weights_filepath)
         if not os.path.exists(self.weights_filepath):
-            self.write_weight_file(self.weight_type, self.weights_per_area) # create .src file
-            self.write_weight_file() # create .dst file
+            self.write_weight_file('src', self.src_weights) # create .src file
+            self.write_weight_file('dst', self.dst_weights) # create .dst file
             self.write_random_trips_and_routes()
             self.write_sumocfg_file()
+        else:
+            print("[PreProcessor] weight, routes and trip file already exists. Starting SUMO anyway...")
         
         return self.cfg_filepath

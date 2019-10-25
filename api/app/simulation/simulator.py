@@ -23,8 +23,12 @@ else:
 import traci
 
 class Simulator:
-    def __init__(self, cfg_filepath):
+    def __init__(self, cfg_filepath, sim_id):
+        self.sim_id = sim_id
         self.cfg_filepath = cfg_filepath
+        self.tripinfo_filepath = Constants.EMISSION_OUTPUT_BASE + 'tripinfo_%s.xml' % self.sim_id
+        self.fcdoutput_filepath = Constants.EMISSION_OUTPUT_BASE + 'fcdoutput_%s.xml' % self.sim_id
+        self.emission_output_filepath = Constants.EMISSION_OUTPUT_BASE + "emission_output_%s.xml" % self.sim_id
 
     def run(self):
         # step = 0
@@ -52,17 +56,19 @@ class Simulator:
             sumoBinary, 
             "-c", self.cfg_filepath,
             # "-c", self.cfg_filepath,
-            "--tripinfo-output", 
-            Constants.EMISSION_OUTPUT_BASE + 'tripinfo.xml', 
-            '--fcd-output', Constants.EMISSION_OUTPUT_BASE + 'fcdoutput.xml', 
-            "--emission-output", Constants.EMISSION_OUTPUT_BASE + "emission_output.xml"
+            "--tripinfo-output", self.tripinfo_filepath,
+            '--fcd-output', self.fcdoutput_filepath, 
+            "--emission-output", self.emission_output_filepath
         ]
         #  "--amitran-output", args.trippath + "trajoutput.xml", 
         # "--phemlight-path", sumo_root + "/data/emissions/PHEMlight/",
         # "--additional-files", create_xml_file(args.lanepath, args.freq, simulation_id), 
-        print(sumoCMD)
-        traci.start(sumoCMD, 4041)
-        self.run()
+        if not os.path.exists(self.emission_output_filepath):
+            print(sumoCMD)
+            traci.start(sumoCMD, 4041)
+            self.run()
+        else:
+            print("[SIMULATOR] Same simulation already exists. Parsing old file...")
         # doc = {}
         # with open(args.output + "emission_output.xml") as fd:
         #     doc = xmltodict.parse(fd.read())
