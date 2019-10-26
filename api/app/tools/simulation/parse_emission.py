@@ -11,9 +11,14 @@ from lxml import etree
 from operator import itemgetter
 from timeit import default_timer as timer
 # from app.db.mongodb import DB
-from .simulation import calc_caqi as caqi
-from .simulation import preprocessor as ip
+from app.tools.simulation import calc_caqi as caqi
+from app.tools.simulation import preprocessor as ip
 from app.core.config import DEFAULT_NET_INPUT, EMISSION_OUTPUT_BASE
+from app.crud.emissions import (
+    insert_caqi_emissions,
+    insert_raw_emissions
+)
+from app.db.mongodb import AsyncIOMotorClient
 
 if 'SUMO_HOME' in os.environ:
     tools = os.path.join(os.environ['SUMO_HOME'], 'tools')
@@ -25,7 +30,8 @@ import sumolib
 net = sumolib.net.readNet(DEFAULT_NET_INPUT)
 
 class Parser():
-    def __init__(self, simulation_id):
+    def __init__(self, db: AsyncIOMotorClient, simulation_id):
+        self.db = db
         self.sim_id = simulation_id
         self.sim_output_path = EMISSION_OUTPUT_BASE + "emission_output_%s.xml" % self.sim_id
 
@@ -62,7 +68,7 @@ class Parser():
         # aggregate the results and return summed dataframe
         return df.groupby(latlng)[entries].sum()
 
-    def get_caqi_data(self):
+    async def get_caqi_data(self):
         print("[PARSER] parsing XML emission outputs from traffic simulation")
         timer_start = timer()
         emissions = self.parse_emissions(self.sim_output_path)
@@ -70,16 +76,12 @@ class Parser():
         print(emissions)
         print("[etree] Finished parsing XML in %s seconds" % seconds)
         
+        print("[PARSER] Saving raw simulated emissions to database")
+        raw_emissions = emissions.reset_index().to_json(orient='index')
+        await insert_raw_emissions(self.db, self.sim_id, raw_emissions)
         print("[CAQI] calculating subindices and overall CAQI")
         caqi_emissions = emissions.apply(caqi.calc_indices, axis=1)
         result = caqi_emissions.reset_index().to_json(orient='index')
         print("[PARSER] Saving calculated inidzes to database")
-        DB.insert(collection='caqi_emissions', data={ "created_at:": datetime.datetime.utcnow(), "sim_id": self.sim_id, "emissions": result })
+        await insert_caqi_emissions(self.db, self.sim_id, result)
         return result
-        # return result.to_json(orient='index')
-        # return json.dumps(result)
-        # print(json_val)
-        # return caqi_emissions.to_json(orient='index')
-        # df = pd.DataFrame(emissions)
-        # df.app
-        # return emissions

@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 from databases import DatabaseURL
+import app.tools.simulation as simulation
 
 
 load_dotenv(".env")
@@ -10,12 +11,15 @@ MONGODB_URL = os.getenv("MONGODB_URL", "")  # deploying without docker-compose
 if not MONGODB_URL:
     MONGO_HOST = os.getenv("MONGO_HOST", "localhost")
     MONGO_PORT = int(os.getenv("MONGO_PORT", 27017))
-    MONGO_USER = os.getenv("MONGO_USER", "admin")
-    MONGO_PASS = os.getenv("MONGO_PASSWORD", "markqiu")
+    # MONGO_USER = os.getenv("MONGO_USER", "root")
+    # MONGO_PASS = os.getenv("MONGO_PASSWORD", "example")
     MONGO_DB = os.getenv("MONGO_DB", "fastapi")
 
+    # MONGODB_URL = DatabaseURL(
+    #     f"mongodb://{MONGO_USER}:{MONGO_PASS}@{MONGO_HOST}:{MONGO_PORT}/{MONGO_DB}"
+    # )
     MONGODB_URL = DatabaseURL(
-        f"mongodb://{MONGO_USER}:{MONGO_PASS}@{MONGO_HOST}:{MONGO_PORT}/{MONGO_DB}"
+        f"mongodb://{MONGO_HOST}:{MONGO_PORT}/{MONGO_DB}"
     )
 else:
     MONGODB_URL = DatabaseURL(MONGODB_URL)
@@ -30,7 +34,7 @@ else:
     sys.exit("please declare environment variable 'SUMO_HOME'")
 
 
-BASEDIR = os.path.dirname(__file__)
+BASEDIR = os.path.dirname(simulation.__file__)
 DEFAULT_NET_INPUT = BASEDIR + "/data/traffic-input/road-network-default.net.xml"
 AREA_OF_INTEREST = BASEDIR + "/data/traffic-input/areas-of-interest.taz.xml"
 TRIP_OUTPUT = BASEDIR + "/data/traffic-input/trip-"
@@ -63,4 +67,5 @@ VALID_AREA_IDS = {
 
 
 database_name = MONGO_DB
-emission_collection_name = "caqi_emissions"
+caqi_emission_collection_name = "caqi_emissions"
+raw_emission_collection_name = "raw_emissions"

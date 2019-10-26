@@ -2,7 +2,15 @@ import os, sys
 import subprocess
 import xml.etree.ElementTree as ET
 from lxml import etree
-from app.core.config import WEIGHT_INPUT, TRIP_OUTPUT, ROUTE_OUTPUT, DEFAULT_NET_INPUT, SUMO_CFG, VALID_AREA_IDS, RANDOM_TRIP_TOOL
+from app.core.config import (
+    WEIGHT_INPUT, 
+    TRIP_OUTPUT,
+    ROUTE_OUTPUT,
+    DEFAULT_NET_INPUT,
+    SUMO_CFG,
+    VALID_AREA_IDS,
+    RANDOM_TRIP_TOOL
+)
 
 
 # path_to_net,

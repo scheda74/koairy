@@ -2,8 +2,8 @@ import uvicorn
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-from api.routes import router as api_router
-from db.mongodb_utils import connect_to_mongo, close_mongo_connection
+from app.api.routes import router as api_router
+from app.db.mongodb_utils import connect_to_mongo, close_mongo_connection
 
 
 app = FastAPI(title="EM-ViZ API")

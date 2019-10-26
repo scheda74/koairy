@@ -7,6 +7,5 @@ xmltodict
 pandas
 numpy
 asyncio
-quart
-quart_cors
-quart_openapi
+fast_api
+motor
