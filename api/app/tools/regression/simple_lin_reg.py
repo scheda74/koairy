@@ -20,4 +20,7 @@ class LinReg():
         # df = pd.DataFrame(pd_emissions, dtype=float)
         df = pd.DataFrame(pd_emissions)
         print(df[self.columns])
+
+        
+
         return raw_emissions

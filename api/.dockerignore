@@ -1,0 +1,9 @@
+.env
+.env.example
+.git*
+.travis.yml
+Procfile
+requirements.txt
+__pycache__
+# app/tools/simulation/data/*
+app/tools/simulation/data/*/*
