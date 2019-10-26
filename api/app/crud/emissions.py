@@ -28,7 +28,7 @@ async def get_raw_emissions_from_sim(conn: AsyncIOMotorClient, sim_id: str):
         raise RuntimeError(f" Couldn't find raw emissions data for specified simulation,"
                            f" sim_id={sim_id} emission_id={emission_doc}")
 
-# DB.insert(collection='caqi_emissions', data={ "created_at:": datetime.datetime.utcnow(), "sim_id": self.sim_id, "emissions": result })
+
 async def insert_caqi_emissions(conn: AsyncIOMotorClient, sim_id: str, emissions: dict):
     caqi_doc = {}
     caqi_doc["emissions"] = emissions
