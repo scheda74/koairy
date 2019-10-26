@@ -2,7 +2,7 @@ import os, sys
 import subprocess
 import xml.etree.ElementTree as ET
 from lxml import etree
-from simulation.constants import Constants
+from app.core.config import WEIGHT_INPUT, TRIP_OUTPUT, ROUTE_OUTPUT, DEFAULT_NET_INPUT, SUMO_CFG, VALID_AREA_IDS, RANDOM_TRIP_TOOL
 
 
 # path_to_net,
@@ -16,7 +16,7 @@ from simulation.constants import Constants
 # '../data/input-simulation/scenario{0}'.format(scenario_id),
 
 
-class PreProcessor(Constants):
+class PreProcessor():
     def __init__(
         self,
         sim_id,
@@ -59,12 +59,12 @@ class PreProcessor(Constants):
         self.new_net_path = new_net_path
 
         # self.weights = "".join([str(v).replace('.', '') for v in self.weights_per_area.values()])
-        self.weights_filepath = Constants.WEIGHT_INPUT + "%s.src.xml" % self.sim_id
-        self.weights_filepath_prefix = Constants.WEIGHT_INPUT + self.sim_id
-        self.trip_filepath = Constants.TRIP_OUTPUT + self.sim_id + ".trip.xml"
-        self.route_filepath = Constants.ROUTE_OUTPUT + self.sim_id + ".rou.xml"
-        self.net_filepath = new_net_path if new_net_path != None else Constants.DEFAULT_NET_INPUT
-        self.cfg_filepath = Constants.SUMO_CFG + self.sim_id + ".sumocfg"
+        self.weights_filepath = WEIGHT_INPUT + "%s.src.xml" % self.sim_id
+        self.weights_filepath_prefix = WEIGHT_INPUT + self.sim_id
+        self.trip_filepath = TRIP_OUTPUT + self.sim_id + ".trip.xml"
+        self.route_filepath = ROUTE_OUTPUT + self.sim_id + ".rou.xml"
+        self.net_filepath = new_net_path if new_net_path != None else DEFAULT_NET_INPUT
+        self.cfg_filepath = SUMO_CFG + self.sim_id + ".sumocfg"
 
     def write_sumocfg_file(self):
         configuration_tag = ET.Element('configuration')
@@ -147,17 +147,17 @@ class PreProcessor(Constants):
         print("Writing/Formatting weight file...")
         weights_per_area_keys = set(weights_per_area.keys())
 
-        if (weights_per_area_keys.symmetric_difference(Constants.VALID_AREA_IDS) != set()):
-            raise ValueError('area_ids must only be exactly %r.' % Constants.VALID_AREA_IDS)
+        if (weights_per_area_keys.symmetric_difference(VALID_AREA_IDS) != set()):
+            raise ValueError('area_ids must only be exactly %r.' % VALID_AREA_IDS)
         if (weight_type != 'src' and weight_type != 'dst'):
             raise ValueError("weight_type must be 'src' or 'dst'")
 
         edges_per_area = {}
-        taz_tree = ET.parse(Constants.AREA_OF_INTEREST)
+        taz_tree = ET.parse(AREA_OF_INTEREST)
         taz_root = taz_tree.getroot()
 
         for taz in taz_root.iter('taz'):
-            if (taz.get('id') in Constants.VALID_AREA_IDS):
+            if (taz.get('id') in VALID_AREA_IDS):
                 edges_per_area['{0}'.format(taz.get('id'))] = taz.get('edges').split()
         
         if not os.path.exists(filepath):
@@ -206,7 +206,7 @@ class PreProcessor(Constants):
         # path_to_script = tools + '/randomTrips.py'
         print("Writing random trips and route files...")
         cmd = "python %s -n %s -e %s -o %s --route-file %s --validate --fringe-factor %s -p %s --weights-prefix %s"\
-                % ( Constants.RANDOM_TRIP_TOOL,
+                % ( RANDOM_TRIP_TOOL,
                     self.net_filepath,
                     self.timesteps, 
                     self.trip_filepath, 

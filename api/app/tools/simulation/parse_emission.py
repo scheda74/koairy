@@ -10,10 +10,10 @@ import datetime
 from lxml import etree
 from operator import itemgetter
 from timeit import default_timer as timer
-from database.database import DB
-from simulation import calc_caqi as caqi
-from simulation import preprocessor as ip
-from simulation.constants import Constants
+# from app.db.mongodb import DB
+from .simulation import calc_caqi as caqi
+from .simulation import preprocessor as ip
+from app.core.config import DEFAULT_NET_INPUT, EMISSION_OUTPUT_BASE
 
 if 'SUMO_HOME' in os.environ:
     tools = os.path.join(os.environ['SUMO_HOME'], 'tools')
@@ -22,12 +22,12 @@ else:
     sys.exit("please declare environment variable 'SUMO_HOME'")
 
 import sumolib
-net = sumolib.net.readNet(Constants.DEFAULT_NET_INPUT)
+net = sumolib.net.readNet(DEFAULT_NET_INPUT)
 
 class Parser():
     def __init__(self, simulation_id):
         self.sim_id = simulation_id
-        self.sim_output_path = Constants.EMISSION_OUTPUT_BASE + "emission_output_%s.xml" % self.sim_id
+        self.sim_output_path = EMISSION_OUTPUT_BASE + "emission_output_%s.xml" % self.sim_id
 
     def extract_attributes(self, context, fields):
         values = itemgetter(*fields)

@@ -22,7 +22,7 @@ expected = app.create_validator('simulation_request', {
     'dstWeights': {'string': 'float'},
     'vehicleNumber': 'integer',
     'timesteps': 'integer'
-    })
+})
 
 @blueprint.route('/')
 class Root(Resource):
@@ -35,24 +35,24 @@ class Root(Resource):
         '''
         return "hello"
 
-@blueprint.route('/get/emissions')
-class Emission(Resource):
-    async def get(self):
-        """
-        parses files and returns simulated emissions
-        """
-        # emission_cycle = await parser.parse_simulated_emissions()
-        # emission_cycle = await parser.parse_emissions()
-        # return emission_cycle
-        return 'Emission'
+# @blueprint.route('/get/emissions')
+# class Emission(Resource):
+#     async def get(self):
+#         """
+#         parses files and returns simulated emissions
+#         """
+#         # emission_cycle = await parser.parse_simulated_emissions()
+#         # emission_cycle = await parser.parse_emissions()
+#         # return emission_cycle
+#         return 'Emission'
 
 @blueprint.route('/get/caqi', methods=['GET', 'POST'])
 class CAQI(Resource):
     @blueprint.expect(expected)
-    async def get(self):
+    # @blueprint.param('Body', description='Required properties in application/json body', _in='query', schema=expected)
+    async def get(self, param):
         """
-        Looks up database if same simulation has already been run
-        If not: New simulation with input parameters will start
+        Returns CAQI values. If not available new simulation will be started
         """
         
         body = await request.get_json()
@@ -70,6 +70,7 @@ class CAQI(Resource):
 @blueprint.route('/generate/weights')
 class Weights(Resource):
     @blueprint.expect(expected)
+    # @blueprint.param('Body', description='Required properties in application/json body', _in='query', schema=expected)
     async def post(self):
         """
         Writes new weights with the given inputs from area distribution
@@ -89,9 +90,11 @@ class Weights(Resource):
 @blueprint.route('/start/simulation', methods=['GET', 'POST'])
 class Simulation(Resource):
     @blueprint.expect(expected)
+    # @blueprint.param('Body', description='Required properties in application/json body', _in='query', schema=expected)
     async def get(self):
         """
         Starts a completely new simulation...
+        
         """
         body = await request.get_json()
         sim_id = generate_id(body)

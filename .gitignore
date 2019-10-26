@@ -5,3 +5,7 @@ flask/app/main/simulation/data
 api/simulation/data/*
 api/app/simulation/data/*
 api/app/simulation/data/*/*
+
+
+api/app/tools/simulation/data/*
+api/app/tools/simulation/data/*/*
