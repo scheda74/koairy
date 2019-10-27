@@ -32,7 +32,7 @@ class Simulator:
         self.fcdoutput_filepath = EMISSION_OUTPUT_BASE + 'fcdoutput_%s.xml' % self.sim_id
         self.emission_output_filepath = EMISSION_OUTPUT_BASE + "emission_output_%s.xml" % self.sim_id
 
-    def run(self):
+    async def run(self):
         # step = 0
         while traci.simulation.getMinExpectedNumber() > 0:
             traci.simulationStep()
@@ -40,6 +40,7 @@ class Simulator:
             # step += 1
         traci.close()
         sys.stdout.flush()
+        return
 
     async def start(self):
         sumoBinary = SUMO_COMMANDLINE
@@ -57,7 +58,7 @@ class Simulator:
         if not os.path.exists(self.emission_output_filepath):
             print(sumoCMD)
             traci.start(sumoCMD, 4041)
-            self.run()
+            await self.run()
         else:
             print("[SIMULATOR] Same simulation already exists. Parsing old file...")
         # doc = {}
@@ -65,5 +66,4 @@ class Simulator:
         #     doc = xmltodict.parse(fd.read())
         # print(doc)
         # return json.dumps(doc)
-        
         return
