@@ -7,12 +7,14 @@
 
 ## References
 
-## Important Commands:
+## Important Commands / Common Errors:
 
+### No space left on device error
 Remove images that are not linked to a container
 ```bash
 docker rmi -f $(docker images | grep '^<none>' | awk '{print $3}')
 ```
+
 
 Remove old and exited container (CAUTION)
 ```bash
