@@ -19,16 +19,9 @@ async def get_caqi(inputs: Inputs = example_body, db: AsyncIOMotorClient=Depends
     Returns CAQI values. If not available new simulation will be started
     """
     simulation_id = generate_id(inputs)
-    print(inputs)
-    print(simulation_id)
+    print("[PARSER] Get CAQI data from simulation with id {simulation_id}")
     parser = Parser(db, simulation_id)
-    # emission_cycle = await parser.parse_simulated_emissions()
-    # caqi = query.get_latest_emissions(simulation_id)
-    caqi = await get_caqi_emissions_for_sim(db, simulation_id)
-    if caqi != None:
-        return caqi["emissions"] 
-    else: 
-        return parser.get_caqi_data()
+    return parser.get_caqi_data()
 
 @router.get('/generate/weights')
 async def generate_weights(inputs: Inputs = example_body, db: AsyncIOMotorClient=Depends(get_database)):

@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 from databases import DatabaseURL
 import app.tools.simulation as simulation
-
+import app.tools.regression.data.weather as weather
 
 load_dotenv(".env")
 
@@ -47,6 +47,11 @@ SUMO_GUI = SUMO_ROOT + "/bin/sumo-gui"
 SUMO_COMMANDLINE = SUMO_ROOT + "/bin/sumo"
 SUMO_EM_DRIVING_CYCLE = SUMO_ROOT + "/bin/emissionsDrivingCycle"
 RANDOM_TRIP_TOOL = tools + "/randomTrips.py"
+
+WEATHER_BASEDIR = os.path.dirname(weather.__file__)
+WEATHER_WIND = WEATHER_BASEDIR + "/wind_munich_2019.txt"
+WEATHER_PRESSURE = WEATHER_BASEDIR + "/pressure_munich_2019.txt"
+WEATHER_TEMP_HUMID = WEATHER_BASEDIR + "/temp_humidty_munich_2019.txt"
 
 PHEMLIGHT_PATH = SUMO_ROOT + "/data/emissions/PHEMlight"
 

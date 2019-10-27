@@ -15,6 +15,7 @@ from app.tools.simulation import calc_caqi as caqi
 from app.tools.simulation import preprocessor as ip
 from app.core.config import DEFAULT_NET_INPUT, EMISSION_OUTPUT_BASE
 from app.crud.emissions import (
+    get_caqi_emissions_for_sim,
     insert_caqi_emissions,
     insert_raw_emissions
 )
@@ -69,19 +70,26 @@ class Parser():
         return df.groupby(latlng)[entries].sum()
 
     async def get_caqi_data(self):
-        print("[PARSER] parsing XML emission outputs from traffic simulation")
-        timer_start = timer()
-        emissions = self.parse_emissions(self.sim_output_path)
-        seconds = timer() - timer_start
-        print(emissions)
-        print("[etree] Finished parsing XML in %s seconds" % seconds)
-        
-        print("[PARSER] Saving raw simulated emissions to database")
-        raw_emissions = emissions.reset_index().to_json(orient='index')
-        await insert_raw_emissions(self.db, self.sim_id, raw_emissions)
-        print("[CAQI] calculating subindices and overall CAQI")
-        caqi_emissions = emissions.apply(caqi.calc_indices, axis=1)
-        result = caqi_emissions.reset_index().to_json(orient='index')
-        print("[PARSER] Saving calculated inidzes to database")
-        await insert_caqi_emissions(self.db, self.sim_id, result)
-        return result
+        caqi = await get_caqi_emissions_for_sim(self.db, self.sim_id)
+        if caqi != None:
+            print("[PARSER] Simulation has already been run. Fetching CAQI from DB...")
+            return caqi["emissions"] 
+        else: 
+            print("[PARSER] parsing XML emission outputs from traffic simulation")
+            timer_start = timer()
+            emissions = self.parse_emissions(self.sim_output_path)
+            seconds = timer() - timer_start
+            print(emissions)
+            print("[etree] Finished parsing XML in %s seconds" % seconds)
+            
+            print("[PARSER] Saving raw simulated emissions to database")
+            raw_emissions = emissions.reset_index().to_json(orient='index')
+            await insert_raw_emissions(self.db, self.sim_id, raw_emissions)
+
+            print("[CAQI] calculating subindices and overall CAQI")
+            caqi_emissions = emissions.apply(caqi.calc_indices, axis=1)
+            result = caqi_emissions.reset_index().to_json(orient='index')
+
+            print("[PARSER] Saving calculated inidzes to database")
+            await insert_caqi_emissions(self.db, self.sim_id, result)
+            return result
