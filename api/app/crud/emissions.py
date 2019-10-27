@@ -4,8 +4,8 @@
 from typing import List, Optional
 from datetime import datetime
 
-from ..db.mongodb import AsyncIOMotorClient
-from ..core.config import (
+from app.db.mongodb import AsyncIOMotorClient
+from app.core.config import (
     database_name, 
     caqi_emission_collection_name,
     raw_emission_collection_name

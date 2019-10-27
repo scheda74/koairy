@@ -3,6 +3,7 @@ import subprocess
 import xml.etree.ElementTree as ET
 from lxml import etree
 from app.core.config import (
+    AREA_OF_INTEREST,
     WEIGHT_INPUT, 
     TRIP_OUTPUT,
     ROUTE_OUTPUT,
@@ -237,6 +238,7 @@ class PreProcessor():
             self.write_weight_file('src', self.src_weights) # create .src file
             self.write_weight_file('dst', self.dst_weights) # create .dst file
             self.write_random_trips_and_routes()
+        elif not os.path.exists(self.cfg_filepath):
             self.write_sumocfg_file()
         else:
             print("[PreProcessor] weight, routes and trip file already exists. Starting SUMO anyway...")
