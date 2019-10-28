@@ -18,10 +18,11 @@ async def get_caqi(inputs: Inputs = example_body, db: AsyncIOMotorClient=Depends
     """
     Returns CAQI values. If not available new simulation will be started
     """
+    print(inputs)
     simulation_id = generate_id(inputs)
     print("[PARSER] Get CAQI data from simulation with id {simulation_id}")
     parser = Parser(db, simulation_id)
-    return parser.get_caqi_data()
+    return await parser.get_caqi_data()
 
 @router.get('/generate/weights')
 async def generate_weights(inputs: Inputs = example_body, db: AsyncIOMotorClient=Depends(get_database)):
@@ -57,7 +58,7 @@ async def start_simulation(inputs: Inputs = example_body, db: AsyncIOMotorClient
     cfg_filepath = await processor.preprocess_simulation_input()
     # print(cfg_filepath)
     print("Starting SUMO...")
-    simulator = Simulator(cfg_filepath, sim_id)
+    simulator = Simulator(db, cfg_filepath, sim_id)
     await simulator.start()
     
     print("Parsing results...")
