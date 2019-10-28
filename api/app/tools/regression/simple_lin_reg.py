@@ -9,7 +9,8 @@ from app.core.config import (
     WEATHER_BASEDIR,
     WEATHER_PRESSURE,
     WEATHER_TEMP_HUMID, 
-    WEATHER_WIND
+    WEATHER_WIND,
+    AIR_BASEDIR
 )
 
 import numpy as np
@@ -32,7 +33,7 @@ class LinReg():
         df_temp_humid = self.get_temp_humid()
         df_pressure = self.get_pressure()
         df_wind = self.get_wind()
-        
+        df_air = self.get_real_air(AIR_BASEDIR + '/air_2019_01.json')
         return raw_emissions
 
     # weather inputs are: 
@@ -65,5 +66,12 @@ class LinReg():
         df = df.rename(columns={"FF": "WIND_SPEED", "DD": "WIND_DIR"})
         return df[['MESS_DATUM', 'WIND_SPEED', 'WIND_DIR']]
     
-    
+
+    def get_real_air(self, filepath):
+        data = json.load(open(filepath))
+
+        df = pd.DataFrame(
+            dict([ (k, pd.Series(v)) for k,v in data['features'][6]['properties']['timeValueSeries'].items() ])
+        )
+        return df
 
