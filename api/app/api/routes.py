@@ -70,16 +70,18 @@ async def start_simulation(inputs: Inputs = example_body, db: AsyncIOMotorClient
 @router.post('/start/linreg')
 async def start_linreg(inputs: Inputs = example_body, db: AsyncIOMotorClient=Depends(get_database)):
     """
-    Starts a new simulation with given input parameters...
+    Starts training a simple Linear Regression Model with the specified independents (= inputs) and dependent (= output)
+    Next, it'll predict the specified output with the data given to this request
     """
-    # body = await request.get_json()
     sim_id = generate_id(inputs)
     lr = LinReg(db, sim_id)
     await lr.predict_emission()
     # raw_emissions = await lr.fetch_simulated_emissions()
     # print(raw_emissions)
     # return raw_emissions["emissions"] if raw_emissions != None else {}
-    return {}
+    data = await lr.aggregate_data('2019-01-01', '2019-10-28', '0:00', '23:00')
+    print(data)
+    return data.to_json()
 
 def generate_id(inputs):
     src_weights = "".join([str(v).replace('.', '') for v in inputs.srcWeights.values()])

@@ -29,27 +29,17 @@ class LinReg():
 
     async def predict_emission(self, data=None, input_keys=['veh', 'TEMP', 'HUMIDITY', 'PMx'], output_key='pm10'):
         df_combined = await self.aggregate_data('2019-08-22', '2019-10-15', '6:00', '11:00')
-        print(df_combined)
+        df_combined = df_combined.dropna()
+        # print(df_combined)
         regr = await self.train_model(df_combined, input_keys, output_key)
 
         df_test = await self.aggregate_data('2019-10-16', '2019-10-22', '6:00', '11:00')
+        df_test = df_test.dropna()
         Z = df_test[input_keys]
         # print(regr.predict(Z))
         df_test = df_test.assign(predicted=regr.predict(Z))
-        self.save_df_to_plot(df_test[[output_key, 'predicted']], '%s_prediction' % output_key)
-    
-    async def aggregate_data(self, start_date='2019-08-16', end_date='2019-10-24', start_hour='6:00', end_hour='11:00'):
-        df_sim = await self.fetch_simulated_emissions()
-        df_weather = await self.fetch_weather_data(start_date, end_date, start_hour, end_hour)
-        df_air_traffic = await self.fetch_air_and_traffic(start_date, end_date, start_hour, end_hour)
-        # print(df_air_traffic)
-        df_combined = pd.concat([df_air_traffic, df_weather], axis=1).dropna()
-
-        # NOTE: Combine all dataframes
-        length, _ = df_combined.shape
-        df_sim_repeated = pd.concat([df_sim]*int(abs((length / 6))), ignore_index=True)
-        df_combined = df_combined.reset_index().rename(columns={'index': 'time'}) # prepare for concat with sim values
-        return pd.concat([df_combined, df_sim_repeated], axis=1).set_index(['time']).dropna()
+        print(df_test)
+        # self.save_df_to_plot(df_test[[output_key, 'predicted']], '%s_prediction' % output_key)
 
     async def train_model(self, df, input_keys, output_key):
         X = df[input_keys]
@@ -61,7 +51,28 @@ class LinReg():
         print('Intercept: \n', regr.intercept_)
         print('Coefficients: \n', regr.coef_)
         return regr
-    
+
+    ######################################################################################################
+    ################################## DATA AGGREGATION FUNCTIONS ########################################
+    ######################################################################################################
+    async def aggregate_data(self, start_date='2019-08-16', end_date='2019-10-24', start_hour='6:00', end_hour='11:00'):
+        df_sim = await self.fetch_simulated_emissions()
+        df_weather = await self.fetch_weather_data(start_date, end_date, start_hour, end_hour)
+        df_air_traffic = await self.fetch_air_and_traffic(start_date, end_date, start_hour, end_hour)
+        # print(df_air_traffic)
+        df_combined = pd.concat([df_air_traffic, df_weather], axis=1)
+        # print(df_combined)
+
+        # NOTE: Combine all dataframes
+        length, _ = df_combined.shape
+        df_sim_repeated = pd.concat([df_sim]*int(abs((length / 6))), ignore_index=True)
+        df_combined = df_combined.reset_index().rename(columns={'index': 'time'}) # prepare for concat with sim values
+        return pd.concat([df_combined, df_sim_repeated], axis=1).set_index(['time'])
+
+
+    #####################################################################################################
+    ################################## DATA COLLECTION FUNCTIONS ########################################
+    ######################################################################################################
     async def fetch_simulated_emissions(self):
         # NOTE: First we fetch the simulated emissions
         raw_emissions = await get_raw_emissions_from_sim(self.db, self.sim_id)
@@ -115,7 +126,7 @@ class LinReg():
             end_hour=end_hour
         )
         # self.save_df_to_plot(df_wind_speed, 'pressure-nn_02-06_morning')
-        return pd.concat([frame for frame in [df_temp, df_humidity, df_pressure_nn, df_wind_speed] if not frame.empty], axis=1).dropna()
+        return pd.concat([frame for frame in [df_temp, df_humidity, df_pressure_nn, df_wind_speed] if not frame.empty], axis=1)
         
 
     async def fetch_air_and_traffic(self, start_date='2019-01-01', end_date='2019-10-28', start_hour='0:00', end_hour='23:00'):
@@ -131,8 +142,8 @@ class LinReg():
             start_hour, 
             end_hour
         )
-        self.save_df_to_plot(df_traffic, 'bremicker_all')
-        
+        # self.save_df_to_plot(df_traffic, 'bremicker_all')
+        # print(df_traffic)
         frames = [
             await self.format_real_air_by_key(
                 air_df,
@@ -146,7 +157,7 @@ class LinReg():
         if not df_traffic.empty:
             frames.append(df_traffic)
 
-        return pd.concat(frames, axis=1).dropna()
+        return pd.concat(frames, axis=1)
 
     def save_df_to_plot(self, df, filename):
         if not df.empty:
@@ -155,7 +166,9 @@ class LinReg():
         else:
             print('[PLOT] Error saving plot. Dataframe empty!')
 
+    #############################################################################################
     ################################## WEATHER FUNCTIONS ########################################
+    #############################################################################################
     # weather inputs are: 
     # wind speed: column FF, in m/s
     # wind direction column D, degrees
@@ -190,7 +203,9 @@ class LinReg():
         df = df.loc[mask].set_index('MESS_DATUM')
         return df.between_time(start_hour, end_hour)
     
+    #######################################################################################
     #################################AIR FUNCTIONS#########################################
+    #######################################################################################
     async def format_real_air_by_key(self, df, key, start_date, end_date, start_hour, end_hour):
         df = pd.DataFrame(df[key].tolist())
         df['time'] = pd.to_datetime(df['time'])
@@ -209,8 +224,10 @@ class LinReg():
         return pd.DataFrame(
             dict([ (k, pd.Series(v)) for k, v in data['features'][6]['properties']['timeValueSeries'].items() ])
         )
-
+    
+    ###############################################################################################
     ################################## BREMICKER FUNCTIONS ########################################
+    ###############################################################################################
     async def get_bremicker(self):
         traffic_frames = [await self.get_bremicker_from_file(AIR_BASEDIR + '/air_2019_%0*d.json' % (2, index)) for index in range(1, 11)]
         return pd.concat(traffic_frames, keys=['%d' % index for index in range(1, 11)]).dropna()
@@ -220,19 +237,3 @@ class LinReg():
         return pd.DataFrame(
             dict([ (k, pd.Series(v)) for k, v in data['features'][2]['properties']['timeValueSeries'].items() ])
         )
-
-        # df_combined_test = pd.concat([df_temp_test, df_humidity_test, df_pressure_test, df_real_no2_test], axis=1).dropna()
-        # length_test, _ = df_combined_test.shape
-        # print('fucking %d' % length_test)
-        # print(abs(length_test / 6))
-        # df_sim_nox_repeated_test = pd.concat([df_sim_nox]*int(abs(length_test / 6)), ignore_index=True)
-        # df_combined_test = df_combined_test.assign(SIM_NOX=df_sim_nox_repeated_test.values)
-
-        # Z = df_combined_test[['TEMP', 'HUMIDITY', 'PRESSURE_NN', 'SIM_NOX']]
-        # print(regr.predict(Z))
-
-        # df_combined_test = df_combined_test.assign(predicted=regr.predict(Z))
-        # print(df_combined_test)
-        # df_combined_test[['predicted', 'no2']].plot(figsize=(18, 5))
-        # plt.savefig(PLOT_BASEDIR + '/prediction-09-10_morning')
-        # return raw_emissions
