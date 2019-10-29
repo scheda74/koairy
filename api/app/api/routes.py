@@ -75,9 +75,11 @@ async def start_linreg(inputs: Inputs = example_body, db: AsyncIOMotorClient=Dep
     # body = await request.get_json()
     sim_id = generate_id(inputs)
     lr = LinReg(db, sim_id)
-    raw_emissions = await lr.fetch_simulated_emissions()
+    await lr.predict_emission()
+    # raw_emissions = await lr.fetch_simulated_emissions()
     # print(raw_emissions)
-    return raw_emissions["emissions"] if raw_emissions != None else {}
+    # return raw_emissions["emissions"] if raw_emissions != None else {}
+    return {}
 
 def generate_id(inputs):
     src_weights = "".join([str(v).replace('.', '') for v in inputs.srcWeights.values()])

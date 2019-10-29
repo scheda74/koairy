@@ -20,185 +20,140 @@ import numpy as np
 from sklearn.linear_model import LinearRegression
 
 class LinReg():
-    def __init__(self, db: AsyncIOMotorClient, sim_id):
+    def __init__(self, db: AsyncIOMotorClient, sim_id, existing_regr=None):
         self.db = db
         self.sim_id = sim_id
+        self.existing_regr = existing_regr
         self.raw_emission_columns = ['CO', 'NOx', 'PMx']
+        self.real_emission_columns = ['no2', 'pm2.5', 'pm10', 'o3']
 
-    async def fetch_simulated_emissions(self):
-        # NOTE: First we fetch the simulated emissions
-        raw_emissions = await get_raw_emissions_from_sim(self.db, self.sim_id)
-        df = pd.DataFrame(pd.read_json(raw_emissions["emissions"], orient='index'))
-        df_raw_em = df[self.raw_emission_columns]
-        # NOTE: The simulation runs between 10000 - 20000 seconds so aggregate for every hour
-        df_sim_nox = df_raw_em['NOx'].groupby(df.index // 3600).mean()
-        df_sim_nox = pd.DataFrame({'NOx': df_sim_nox})
-        # print(df_sim_nox)
+    async def predict_emission(self, data=None, input_keys=['veh', 'TEMP', 'HUMIDITY', 'PMx'], output_key='pm10'):
+        df_combined = await self.aggregate_data('2019-08-22', '2019-10-15', '6:00', '11:00')
+        print(df_combined)
+        regr = await self.train_model(df_combined, input_keys, output_key)
 
-        # NOTE: Fetch weather data and format timestamp
-        df_temp_humid = self.get_temp_humid()
-        df_temp = self.format_weather_by_key(
-            df=df_temp_humid,
-            key='TEMP',
-            start_date='2019-02-01',
-            end_date='2019-06-01',
-            start_hour='06:00',
-            end_hour='11:00'
-        )
-        # df_temp.plot(figsize=(18, 5))
-        # plt.savefig(PLOT_BASEDIR + '/temp_02-06_morning')
+        df_test = await self.aggregate_data('2019-10-16', '2019-10-22', '6:00', '11:00')
+        Z = df_test[input_keys]
+        # print(regr.predict(Z))
+        df_test = df_test.assign(predicted=regr.predict(Z))
+        self.save_df_to_plot(df_test[[output_key, 'predicted']], '%s_prediction' % output_key)
+    
+    async def aggregate_data(self, start_date='2019-08-16', end_date='2019-10-24', start_hour='6:00', end_hour='11:00'):
+        df_sim = await self.fetch_simulated_emissions()
+        df_weather = await self.fetch_weather_data(start_date, end_date, start_hour, end_hour)
+        df_air_traffic = await self.fetch_air_and_traffic(start_date, end_date, start_hour, end_hour)
+        # print(df_air_traffic)
+        df_combined = pd.concat([df_air_traffic, df_weather], axis=1).dropna()
 
-        df_humidity = self.format_weather_by_key(
-            df=df_temp_humid,
-            key='HUMIDITY',
-            start_date='2019-02-01',
-            end_date='2019-06-01',
-            start_hour='06:00',
-            end_hour='11:00'
-        )
-        # df_humidity.plot(figsize=(18, 5))
-        # plt.savefig(PLOT_BASEDIR + '/humidity_02-06_morning')
-
-        df_pressure = self.get_pressure()
-        df_pressure_nn = self.format_weather_by_key(
-            df=df_pressure, 
-            key='PRESSURE_NN', 
-            start_date='2019-02-01', 
-            end_date='2019-06-01', 
-            start_hour='06:00', 
-            end_hour='11:00'
-        )
-        # df_pressure_nn.plot(figsize=(18, 5))
-        # plt.savefig(PLOT_BASEDIR + '/pressure-nn_02-06_morning')
-
-        df_wind = self.get_wind()
-        df_wind_speed = self.format_weather_by_key(
-            df=df_wind, 
-            key='WIND_SPEED', 
-            start_date='2019-02-01', 
-            end_date='2019-06-01', 
-            start_hour='06:00', 
-            end_hour='11:00'
-        )
-        
-        # NOTE: Get real weather data and format it accordingly. Here we'll look at 2019 from 7:00 to 10:00
-        air_df = self.get_real_air()
-        # df_ex = self.format_real_air_by_key(
-        #     df=air_df, 
-        #     key='no2', 
-        #     start_date='2019-02-15', 
-        #     end_date='2019-02-16', 
-        #     start_hour='0:00', 
-        #     end_hour='23:00'
-        # )
-        # df_ex.plot(figsize=(18, 5))
-        # plt.savefig(PLOT_BASEDIR + '/no2_15_02_whole_day')
-        df_real_no2 = self.format_real_air_by_key(
-            df=air_df, 
-            key='no2', 
-            start_date='2019-02-01', 
-            end_date='2019-06-01', 
-            start_hour='6:00', 
-            end_hour='11:00'
-        )
-        # df_real_no2.plot(figsize=(18, 5))
-        # plt.savefig(PLOT_BASEDIR + '/no2_02-06_morning')
-        
-        df_bremicker = self.get_bremicker()
-        df_bremicker = self.format_real_air_by_key(
-            df=df_bremicker, 
-            key='veh', 
-            start_date='2019-08-16', 
-            end_date='2019-10-24', 
-            start_hour='0:00', 
-            end_hour='23:00'
-        )
-        # print(df_bremicker)
-        # df_bremicker.plot(figsize=(18, 5))
-        # plt.savefig(PLOT_BASEDIR + '/bremicker_08-10_whole-day')
-
-
-        # print(df_real_no2)
-        df_combined = pd.concat([df_temp, df_humidity, df_pressure_nn, df_real_no2], axis=1).dropna()
+        # NOTE: Combine all dataframes
         length, _ = df_combined.shape
-        df_sim_nox_repeated = pd.concat([df_sim_nox]*int(abs(length / 6)), ignore_index=True)
-        df_combined = df_combined.assign(SIM_NOX=df_sim_nox_repeated.values)
-        
-        # print(df_combined)
-        # print(df_combined.shape)
-        # df_combined.plot(figsize=(18, 5))
-        # plt.savefig(PLOT_BASEDIR + '/combined-hum-temp-no2_sim-nox_02-06_morning')
-        
-        # NOTE: Linear regression
-        X = df_combined[['TEMP', 'HUMIDITY', 'PRESSURE_NN', 'SIM_NOX']]
-        Y = df_combined['no2']
+        df_sim_repeated = pd.concat([df_sim]*int(abs((length / 6))), ignore_index=True)
+        df_combined = df_combined.reset_index().rename(columns={'index': 'time'}) # prepare for concat with sim values
+        return pd.concat([df_combined, df_sim_repeated], axis=1).set_index(['time']).dropna()
+
+    async def train_model(self, df, input_keys, output_key):
+        X = df[input_keys]
+        Y = df[output_key]
 
         regr = LinearRegression()
         regr.fit(X, Y)
 
         print('Intercept: \n', regr.intercept_)
         print('Coefficients: \n', regr.coef_)
+        return regr
+    
+    async def fetch_simulated_emissions(self):
+        # NOTE: First we fetch the simulated emissions
+        raw_emissions = await get_raw_emissions_from_sim(self.db, self.sim_id)
+        df = pd.DataFrame(pd.read_json(raw_emissions["emissions"], orient='index'))
+        df_raw_em = df[self.raw_emission_columns]
+        # NOTE: The simulation runs between 10000 - 20000 seconds so aggregate for every hour
+        # df_sim_nox = df_raw_em['NOx'].groupby(df.index // 3600).mean()
+        return df_raw_em.groupby(df.index // 3600).mean()
 
+    async def fetch_weather_data(self, start_date='2019-01-01', end_date='2019-10-28', start_hour='0:00', end_hour='23:00'):
+        # NOTE: Fetch weather data and format timestamp
+        df_temp_humid = self.get_temp_humid()
+        df_temp = self.format_weather_by_key(
+            df=df_temp_humid,
+            key='TEMP',
+            start_date=start_date,
+            end_date=end_date,
+            start_hour=start_hour,
+            end_hour=end_hour
+        )
+        # self.save_df_to_plot(df_temp, 'temp_02-06_morning')
 
+        df_humidity = self.format_weather_by_key(
+            df=df_temp_humid,
+            key='HUMIDITY',
+            start_date=start_date,
+            end_date=end_date,
+            start_hour=start_hour,
+            end_hour=end_hour
+        )
+        # self.save_df_to_plot(df_humidity, 'humidity_02-06_morning')
 
+        df_pressure = self.get_pressure()
+        df_pressure_nn = self.format_weather_by_key(
+            df=df_pressure, 
+            key='PRESSURE_NN', 
+            start_date=start_date, 
+            end_date=end_date, 
+            start_hour=start_hour, 
+            end_hour=end_hour
+        )
+        # self.save_df_to_plot(df_pressure_nn, 'pressure-nn_02-06_morning')
 
+        df_wind = self.get_wind()
+        df_wind_speed = self.format_weather_by_key(
+            df=df_wind, 
+            key='WIND_SPEED', 
+            start_date=start_date, 
+            end_date=end_date, 
+            start_hour=start_hour, 
+            end_hour=end_hour
+        )
+        # self.save_df_to_plot(df_wind_speed, 'pressure-nn_02-06_morning')
+        return pd.concat([frame for frame in [df_temp, df_humidity, df_pressure_nn, df_wind_speed] if not frame.empty], axis=1).dropna()
+        
 
+    async def fetch_air_and_traffic(self, start_date='2019-01-01', end_date='2019-10-28', start_hour='0:00', end_hour='23:00'):
+        # NOTE: Get real weather data and format it accordingly. Here we'll look at 2019 from 7:00 to 10:00
+        air_df = await self.get_real_air()
 
+        bremicker_df = await self.get_bremicker()
+        df_traffic = await self.format_real_air_by_key(
+            bremicker_df,
+            'veh',
+            start_date, 
+            end_date, 
+            start_hour, 
+            end_hour
+        )
+        self.save_df_to_plot(df_traffic, 'bremicker_all')
+        
+        frames = [
+            await self.format_real_air_by_key(
+                air_df,
+                key,
+                start_date, 
+                end_date, 
+                start_hour, 
+                end_hour) for key in self.real_emission_columns
+        ]
 
-        # df_temp_test = self.format_weather_by_key(
-        #     df=df_temp_humid,
-        #     key='TEMP',
-        #     start_date='2019-09-01',
-        #     end_date='2019-10-01',
-        #     start_hour='06:00',
-        #     end_hour='11:00'
-        # )
-        # # df_temp.plot(figsize=(18, 5))
-        # # plt.savefig(PLOT_BASEDIR + '/temp_02-06_morning')
+        if not df_traffic.empty:
+            frames.append(df_traffic)
 
-        # df_humidity_test = self.format_weather_by_key(
-        #     df=df_temp_humid,
-        #     key='HUMIDITY',
-        #     start_date='2019-09-01',
-        #     end_date='2019-10-01',
-        #     start_hour='06:00',
-        #     end_hour='11:00'
-        # )
-        # # df_humidity.plot(figsize=(18, 5))
-        # # plt.savefig(PLOT_BASEDIR + '/humidity_02-06_morning')
+        return pd.concat(frames, axis=1).dropna()
 
-        # df_pressure_test = self.format_weather_by_key(
-        #     df=df_pressure, 
-        #     key='PRESSURE_NN', 
-        #     start_date='2019-09-01', 
-        #     end_date='2019-10-01', 
-        #     start_hour='06:00', 
-        #     end_hour='11:00'
-        # )
-        # df_real_no2_test = self.format_real_air_by_key(
-        #     df=air_df, 
-        #     key='no2', 
-        #     start_date='2019-09-01', 
-        #     end_date='2019-10-01', 
-        #     start_hour='6:00', 
-        #     end_hour='11:00'
-        # )
-
-        # df_combined_test = pd.concat([df_temp_test, df_humidity_test, df_pressure_test, df_real_no2_test], axis=1).dropna()
-        # length_test, _ = df_combined_test.shape
-        # print('fucking %d' % length_test)
-        # print(abs(length_test / 6))
-        # df_sim_nox_repeated_test = pd.concat([df_sim_nox]*int(abs(length_test / 6)), ignore_index=True)
-        # df_combined_test = df_combined_test.assign(SIM_NOX=df_sim_nox_repeated_test.values)
-
-        # Z = df_combined_test[['TEMP', 'HUMIDITY', 'PRESSURE_NN', 'SIM_NOX']]
-        # print(regr.predict(Z))
-
-        # df_combined_test = df_combined_test.assign(predicted=regr.predict(Z))
-        # print(df_combined_test)
-        # df_combined_test[['predicted', 'no2']].plot(figsize=(18, 5))
-        # plt.savefig(PLOT_BASEDIR + '/prediction-09-10_morning')
-        return raw_emissions
+    def save_df_to_plot(self, df, filename):
+        if not df.empty:
+            df.plot(figsize=(18, 5))
+            plt.savefig(PLOT_BASEDIR + '/' + filename)
+        else:
+            print('[PLOT] Error saving plot. Dataframe empty!')
 
     ################################## WEATHER FUNCTIONS ########################################
     # weather inputs are: 
@@ -236,7 +191,7 @@ class LinReg():
         return df.between_time(start_hour, end_hour)
     
     #################################AIR FUNCTIONS#########################################
-    def format_real_air_by_key(self, df, key, start_date, end_date, start_hour, end_hour):
+    async def format_real_air_by_key(self, df, key, start_date, end_date, start_hour, end_hour):
         df = pd.DataFrame(df[key].tolist())
         df['time'] = pd.to_datetime(df['time'])
         df = df[['time', 'value']]
@@ -245,23 +200,39 @@ class LinReg():
         df = df.rename(columns={ 'value': key })
         return df.between_time(start_hour, end_hour)
 
-    def get_real_air(self):
-        air_frames = [self.get_real_air_from_file(AIR_BASEDIR + '/air_2019_%0*d.json' % (2, index)) for index in range(1, 11)]
+    async def get_real_air(self):
+        air_frames = [await self.get_real_air_from_file(AIR_BASEDIR + '/air_2019_%0*d.json' % (2, index)) for index in range(1, 11)]
         return pd.concat(air_frames, keys=['%d' % index for index in range(1, 11)]).dropna()
     
-    def get_real_air_from_file(self, filepath):
+    async def get_real_air_from_file(self, filepath):
         data = json.load(open(filepath))
         return pd.DataFrame(
             dict([ (k, pd.Series(v)) for k, v in data['features'][6]['properties']['timeValueSeries'].items() ])
         )
 
     ################################## BREMICKER FUNCTIONS ########################################
-    def get_bremicker(self):
-        air_frames = [self.get_bremicker_from_file(AIR_BASEDIR + '/air_2019_%0*d.json' % (2, index)) for index in range(1, 11)]
-        return pd.concat(air_frames, keys=['%d' % index for index in range(1, 11)]).dropna()
+    async def get_bremicker(self):
+        traffic_frames = [await self.get_bremicker_from_file(AIR_BASEDIR + '/air_2019_%0*d.json' % (2, index)) for index in range(1, 11)]
+        return pd.concat(traffic_frames, keys=['%d' % index for index in range(1, 11)]).dropna()
     
-    def get_bremicker_from_file(self, filepath):
+    async def get_bremicker_from_file(self, filepath):
         data = json.load(open(filepath))
         return pd.DataFrame(
             dict([ (k, pd.Series(v)) for k, v in data['features'][2]['properties']['timeValueSeries'].items() ])
         )
+
+        # df_combined_test = pd.concat([df_temp_test, df_humidity_test, df_pressure_test, df_real_no2_test], axis=1).dropna()
+        # length_test, _ = df_combined_test.shape
+        # print('fucking %d' % length_test)
+        # print(abs(length_test / 6))
+        # df_sim_nox_repeated_test = pd.concat([df_sim_nox]*int(abs(length_test / 6)), ignore_index=True)
+        # df_combined_test = df_combined_test.assign(SIM_NOX=df_sim_nox_repeated_test.values)
+
+        # Z = df_combined_test[['TEMP', 'HUMIDITY', 'PRESSURE_NN', 'SIM_NOX']]
+        # print(regr.predict(Z))
+
+        # df_combined_test = df_combined_test.assign(predicted=regr.predict(Z))
+        # print(df_combined_test)
+        # df_combined_test[['predicted', 'no2']].plot(figsize=(18, 5))
+        # plt.savefig(PLOT_BASEDIR + '/prediction-09-10_morning')
+        # return raw_emissions
