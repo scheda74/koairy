@@ -4,6 +4,7 @@ from databases import DatabaseURL
 import app.tools.simulation as simulation
 import app.tools.regression.data.weather as weather
 import app.tools.regression.data.airquality as airquality
+import app.tools.regression.data.plots as plots
 
 load_dotenv(".env")
 
@@ -55,6 +56,8 @@ WEATHER_PRESSURE = WEATHER_BASEDIR + "/pressure_munich_2019.txt"
 WEATHER_TEMP_HUMID = WEATHER_BASEDIR + "/temp_humidty_munich_2019.txt"
 
 AIR_BASEDIR = os.path.dirname(airquality.__file__)
+
+PLOT_BASEDIR = os.path.dirname(plots.__file__)
 
 PHEMLIGHT_PATH = SUMO_ROOT + "/data/emissions/PHEMlight"
 
