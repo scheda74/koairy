@@ -1,7 +1,10 @@
 
+import os
 import datetime
 import pandas as pd
+import matplotlib.pyplot as plt
 from fastapi import APIRouter, Depends
+from starlette.responses import FileResponse
 
 from app.tools.simulation.parse_emission import Parser
 from app.tools.simulation.simulator import Simulator
@@ -9,9 +12,11 @@ from app.tools.simulation.preprocessor import PreProcessor
 from app.tools.regression.simple_lin_reg import LinReg
 # from db.database import DB
 from app.models.simulation_input import Inputs, example_body
+from app.models.prediction_input import PlotInput, example_plot_input
 # import db.query_database as query
 from app.db.mongodb import AsyncIOMotorClient, get_database
 from app.crud.emissions import (get_caqi_emissions_for_sim, fetch_air_traffic, get_all_air_traffic)
+from app.core.config import PLOT_BASEDIR
 
 router = APIRouter()
 
@@ -97,6 +102,24 @@ async def start_linreg(inputs: Inputs = example_body, db: AsyncIOMotorClient=Dep
     # data = await lr.aggregate_data('2019-01-01', '2019-10-28', '0:00', '23:00')
     # print(data)
     # return data.to_json()
+
+@router.post('/get/plot')
+async def get_plot(inputs: PlotInput = example_plot_input, db: AsyncIOMotorClient=Depends(get_database)):
+    """
+    Plot a line chart of the given attributes in a specific timeframe
+    """
+    lr = LinReg(db)
+    df = await lr.aggregate_data(inputs.start_date, inputs.end_date, inputs.start_hour, inputs.end_hour)
+    df = df[inputs.keys_to_compare]
+
+    filename = PLOT_BASEDIR + '/' + 'fromrequest'
+    df.plot(figsize=(18, 5))
+    plt.ioff()
+    plt.savefig(filename)
+    return FileResponse(plt.savefig(), media_type='image/png')
+
+
+
 
 def generate_id(inputs):
     src_weights = "".join([str(v).replace('.', '') for v in inputs.srcWeights.values()])

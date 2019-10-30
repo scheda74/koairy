@@ -24,7 +24,7 @@ import numpy as np
 from sklearn.linear_model import LinearRegression
 
 class LinReg():
-    def __init__(self, db: AsyncIOMotorClient, sim_id, existing_regr=None):
+    def __init__(self, db: AsyncIOMotorClient, sim_id=None, existing_regr=None):
         self.db = db
         self.sim_id = sim_id
         self.existing_regr = existing_regr
