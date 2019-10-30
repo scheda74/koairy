@@ -41,9 +41,12 @@ class LinReg():
         df_test = df_test.dropna()
         Z = df_test[input_keys]
         # print(regr.predict(Z))
-        df_test = df_test.assign(predicted=regr.predict(Z))
+        # df_test = df_test.assign({output_key + '_predicted': regr.predict(Z)})
+        df_test[output_key + '_predicted'] = regr.predict(Z)
         print(df_test)
-        # self.save_df_to_plot(df_test[[output_key, 'predicted']], '%s_prediction' % output_key)
+        # self.save_df_to_plot(df_test[[output_key, 'predicted']], '%s_prediction_new' % output_key)
+        df_test = df_test.reset_index()
+        return df_test[[output_key, '%s_predicted' % output_key]]
 
     async def train_model(self, df, input_keys, output_key):
         X = df[input_keys]

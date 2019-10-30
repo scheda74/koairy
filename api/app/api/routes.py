@@ -1,6 +1,6 @@
 
 import datetime
-
+import pandas as pd
 from fastapi import APIRouter, Depends
 
 from app.tools.simulation.parse_emission import Parser
@@ -77,6 +77,13 @@ async def start_linreg(inputs: Inputs = example_body, db: AsyncIOMotorClient=Dep
     """
     sim_id = generate_id(inputs)
     lr = LinReg(db, sim_id)
+    df_pm10_pred = await lr.predict_emission(input_keys=['veh', 'TEMP', 'HUMIDITY', 'PMx'], output_key='pm10')
+    df_no2_pred = await lr.predict_emission(input_keys=['veh', 'TEMP', 'HUMIDITY', 'NOx'], output_key='no2')
+    print(df_pm10_pred)
+    print(df_no2_pred)
+    df_combined = pd.concat([df_no2_pred, df_pm10_pred], axis=1)
+    print(df_combined)
+    return df_combined.to_dict(orient='list')
     # datetime.date(2019, 1, 20)
     # await fetch_air_traffic(db, '2019-01-20')
     # result = await get_all_air_traffic(db)
@@ -87,9 +94,9 @@ async def start_linreg(inputs: Inputs = example_body, db: AsyncIOMotorClient=Dep
     # # raw_emissions = await lr.fetch_simulated_emissions()
     # # print(raw_emissions)
     # # return raw_emissions["emissions"] if raw_emissions != None else {}
-    data = await lr.aggregate_data('2019-01-01', '2019-10-28', '0:00', '23:00')
-    print(data)
-    return data.to_json()
+    # data = await lr.aggregate_data('2019-01-01', '2019-10-28', '0:00', '23:00')
+    # print(data)
+    # return data.to_json()
 
 def generate_id(inputs):
     src_weights = "".join([str(v).replace('.', '') for v in inputs.srcWeights.values()])
