@@ -1,4 +1,6 @@
 
+import datetime
+
 from fastapi import APIRouter, Depends
 
 from app.tools.simulation.parse_emission import Parser
@@ -9,7 +11,7 @@ from app.tools.regression.simple_lin_reg import LinReg
 from app.models.simulation_input import Inputs, example_body
 # import db.query_database as query
 from app.db.mongodb import AsyncIOMotorClient, get_database
-from app.crud.emissions import get_caqi_emissions_for_sim
+from app.crud.emissions import (get_caqi_emissions_for_sim, fetch_air_traffic, get_all_air_traffic)
 
 router = APIRouter()
 
@@ -75,10 +77,16 @@ async def start_linreg(inputs: Inputs = example_body, db: AsyncIOMotorClient=Dep
     """
     sim_id = generate_id(inputs)
     lr = LinReg(db, sim_id)
-    await lr.predict_emission()
-    # raw_emissions = await lr.fetch_simulated_emissions()
-    # print(raw_emissions)
-    # return raw_emissions["emissions"] if raw_emissions != None else {}
+    # datetime.date(2019, 1, 20)
+    # await fetch_air_traffic(db, '2019-01-20')
+    # result = await get_all_air_traffic(db)
+    # print(result)
+    # await lr.get_hw_data()
+
+    # await lr.predict_emission()
+    # # raw_emissions = await lr.fetch_simulated_emissions()
+    # # print(raw_emissions)
+    # # return raw_emissions["emissions"] if raw_emissions != None else {}
     data = await lr.aggregate_data('2019-01-01', '2019-10-28', '0:00', '23:00')
     print(data)
     return data.to_json()

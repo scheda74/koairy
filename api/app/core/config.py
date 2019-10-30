@@ -9,6 +9,9 @@ import app.tools.regression.data.plots as plots
 load_dotenv(".env")
 
 PROJECT_NAME = os.getenv("PROJECT_NAME", "EM-ViZ FastAPI")
+HAWA_DAWA_API_KEY = '22e28dcf-8207-4626-ced1-5afaff1834d6'
+HAWA_DAWA_URL = 'https://data.hawadawa.com/airapi/bytopic/kirchheim/hour?'
+
 MONGODB_URL = os.getenv("MONGODB_URL", "")  # deploying without docker-compose
 if not MONGODB_URL:
     MONGO_HOST = os.getenv("MONGO_HOST", "0.0.0.0")
@@ -78,3 +81,5 @@ VALID_AREA_IDS = {
 database_name = MONGO_DB
 caqi_emission_collection_name = "caqi_emissions"
 raw_emission_collection_name = "raw_emissions"
+bremicker_collection_name = "bremicker"
+air_hawa_collection_name = "air_hawa"

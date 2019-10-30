@@ -6,7 +6,11 @@ import json
 
 from fastapi import Depends
 from app.db.mongodb import AsyncIOMotorClient, get_database
-from app.crud.emissions import get_raw_emissions_from_sim
+from app.crud.emissions import (
+    get_raw_emissions_from_sim, 
+    fetch_air_traffic_from_hawa_dawa, 
+    get_all_air_traffic
+)
 from app.core.config import (
     WEATHER_BASEDIR,
     WEATHER_PRESSURE,
@@ -51,6 +55,16 @@ class LinReg():
         print('Intercept: \n', regr.intercept_)
         print('Coefficients: \n', regr.coef_)
         return regr
+
+
+
+    async def get_hw_data(self):
+        # data = await fetch_air_traffic_from_hawa_dawa(self.db, start_date='2019-10-01', end_date='2019-10-20')
+        # result = await get_all_air_traffic(self.db)
+        # df = pd.DataFrame(result)
+        data = await self.get_real_air()
+        print(data)
+        # print(df)
 
     ######################################################################################################
     ################################## DATA AGGREGATION FUNCTIONS ########################################
@@ -218,6 +232,13 @@ class LinReg():
     async def get_real_air(self):
         air_frames = [await self.get_real_air_from_file(AIR_BASEDIR + '/air_2019_%0*d.json' % (2, index)) for index in range(1, 11)]
         return pd.concat(air_frames, keys=['%d' % index for index in range(1, 11)]).dropna()
+        # air_frames = await get_all_air_traffic(self.db)
+        # data = [pd.DataFrame.from_csv(frame['data']) for frame in air_frames]
+        # return data
+        # for frame in air_frames:
+        #     data = json.load(frame['data'])
+        #     print(data)
+        # 
     
     async def get_real_air_from_file(self, filepath):
         data = json.load(open(filepath))
