@@ -89,19 +89,22 @@ async def start_linreg(inputs: Inputs = example_body, db: AsyncIOMotorClient=Dep
     df_combined = pd.concat([df_no2_pred, df_pm10_pred], axis=1)
     print(df_combined)
     return df_combined.to_dict(orient='list')
-    # datetime.date(2019, 1, 20)
-    # await fetch_air_traffic(db, '2019-01-20')
-    # result = await get_all_air_traffic(db)
-    # print(result)
-    # await lr.get_hw_data()
+    
+@router.post('/get/mean/vehicle')
+async def get_mean_vehicles(inputs: Inputs = example_body, db: AsyncIOMotorClient=Depends(get_database)):
+    """
+    Starts training a simple Linear Regression Model with the specified independents (= inputs) and dependent (= output)
+    Next, it'll predict the specified output with the data given to this request
+    """
+    sim_id = generate_id(inputs)
+    lr = LinReg(db, sim_id)
+    df = await lr.get_mean_vehicle_by_hour('2019-08-22', '2019-10-24', '07:00', '11:00')
+    return df.to_dict(orient='list')
 
-    # await lr.predict_emission()
-    # # raw_emissions = await lr.fetch_simulated_emissions()
-    # # print(raw_emissions)
-    # # return raw_emissions["emissions"] if raw_emissions != None else {}
-    # data = await lr.aggregate_data('2019-01-01', '2019-10-28', '0:00', '23:00')
-    # print(data)
-    # return data.to_json()
+@router.post('/get/sensors')
+async def get_sensors(db: AsyncIOMotorClient=Depends(get_database)):
+    lr = LinReg(db)
+    await lr.get_hw_data()
 
 @router.post('/get/plot')
 async def get_plot(inputs: PlotInput = example_plot_input, db: AsyncIOMotorClient=Depends(get_database)):
@@ -116,7 +119,8 @@ async def get_plot(inputs: PlotInput = example_plot_input, db: AsyncIOMotorClien
     df.plot(figsize=(18, 5))
     plt.ioff()
     plt.savefig(filename)
-    return FileResponse(plt.savefig(), media_type='image/png')
+    # return FileResponse(plt.savefig(), media_type='image/png')
+    return 'Done'
 
 
 

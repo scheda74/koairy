@@ -61,12 +61,12 @@ class LinReg():
 
 
 
-    async def get_hw_data(self):
+    async def get_sensor_data(self):
         # data = await fetch_air_traffic_from_hawa_dawa(self.db, start_date='2019-10-01', end_date='2019-10-20')
         # result = await get_all_air_traffic(self.db)
         # df = pd.DataFrame(result)
-        data = await self.get_real_air()
-        print(data)
+        return await self.get_bremicker_sensors_from_file(AIR_BASEDIR + '/air_2019_10.json')
+        # print(data)
         # print(df)
 
     ######################################################################################################
@@ -183,6 +183,28 @@ class LinReg():
         else:
             print('[PLOT] Error saving plot. Dataframe empty!')
 
+    async def get_mean_vehicle_by_hour(self, start_date, end_date, start_hour, end_hour):
+        bremicker_df = await self.get_bremicker()
+        df_traffic = await self.format_real_air_by_key(
+            bremicker_df,
+            'veh',
+            start_date, 
+            end_date, 
+            start_hour, 
+            end_hour
+        )
+        # self.save_df_to_plot(df_traffic, 'big_number_vehicles_7-11')
+        df_sum = df_traffic.reset_index()
+        # print(df_avg)
+        df_sum = df_sum.groupby(by=df_sum['time'].dt.date).sum()
+        print(df_sum)
+        print(df_sum.mean())
+        return df_sum
+        # self.save_df_to_plot(df_traffic, 'number_vehicles_sum_diesel_7am-11am')
+        # print(df_sum)
+
+        # print(df_traffic.mean())
+
     #############################################################################################
     ################################## WEATHER FUNCTIONS ########################################
     #############################################################################################
@@ -259,5 +281,19 @@ class LinReg():
     async def get_bremicker_from_file(self, filepath):
         data = json.load(open(filepath))
         return pd.DataFrame(
-            dict([ (k, pd.Series(v)) for k, v in data['features'][2]['properties']['timeValueSeries'].items() ])
+            dict([ (k, pd.Series(v)) for k, v in data['features'][1]['properties']['timeValueSeries'].items() ])
         )
+    
+    async def get_bremicker_sensors_from_file(self, filepath):
+        data = json.load(open(filepath))
+        traffic_frames = []
+        for feature in data['features']:
+            if feature['properties']['type'] == 'bremicker':
+                sensor = {}
+                sensor['coordinates'] = feature['geometry']['coordinates']
+                df = pd.DataFrame(
+                    dict([ (k, pd.Series(v)) for k, v in feature['properties']['timeValueSeries'].items() ])
+                )
+                sensor['vehicleNumber'] = feature['properties']['timeValueSeries'].items()
+                traffic_frames.append(sensor)
+        return
