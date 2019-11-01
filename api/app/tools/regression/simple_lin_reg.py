@@ -7,10 +7,17 @@ import json
 from fastapi import Depends
 from app.db.mongodb import AsyncIOMotorClient, get_database
 from app.crud.emissions import (
-    get_raw_emissions_from_sim, 
-    fetch_air_traffic_from_hawa_dawa, 
-    get_all_air_traffic
+    get_raw_emissions_from_sim
 )
+from app.crud.hawa_dawa import (
+    # fetch_data_by_month_from_hawa_dawa, 
+    get_hawa_dawa_by_time,
+    # get_all_hawa_dawa
+)
+from app.tools.regression.utils.weather import (
+    fetch_weather_data
+)
+
 from app.core.config import (
     WEATHER_BASEDIR,
     WEATHER_PRESSURE,
@@ -30,6 +37,17 @@ class LinReg():
         self.existing_regr = existing_regr
         self.raw_emission_columns = ['CO', 'NOx', 'PMx']
         self.real_emission_columns = ['no2', 'pm2.5', 'pm10', 'o3']
+
+
+    # async def get_hw_data(self):
+    #     traffic = await get_all_air_traffic(self.db)
+    #     print(traffic)
+        # for element in traffic:
+        #     df_t = pd.DataFrame(element)
+        #     print(df_t)
+        # df = pd.DataFrame(traffic)
+        # df_traffic = pd.DataFrame(df['data'])
+        # print(df_traffic)
 
     async def predict_emission(self, data=None, input_keys=['veh', 'TEMP', 'HUMIDITY', 'PMx'], output_key='pm10'):
         df_combined = await self.aggregate_data('2019-08-22', '2019-10-15', '6:00', '11:00')
@@ -59,22 +77,12 @@ class LinReg():
         print('Coefficients: \n', regr.coef_)
         return regr
 
-
-
-    async def get_sensor_data(self):
-        # data = await fetch_air_traffic_from_hawa_dawa(self.db, start_date='2019-10-01', end_date='2019-10-20')
-        # result = await get_all_air_traffic(self.db)
-        # df = pd.DataFrame(result)
-        return await self.get_bremicker_sensors_from_file(AIR_BASEDIR + '/air_2019_10.json')
-        # print(data)
-        # print(df)
-
     ######################################################################################################
     ################################## DATA AGGREGATION FUNCTIONS ########################################
     ######################################################################################################
     async def aggregate_data(self, start_date='2019-08-16', end_date='2019-10-24', start_hour='6:00', end_hour='11:00'):
         df_sim = await self.fetch_simulated_emissions()
-        df_weather = await self.fetch_weather_data(start_date, end_date, start_hour, end_hour)
+        df_weather = await fetch_weather_data(start_date, end_date, start_hour, end_hour)
         df_air_traffic = await self.fetch_air_and_traffic(start_date, end_date, start_hour, end_hour)
         # print(df_air_traffic)
         df_combined = pd.concat([df_air_traffic, df_weather], axis=1)
@@ -99,51 +107,7 @@ class LinReg():
         # df_sim_nox = df_raw_em['NOx'].groupby(df.index // 3600).mean()
         return df_raw_em.groupby(df.index // 3600).mean()
 
-    async def fetch_weather_data(self, start_date='2019-01-01', end_date='2019-10-28', start_hour='0:00', end_hour='23:00'):
-        # NOTE: Fetch weather data and format timestamp
-        df_temp_humid = self.get_temp_humid()
-        df_temp = self.format_weather_by_key(
-            df=df_temp_humid,
-            key='TEMP',
-            start_date=start_date,
-            end_date=end_date,
-            start_hour=start_hour,
-            end_hour=end_hour
-        )
-        # self.save_df_to_plot(df_temp, 'temp_02-06_morning')
 
-        df_humidity = self.format_weather_by_key(
-            df=df_temp_humid,
-            key='HUMIDITY',
-            start_date=start_date,
-            end_date=end_date,
-            start_hour=start_hour,
-            end_hour=end_hour
-        )
-        # self.save_df_to_plot(df_humidity, 'humidity_02-06_morning')
-
-        df_pressure = self.get_pressure()
-        df_pressure_nn = self.format_weather_by_key(
-            df=df_pressure, 
-            key='PRESSURE_NN', 
-            start_date=start_date, 
-            end_date=end_date, 
-            start_hour=start_hour, 
-            end_hour=end_hour
-        )
-        # self.save_df_to_plot(df_pressure_nn, 'pressure-nn_02-06_morning')
-
-        df_wind = self.get_wind()
-        df_wind_speed = self.format_weather_by_key(
-            df=df_wind, 
-            key='WIND_SPEED', 
-            start_date=start_date, 
-            end_date=end_date, 
-            start_hour=start_hour, 
-            end_hour=end_hour
-        )
-        # self.save_df_to_plot(df_wind_speed, 'pressure-nn_02-06_morning')
-        return pd.concat([frame for frame in [df_temp, df_humidity, df_pressure_nn, df_wind_speed] if not frame.empty], axis=1)
         
 
     async def fetch_air_and_traffic(self, start_date='2019-01-01', end_date='2019-10-28', start_hour='0:00', end_hour='23:00'):
@@ -214,33 +178,7 @@ class LinReg():
     # pressure: column p0, to sea level (NN) reduced
     # relative humidty: column RF_TU, %
     # temperature: column TT_TU, °C
-    def get_temp_humid(self):
-        df = pd.read_csv(WEATHER_TEMP_HUMID, delimiter=';')
-        df.columns = df.columns.str.strip()
-        df = df.rename(columns={"TT_TU": "TEMP", "RF_TU": "HUMIDITY"})
-        return df[['MESS_DATUM', 'TEMP', 'HUMIDITY']]
-        # humidty, temperature = np.loadtxt(WEATHER_TEMP_HUMID, delimiter=';', usecols=(3, 4), skiprows=1, unpack=True)
 
-    def get_pressure(self):
-        df = pd.read_csv(WEATHER_PRESSURE, delimiter=';')
-        df.columns = df.columns.str.strip()
-        df = df.rename(columns={"P": "PRESSURE_NN", "P0": "PRESSURE_STATION"})
-        return df[['MESS_DATUM', 'PRESSURE_NN', 'PRESSURE_STATION']]
-        # return 0
-
-    def get_wind(self):
-        df = pd.read_csv(WEATHER_WIND, delimiter=';')
-        df.columns = df.columns.str.strip()
-        df = df.rename(columns={"FF": "WIND_SPEED", "DD": "WIND_DIR"})
-        return df[['MESS_DATUM', 'WIND_SPEED', 'WIND_DIR']]
-
-    def format_weather_by_key(self, df, key, start_date, end_date, start_hour, end_hour):
-        df = df[['MESS_DATUM', key]]
-        df['MESS_DATUM'] = df['MESS_DATUM'].apply(lambda x: datetime.datetime.strptime(str(x), '%Y%m%d%H'))
-        # return df.set_index('MESS_DATUM')
-        mask = (df['MESS_DATUM'] > start_date) & (df['MESS_DATUM'] <= end_date)
-        df = df.loc[mask].set_index('MESS_DATUM')
-        return df.between_time(start_hour, end_hour)
     
     #######################################################################################
     #################################AIR FUNCTIONS#########################################
@@ -296,4 +234,72 @@ class LinReg():
                 )
                 sensor['vehicleNumber'] = feature['properties']['timeValueSeries'].items()
                 traffic_frames.append(sensor)
-        return
+        return traffic_frames
+
+
+
+
+    async def get_air_sensor_data(self):
+        # result = await get_all_hawa_dawa(self.db)
+        result = await get_hawa_dawa_by_time(self.db)
+        print(result)
+        # months = []
+        # for elem in result:
+        #     data = json.loads(elem['data'])
+        #     for feature in data['features']:
+        #         if feature['properties']['type'] == 'hawadawa' and feature['properties']['timeValueSeries']:
+        #             df = pd.DataFrame(dict([ (k, pd.Series(v)) for k, v in feature['properties']['timeValueSeries'].items() ]))
+        #             # df = df.apply(self.format_column, result_type='broadcast')
+        #             frames = []
+        #             for pollutant in df.columns:
+        #                 df_pol = df[pollutant].apply(pd.Series)[['time', 'value']].dropna()
+        #                 df_pol['time'] = pd.to_datetime(df_pol['time'])
+        #                 df_pol = df_pol.set_index('time')
+        #                 df_pol = df_pol.rename(columns={'value': pollutant})
+        #                 frames.append(df_pol)
+        #             months.append( pd.concat(frames, axis=1) )
+        # result = pd.concat(months)
+        # print(result)
+        # return result
+    # def format_column(self, col):
+    #     df_pol = col.apply(pd.Series)[['time', 'value']].dropna()
+    #     df_pol['time'] = pd.to_datetime(df_pol['time'])
+    #     df_pol = df_pol.set_index('time')
+    #     df_pol = df_pol.rename(columns={'value': col.name})
+    #     # print(df_pol)
+    #     return df_pol
+        # result = []
+        # for df in frames:
+        #     frames = []
+        #     for pollutant in df.columns:
+        #         df_pol = df[pollutant].apply(pd.Series)[['time', 'value']].dropna()
+        #         df_pol['time'] = pd.to_datetime(df_pol['time'])
+        #         df_pol = df_pol.set_index('time')
+        #         df_pol = df_pol.rename(columns={'value': pollutant})
+        #         frames.append(df_pol)
+        #     result.append( pd.concat(frames, axis=1) )
+        # result = pd.concat(result)
+        # print(result)
+
+        # result = await get_all_air_traffic(self.db)
+        # frames = []
+        # for elem in result:
+        #     data = json.loads(elem['data'])
+        #     for feature in data['features']:
+        #         if feature['properties']['type'] == 'hawadawa' and feature['properties']['timeValueSeries']:
+        #             frames.append(
+        #                 pd.DataFrame(dict([ (k, pd.Series(v)) for k, v in feature['properties']['timeValueSeries'].items() ]))
+        #                 # pd.DataFrame(feature['properties']['timeValueSeries']).set_index('time')
+        #             )
+        # result = []
+        # for df in frames:
+        #     frames = []
+        #     for pollutant in df.columns:
+        #         df_pol = df[pollutant].apply(pd.Series)[['time', 'value']].dropna()
+        #         df_pol['time'] = pd.to_datetime(df_pol['time'])
+        #         df_pol = df_pol.set_index('time')
+        #         df_pol = df_pol.rename(columns={'value': pollutant})
+        #         frames.append(df_pol)
+        #     result.append( pd.concat(frames, axis=1) )
+        # result = pd.concat(result)
+        # print(result)

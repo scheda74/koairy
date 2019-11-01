@@ -1,5 +1,6 @@
 
 import os
+import json
 import datetime
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -15,7 +16,14 @@ from app.models.simulation_input import Inputs, example_body
 from app.models.prediction_input import PlotInput, example_plot_input
 # import db.query_database as query
 from app.db.mongodb import AsyncIOMotorClient, get_database
-from app.crud.emissions import (get_caqi_emissions_for_sim, fetch_air_traffic, get_all_air_traffic)
+from app.crud.emissions import get_caqi_emissions_for_sim
+from app.crud.hawa_dawa import (
+    get_hawa_dawa_by_time
+    # get_all_hawa_dawa
+)
+from app.crud.bremicker import (
+    get_bremicker
+)
 from app.core.config import PLOT_BASEDIR
 
 router = APIRouter()
@@ -82,13 +90,21 @@ async def start_linreg(inputs: Inputs = example_body, db: AsyncIOMotorClient=Dep
     """
     sim_id = generate_id(inputs)
     lr = LinReg(db, sim_id)
-    df_pm10_pred = await lr.predict_emission(input_keys=['veh', 'TEMP', 'HUMIDITY', 'PMx'], output_key='pm10')
-    df_no2_pred = await lr.predict_emission(input_keys=['veh', 'TEMP', 'HUMIDITY', 'NOx'], output_key='no2')
-    print(df_pm10_pred)
-    print(df_no2_pred)
-    df_combined = pd.concat([df_no2_pred, df_pm10_pred], axis=1)
-    print(df_combined)
-    return df_combined.to_dict(orient='list')
+    # df_pm10_pred = await lr.predict_emission(input_keys=['veh', 'TEMP', 'HUMIDITY', 'PMx'], output_key='pm10')
+    # df_no2_pred = await lr.predict_emission(input_keys=['veh', 'TEMP', 'HUMIDITY', 'NOx'], output_key='no2')
+    # print(df_pm10_pred)
+    # print(df_no2_pred)
+    # df_combined = pd.concat([df_no2_pred, df_pm10_pred], axis=1)
+    # print(df_combined)
+    # return df_combined.to_dict(orient='list')
+
+
+    result = await get_bremicker(db)
+    return result
+    # result = await get_hawa_dawa_by_time(db)
+    # print(result)
+    # return result.to_dict(orient='list')
+    # await lr.get_air_sensor_data()
     
 @router.post('/get/mean/vehicle')
 async def get_mean_vehicles(inputs: Inputs = example_body, db: AsyncIOMotorClient=Depends(get_database)):
@@ -104,7 +120,7 @@ async def get_mean_vehicles(inputs: Inputs = example_body, db: AsyncIOMotorClien
 @router.post('/get/sensors')
 async def get_sensors(db: AsyncIOMotorClient=Depends(get_database)):
     lr = LinReg(db)
-    await lr.get_hw_data()
+    # await lr.get_hw_data()
 
 @router.post('/get/plot')
 async def get_plot(inputs: PlotInput = example_plot_input, db: AsyncIOMotorClient=Depends(get_database)):
@@ -121,8 +137,6 @@ async def get_plot(inputs: PlotInput = example_plot_input, db: AsyncIOMotorClien
     plt.savefig(filename)
     # return FileResponse(plt.savefig(), media_type='image/png')
     return 'Done'
-
-
 
 
 def generate_id(inputs):
