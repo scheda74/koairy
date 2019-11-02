@@ -32,7 +32,7 @@ async def get_bremicker(conn: AsyncIOMotorClient, start_date='2019-09-01', end_d
 
 
 ### NOTE: Fetch data from bremicker
-async def fetch_bremicker(conn: AsyncIOMotorClient, start_date='2019-10-29', end_date=None):
+async def fetch_bremicker(conn: AsyncIOMotorClient, start_date='2019-06-20', end_date=None):
     print('[MongoDB] No bremicker data found. Fetching from server...')
     start_date = datetime.datetime.strptime(start_date, '%Y-%m-%d').date()
     if end_date:
@@ -49,8 +49,8 @@ async def fetch_bremicker(conn: AsyncIOMotorClient, start_date='2019-10-29', end
         response = response.json()
         print('response')
         # print(response)
-        await format_bremicker(response)
-        # await insert_bremicker(conn, start_date, response)
+        response = await format_bremicker(response)
+        await insert_bremicker(conn, start_date, response)
         
     except JSONDecodeError as error:
         print('error in json decoding: %s' % error)
@@ -63,6 +63,9 @@ async def format_bremicker(data):
     df['time'] = df[['date', 'time']].apply(lambda x: pd.to_datetime(' '.join(x)), axis=1)
     df = df[['time', 'boxID', 'averageVelocity', 'entryVelocity']]
     df = df.groupby(['boxID', pd.Grouper(key='time', freq='H')]).size()
+    df = df.reset_index().rename(columns={0 : 'veh'})
+    df['time'] = df['time'].astype(str)
+    df = df.groupby('boxID')[['time', 'veh']].apply(lambda x: dict(x.values)).to_json()
     # times = df['time']
     # df = df.groupby(['boxID', times.dt.date, times.dt.hour])[['averageVelocity', 'entryVelocity']].mean()
     # [['averageVelocity', 'entryVelocity']].mean()
@@ -71,6 +74,7 @@ async def format_bremicker(data):
     # df.groupby(['boxID'])[['averageVelocity', 'entryVelocity']]
     # df = df[['date', 'time']]
     print(df)
+    return df
     # for measure in data:
     #     time = pd.to_datetime(measure['date'] + measure['time'])
 

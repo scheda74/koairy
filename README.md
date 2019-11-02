@@ -2,6 +2,15 @@
 ## Documentation for EM-ViZ - an emission visualization tool based on SUMO, FastAPI and React
 
 ## Installation
+building a docker image:
+
+docker build -t image_name .
+
+NOTE: if SUMO fails to compile, e.g.: “internal compiler error, killed program cc1plus” try as follows:
+Your virtual machine needs more RAM! At least 4096MB. (Happens on MacOS as default is 2GB)
+1) docker-machine stop
+2) VBOXMan --memory 4096
+3) docker-machine start
 
 ## Useful Links
 
