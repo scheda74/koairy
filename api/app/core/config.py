@@ -47,7 +47,7 @@ TRIP_OUTPUT = BASEDIR + "/data/traffic-input/trip-"
 ROUTE_OUTPUT = BASEDIR + "/data/traffic-input/route-"
 WEIGHT_INPUT = BASEDIR + "/data/traffic-input/weight-"
 EMISSION_OUTPUT_BASE = BASEDIR + "/data/emission-output/"
-EMISSION_OUTPUT = BASEDIR + "/data/emission-output/emission_output.xml"
+EMISSION_OUTPUT = BASEDIR + "/data/emission-output/test_emission_output.xml"
 SUMO_CFG = BASEDIR + "/data/traffic-input/simulation-"
 
 SUMO_ROOT = os.environ['SUMO_HOME']

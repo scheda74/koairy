@@ -8,34 +8,35 @@ FROM ubuntu:18.04
 # by Bo Gao <bogao@dcs.warwick.ac.uk> and Jakob Smretschnig <jakob.smretschnig@tum.de>
 # LABEL Description="Dockerised SUMO (Simulation of Urban MObility)"
 
-ENV SUMO_HOME /sumo
+ENV DEBIAN_FRONTEND=noninteractive
 
 # # Install system dependencies
-RUN apt-get -qq update && DEBIAN_FRONTEND=noninteractive apt-get -qq install \
+RUN apt-get -qq update && apt-get -qq install \
     cmake g++ libxerces-c-dev libfox-1.6-dev libgdal-dev libproj-dev libgl2ps-dev swig git \
     ffmpeg \
     wget \
     sudo \
-    xorg 
-    # python3-dev \
-    # python3-pip \
-    # python3-rtree
-
-RUN apt-get -qq install python3.7 curl python3-distutils && curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python3.7 get-pip.py
+    xorg \
+    python3-dev \
+    python3-pip \
+    python3-rtree
 
 WORKDIR /
 # # Download and build sumo
-RUN git clone --recursive https://github.com/eclipse/sumo --verbose --progress && mkdir sumo/build/cmake-build
-WORKDIR /sumo/build/cmake-build
-RUN cmake ../.. && make -j8
+# RUN git clone --recursive https://github.com/eclipse/sumo --verbose --progress && mkdir sumo/build/cmake-build
+# WORKDIR /sumo/build/cmake-build
+# RUN cmake ../.. && make -j$(nproc)
 
+ENV SUMO_HOME /sumo
 ############################################################
 ######################## API ###############################
 ############################################################
+RUN apt-get -qq install python3.7 python3.7-dev curl python3-distutils && curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python3.7 get-pip.py
 WORKDIR /
-RUN apt-get -qq update && DEBIAN_FRONTEND=noninteractive apt-get -qq install python3.7-dev python3-rtree
+# RUN apt-get -qq update && apt-get -qq install python3.7-dev 
 
 RUN cp /usr/bin/python3.7 /usr/bin/python
+RUN python --version
 # Setting up poetry
 COPY poetry.lock /
 COPY pyproject.toml .

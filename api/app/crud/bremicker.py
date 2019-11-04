@@ -25,7 +25,8 @@ async def get_bremicker(conn: AsyncIOMotorClient, start_date='2019-09-01', end_d
     if not data:
         await fetch_bremicker(conn)
         # await get_bremicker(conn, start_date.strftime('%Y-%m-%d'), end_date.strftime('%Y-%m-%d'))
-    print(data)
+    # print(data)
+    return data
 
     # return await format_to_df(result)
 

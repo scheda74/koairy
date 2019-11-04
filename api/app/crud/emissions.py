@@ -27,8 +27,9 @@ async def get_caqi_emissions_for_sim(conn: AsyncIOMotorClient, sim_id: str):
     if emission_doc:
         return emission_doc
     else:
-        raise RuntimeError(f" Couldn't find caqi emissions for specified simulation,"
-                           f" sim_id={sim_id} emission_id={emission_doc}")
+        return None
+        # raise RuntimeError(f" Couldn't find caqi emissions for specified simulation,"
+        #                    f" sim_id={sim_id} emission_id={emission_doc}")
 
 async def get_raw_emissions_from_sim(conn: AsyncIOMotorClient, sim_id: str):
     emission_doc = await conn[database_name][raw_emission_collection_name].find_one({"sim_id": sim_id}, projection={"id": False})

@@ -5,7 +5,7 @@ import datetime
 import pandas as pd
 import matplotlib.pyplot as plt
 from fastapi import APIRouter, Depends
-from starlette.responses import FileResponse
+from starlette.responses import FileResponse, RedirectResponse
 
 from app.tools.simulation.parse_emission import Parser
 from app.tools.simulation.simulator import Simulator
@@ -27,6 +27,11 @@ from app.crud.bremicker import (
 from app.core.config import PLOT_BASEDIR
 
 router = APIRouter()
+
+@router.get("/")
+async def redirect():
+    response = RedirectResponse(url='/docs')
+    return response
 
 @router.post('/get/caqi')
 async def get_caqi(inputs: Inputs = example_body, db: AsyncIOMotorClient=Depends(get_database)):
@@ -98,9 +103,10 @@ async def start_linreg(inputs: Inputs = example_body, db: AsyncIOMotorClient=Dep
     # print(df_combined)
     # return df_combined.to_dict(orient='list')
 
-
-    result = await get_bremicker(db)
-    return result
+    return await lr.get_sim_em_distribution()
+    
+    # result = await get_bremicker(db)
+    # return result
     # result = await get_hawa_dawa_by_time(db)
     # print(result)
     # return result.to_dict(orient='list')

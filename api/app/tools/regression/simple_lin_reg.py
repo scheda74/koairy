@@ -17,14 +17,17 @@ from app.crud.hawa_dawa import (
 from app.tools.regression.utils.weather import (
     fetch_weather_data
 )
-
+from app.tools.simulation.parse_emission import Parser
+from app.tools.regression.utils.bremicker_boxes import bremicker_boxes
+import app.tools.simulation.calc_caqi as aqi
 from app.core.config import (
     WEATHER_BASEDIR,
     WEATHER_PRESSURE,
     WEATHER_TEMP_HUMID, 
     WEATHER_WIND,
     AIR_BASEDIR,
-    PLOT_BASEDIR
+    PLOT_BASEDIR,
+    EMISSION_OUTPUT
 )
 
 import numpy as np
@@ -48,6 +51,24 @@ class LinReg():
         # df = pd.DataFrame(traffic)
         # df_traffic = pd.DataFrame(df['data'])
         # print(df_traffic)
+    async def get_sim_em_distribution(self):
+        
+        df_sim = await self.fetch_simulated_emissions(672)
+        # print(df_sim.shape)
+        # print(df_sim)
+        # return df_sim
+        # .apply(aqi.calc_nox_index)
+        # df_nox = df_sim['NOx']
+        # print(df_nox)
+        # var = df_nox.var(axis=0)
+        # std = df_nox.std(axis=0)
+        # print(var)
+        # print(std)
+        # print(df_nox)
+    # , figsize=(18, 5)
+        # df_nox.plot.hist(grid=True, bins=300, rwidth=0.9, color='#333333')
+        # plt.savefig(PLOT_BASEDIR + '/' + 'hist_nox')
+
 
     async def predict_emission(self, data=None, input_keys=['veh', 'TEMP', 'HUMIDITY', 'PMx'], output_key='pm10'):
         df_combined = await self.aggregate_data('2019-08-22', '2019-10-15', '6:00', '11:00')
@@ -81,7 +102,7 @@ class LinReg():
     ################################## DATA AGGREGATION FUNCTIONS ########################################
     ######################################################################################################
     async def aggregate_data(self, start_date='2019-08-16', end_date='2019-10-24', start_hour='6:00', end_hour='11:00'):
-        df_sim = await self.fetch_simulated_emissions()
+        df_sim = await self.fetch_simulated_emissions(672)
         df_weather = await fetch_weather_data(start_date, end_date, start_hour, end_hour)
         df_air_traffic = await self.fetch_air_and_traffic(start_date, end_date, start_hour, end_hour)
         # print(df_air_traffic)
@@ -98,14 +119,41 @@ class LinReg():
     #####################################################################################################
     ################################## DATA COLLECTION FUNCTIONS ########################################
     ######################################################################################################
-    async def fetch_simulated_emissions(self):
+    async def fetch_simulated_emissions(self, box_id):
         # NOTE: First we fetch the simulated emissions
-        raw_emissions = await get_raw_emissions_from_sim(self.db, self.sim_id)
-        df = pd.DataFrame(pd.read_json(raw_emissions["emissions"], orient='index'))
-        df_raw_em = df[self.raw_emission_columns]
+        parser = Parser(self.db, self.sim_id)
+        lat, lng = [round(bremicker_boxes[box_id]['lat'], 3), round(bremicker_boxes[box_id]['lng'], 3)]
+        # raw_emissions = await get_raw_emissions_from_sim(self.db, self.sim_id)
+        raw_emissions = await parser.get_caqi_data()
+        print(raw_emissions)
+        # df = pd.DataFrame(pd.read_json(raw_emissions["emissions"], orient='index'))
+        # print(df)
+        # print(lat, lng)
+        # latlng = ['lat', 'lng']
+        # df = df[latlng + self.raw_emission_columns]
+        # print(df)
+        # df = df.groupby([df.index // 60] + latlng)[self.raw_emission_columns].mean().reset_index(latlng)
+        
+        # mask = (round(df['lat'], 3) == lat) & (round(df['lng'], 3) == lng)
+        # df = df.loc[mask]
+        # return df
+        # print(df)
+        # df[latlng] = df[latlng].round(3)
+        # df = df.groupby([df.index] + latlng)[self.raw_emission_columns].sum()
+        # print(df)
+        # df[latlng] = df[latlng].round(3)
+
+        # aggregate the results and return summed dataframe
+        # df = df.groupby(latlng)[self.raw_emission_columns].sum()
+        # print(df)
+        # return df_raw_em.to_dict(orient='index')
+
+
+        # df_raw_em = df_raw_em[df_raw_em.lat == lat, df_raw_em.lng == lng]
+        # print(df_raw_em)
         # NOTE: The simulation runs between 10000 - 20000 seconds so aggregate for every hour
         # df_sim_nox = df_raw_em['NOx'].groupby(df.index // 3600).mean()
-        return df_raw_em.groupby(df.index // 3600).mean()
+        # return df_raw_em.groupby(df.index // 60)[self.raw_emission_columns].mean()
 
 
         
