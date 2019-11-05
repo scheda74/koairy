@@ -33,7 +33,7 @@ from app.core.config import (
 #         return await fetch_air_traffic(conn, '2019-01-01')
 #     return await format_to_df(result)
 
-async def get_hawa_dawa_by_time(conn: AsyncIOMotorClient, start_date='2019-09-01', end_date='2019-09-30'):
+async def get_hawa_dawa_by_time(conn: AsyncIOMotorClient, start_date='2019-09-01', end_date='2019-09-30', start_hour='07:00', end_hour='10:00'):
     start_date = datetime.datetime.strptime(start_date, '%Y-%m-%d').date()
     end_date = datetime.datetime.strptime(end_date, '%Y-%m-%d').date()
     result = []
@@ -49,7 +49,11 @@ async def get_hawa_dawa_by_time(conn: AsyncIOMotorClient, start_date='2019-09-01
         await fetch_air_traffic(conn, '2019-01-01')
         return get_hawa_dawa_by_time(conn, start_date, end_date)
 
-    return await format_to_df(result)
+    df = await format_to_df(result)
+    df = df.reset_index()
+    mask = (df['time'] > start_date) & (df['time'] <= end_date)
+    df = df.loc[mask].set_index('time')
+    return df.between_time(start_hour, end_hour)
 
 
 

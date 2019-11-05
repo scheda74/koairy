@@ -18,6 +18,16 @@ from app.core.config import (
     bremicker_collection_name
 )
 
+async def get_bremicker_by_time(conn, boxID, start_date='2019-08-01', end_date='2019-11-01', start_hour='07:00', end_hour='10:00'):
+    bremicker = await get_bremicker(conn, start_date, end_date)
+    df_traffic = pd.DataFrame(pd.read_json(bremicker['data']))
+    df_traffic.index.name = 'time'
+    df = df_traffic.reset_index()[['time', boxID]]
+    mask = (df['time'] > start_date) & (df['time'] <= end_date)
+    df = df.loc[mask].set_index('time')
+    return df.between_time(start_hour, end_hour)
+
+
 async def get_bremicker(conn: AsyncIOMotorClient, start_date='2019-09-01', end_date='2019-09-30'):
     start_date = datetime.datetime.strptime(start_date, '%Y-%m-%d').date()
     end_date = datetime.datetime.strptime(end_date, '%Y-%m-%d').date()

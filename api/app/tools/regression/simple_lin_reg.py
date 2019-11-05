@@ -14,6 +14,9 @@ from app.crud.hawa_dawa import (
     get_hawa_dawa_by_time,
     # get_all_hawa_dawa
 )
+from app.crud.bremicker import (
+    get_bremicker_by_time
+)
 from app.tools.regression.utils.weather import (
     fetch_weather_data
 )
@@ -32,60 +35,85 @@ from app.core.config import (
 
 import numpy as np
 from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_absolute_error
+from sklearn.neural_network import MLPRegressor
 
 class LinReg():
-    def __init__(self, db: AsyncIOMotorClient, sim_id=None, existing_regr=None):
+    def __init__(self, db: AsyncIOMotorClient, sim_id=None, existing_regr=None, boxID=672):
         self.db = db
         self.sim_id = sim_id
         self.existing_regr = existing_regr
+        self.boxID = boxID
         self.raw_emission_columns = ['CO', 'NOx', 'PMx']
         self.real_emission_columns = ['no2', 'pm2.5', 'pm10', 'o3']
 
-
-    # async def get_hw_data(self):
-    #     traffic = await get_all_air_traffic(self.db)
-    #     print(traffic)
-        # for element in traffic:
-        #     df_t = pd.DataFrame(element)
-        #     print(df_t)
-        # df = pd.DataFrame(traffic)
-        # df_traffic = pd.DataFrame(df['data'])
-        # print(df_traffic)
-    async def get_sim_em_distribution(self):
+    
+    async def start_cnn(self, data=None, boxID=672, input_keys=['temp', 'hum', 'PMx'], output_key='pm2.5'):
+        input_keys.append(boxID)
+        df = await self.aggregate_data(boxID)
+        df_train = df.iloc[:400]
+        df_test = df.iloc[400:]
+        # df_input = df[input_keys]
+        # print(df_input)
+        # df_input = df_input.apply(self.normalize_data)
+        # print(df_input)
+        model = MLPRegressor(
+            hidden_layer_sizes=(10,),
+            activation='relu',
+            solver='adam',
+            learning_rate='adaptive',
+            max_iter=1000,
+            learning_rate_init=0.01,
+            alpha=0.01
+        )
+        model.fit(df_train[input_keys], df_train[output_key])
         
-        df_sim = await self.fetch_simulated_emissions(672)
-        # print(df_sim.shape)
-        # print(df_sim)
-        # return df_sim
-        # .apply(aqi.calc_nox_index)
-        # df_nox = df_sim['NOx']
-        # print(df_nox)
-        # var = df_nox.var(axis=0)
-        # std = df_nox.std(axis=0)
-        # print(var)
-        # print(std)
-        # print(df_nox)
-    # , figsize=(18, 5)
-        # df_nox.plot.hist(grid=True, bins=300, rwidth=0.9, color='#333333')
-        # plt.savefig(PLOT_BASEDIR + '/' + 'hist_nox')
+        df_test[output_key + '_predicted'] = model.predict(df_test[input_keys])
+        result = df_test[[output_key, '%s_predicted' % output_key]]
+        print(result)
+        print(mean_absolute_error(result[output_key].to_numpy(), result['%s_predicted' % output_key].to_numpy()))
+        self.save_df_to_plot(result, '%s_mlp_regressor' % output_key.replace('.', '-'))
 
 
-    async def predict_emission(self, data=None, input_keys=['veh', 'TEMP', 'HUMIDITY', 'PMx'], output_key='pm10'):
-        df_combined = await self.aggregate_data('2019-08-22', '2019-10-15', '6:00', '11:00')
-        df_combined = df_combined.dropna()
+    def normalize_data(self, column):
+        std = column.std(axis=0)
+        var = column.var(axis=0)
+        mean = column.mean(axis=0)
+        print('Var: \n', var)
+        print('Std: \n', std)
+        print('Mean: \n', mean)
+        return (column - mean) / std
+
+    # async def predict_emission(self, data=None, input_keys=['veh', 'TEMP', 'HUMIDITY', 'PMx'], output_key='pm10'):
+    async def predict_emission(self, data=None, boxID=672, input_keys=['temp', 'hum', 'PMx'], output_key='pm10'):
+        # df_combined = await self.aggregate_data('2019-08-22', '2019-10-15', '6:00', '11:00')
+        # df_combined = df_combined.dropna()
         # print(df_combined)
-        regr = await self.train_model(df_combined, input_keys, output_key)
+        input_keys.append(boxID)
+        
+        
+        df_combined = await self.aggregate_data(boxID)
+        df_train = df_combined.iloc[:400]
+        df_test = df_combined.iloc[400:]
+        print(df_train)
+        print(df_test)
+        regr = await self.train_model(df_train, input_keys, output_key)
 
-        df_test = await self.aggregate_data('2019-10-16', '2019-10-22', '6:00', '11:00')
-        df_test = df_test.dropna()
+        if data != None:
+            df_test = data
+        
+        # df_test = await self.aggregate_data('2019-10-16', '2019-10-22', '6:00', '11:00')
+        # df_test = df_test.dropna()
         Z = df_test[input_keys]
         # print(regr.predict(Z))
         # df_test = df_test.assign({output_key + '_predicted': regr.predict(Z)})
         df_test[output_key + '_predicted'] = regr.predict(Z)
         print(df_test)
-        # self.save_df_to_plot(df_test[[output_key, 'predicted']], '%s_prediction_new' % output_key)
+        # self.save_df_to_plot(df_test[[output_key, '%s_predicted' % output_key]], '%s_prediction_better' % output_key)
         df_test = df_test.reset_index()
-        return df_test[[output_key, '%s_predicted' % output_key]]
+        result = df_test[[output_key, '%s_predicted' % output_key]]
+        print(mean_absolute_error(result[output_key].to_numpy(), result['%s_predicted' % output_key].to_numpy()))
+        return result
 
     async def train_model(self, df, input_keys, output_key):
         X = df[input_keys]
@@ -101,43 +129,101 @@ class LinReg():
     ######################################################################################################
     ################################## DATA AGGREGATION FUNCTIONS ########################################
     ######################################################################################################
-    async def aggregate_data(self, start_date='2019-08-16', end_date='2019-10-24', start_hour='6:00', end_hour='11:00'):
-        df_sim = await self.fetch_simulated_emissions(672)
-        df_weather = await fetch_weather_data(start_date, end_date, start_hour, end_hour)
-        df_air_traffic = await self.fetch_air_and_traffic(start_date, end_date, start_hour, end_hour)
-        # print(df_air_traffic)
-        df_combined = pd.concat([df_air_traffic, df_weather], axis=1)
-        # print(df_combined)
+    async def aggregate_data(self, boxID=672, start_date='2019-07-01', end_date='2019-10-20', start_hour='7:00', end_hour='10:00'):
+        df_air = await self.fetch_air_and_traffic(
+            boxID, start_date, end_date, start_hour, end_hour
+        )
+        # print(df_air)
+        df_sim = await self.fetch_simulated_emissions(boxID)
+        df_sim = df_sim.groupby('time')[self.raw_emission_columns].sum()
+        # print(df_sim)
+        df_nox = df_sim['NOx']
+        var = df_nox.var(axis=0)
+        std = df_nox.std(axis=0)
+        mean = df_nox.mean(axis=0)
+        print('Var: \n', var)
+        print('Std: \n', std)
+        print('Mean: \n', mean)
+        ratio = std / mean
+        new_frames = [df_sim[['NOx', 'PMx']] * val for val in np.arange(1 - ratio, 1 + ratio, 1 / (df_air.shape[0] / 4))]
+        df = pd.concat([frame.groupby(frame.index // 60).sum() for frame in new_frames], axis=0, ignore_index=True)
+        print(df)
+        df_combined = pd.concat([df_air.reset_index(), df], axis=1).fillna(method='ffill')
+        # self.save_df_to_plot(df, 'resampled_sim_nox_hour', legend=None)
+        print(df_combined)
+        return df_combined.set_index('time')
+        # print(df)
+        # return df_sim
+        # print(df_sim.shape)
+        # print(df_sim)
+        # return df_sim
+        # .apply(aqi.calc_nox_index)
+        # df_nox = df_sim['NOx']
+        # print(df_nox)
 
-        # NOTE: Combine all dataframes
-        length, _ = df_combined.shape
-        df_sim_repeated = pd.concat([df_sim]*int(abs((length / 6))), ignore_index=True)
-        df_combined = df_combined.reset_index().rename(columns={'index': 'time'}) # prepare for concat with sim values
-        return pd.concat([df_combined, df_sim_repeated], axis=1).set_index(['time'])
+        # print(var)
+        # print(std)
+        # print(df_nox)
+        # , figsize=(18, 5)
+        # df_nox.plot.hist(grid=True, bins=300, rwidth=0.9, color='#333333')
+        # plt.savefig(PLOT_BASEDIR + '/' + 'hist_nox')
+    # async def aggregate_data(self, start_date='2019-08-16', end_date='2019-10-24', start_hour='6:00', end_hour='11:00'):
+    #     df_sim = await self.fetch_simulated_emissions(672)
+    #     df_weather = await fetch_weather_data(start_date, end_date, start_hour, end_hour)
+    #     df_air_traffic = await self.fetch_air_and_traffic(start_date, end_date, start_hour, end_hour)
+    #     # print(df_air_traffic)
+    #     df_combined = pd.concat([df_air_traffic, df_weather], axis=1)
+    #     # print(df_combined)
+
+    #     # NOTE: Combine all dataframes
+    #     length, _ = df_combined.shape
+    #     df_sim_repeated = pd.concat([df_sim]*int(abs((length / 6))), ignore_index=True)
+    #     df_combined = df_combined.reset_index().rename(columns={'index': 'time'}) # prepare for concat with sim values
+    #     return pd.concat([df_combined, df_sim_repeated], axis=1).set_index(['time'])
 
 
     #####################################################################################################
     ################################## DATA COLLECTION FUNCTIONS ########################################
-    ######################################################################################################
-    async def fetch_simulated_emissions(self, box_id):
+    #####################################################################################################
+    ## NOTE: This in crud probably
+    async def fetch_simulated_emissions(self, box_id, entries=['CO', 'NOx', 'PMx', 'fuel']):
         # NOTE: First we fetch the simulated emissions
         parser = Parser(self.db, self.sim_id)
         lat, lng = [round(bremicker_boxes[box_id]['lat'], 3), round(bremicker_boxes[box_id]['lng'], 3)]
-        # raw_emissions = await get_raw_emissions_from_sim(self.db, self.sim_id)
-        raw_emissions = await parser.get_caqi_data()
-        print(raw_emissions)
-        # df = pd.DataFrame(pd.read_json(raw_emissions["emissions"], orient='index'))
+        raw_emissions = await get_raw_emissions_from_sim(self.db, self.sim_id)
+        if raw_emissions == None:
+            raw_emissions = parser.parse_emissions()
+        # raw_emissions = await parser.get_caqi_data()
+        
+        # raw_emissions = raw_emissions.reset_index().to_json(orient='index')
+        # raw_emissions = raw_emissions.apply(lambda x: x.to_json(orient='records'))
+        # raw_emissions = json.loads(raw_emissions)
+        # raw_emissions = pd.DataFrame.from_dict(raw_emissions).T
+        
+        df = pd.DataFrame(pd.read_json(raw_emissions["emissions"], orient='index'))
         # print(df)
-        # print(lat, lng)
+        # return raw_emissions
+        
+        # print(df)
+        print(lat, lng)
         # latlng = ['lat', 'lng']
         # df = df[latlng + self.raw_emission_columns]
         # print(df)
         # df = df.groupby([df.index // 60] + latlng)[self.raw_emission_columns].mean().reset_index(latlng)
         
-        # mask = (round(df['lat'], 3) == lat) & (round(df['lng'], 3) == lng)
-        # df = df.loc[mask]
+        mask = (round(df['lat'], 3) == lat) & (round(df['lng'], 3) == lng)
+        df = df.loc[mask]
+        print(df)
+        
+        # df.plot.hist(x='time', y='PMx', grid=True, bins=150, rwidth=0.9, figsize=(12, 8), zorder=2, color='#86bf91')
+        # plt.savefig(PLOT_BASEDIR + '/' + 'hist_pmx')
+        return df
         # return df
         # print(df)
+        # plt.hist(df.time, df.NOx)
+        
+        # df.plot.hist(x='time', y='NOx', grid=True)
+        
         # df[latlng] = df[latlng].round(3)
         # df = df.groupby([df.index] + latlng)[self.raw_emission_columns].sum()
         # print(df)
@@ -158,35 +244,32 @@ class LinReg():
 
         
 
-    async def fetch_air_and_traffic(self, start_date='2019-01-01', end_date='2019-10-28', start_hour='0:00', end_hour='23:00'):
+    async def fetch_air_and_traffic(self, boxID, start_date='2019-08-01', end_date='2019-11-01', start_hour='0:00', end_hour='23:00'):
         # NOTE: Get real weather data and format it accordingly. Here we'll look at 2019 from 7:00 to 10:00
-        air_df = await self.get_real_air()
-
-        bremicker_df = await self.get_bremicker()
-        df_traffic = await self.format_real_air_by_key(
-            bremicker_df,
-            'veh',
-            start_date, 
+        df_traffic = await get_bremicker_by_time(
+            self.db,
+            boxID,
+            start_date,
+            end_date, 
+            start_hour,
+            end_hour
+        )
+        # traffic_mean = df_traffic[boxID].mean()
+        # df_traffic = df_traffic.fillna(round(traffic_mean, 2))
+        # print(df_traffic)
+        df_hawa = await get_hawa_dawa_by_time(
+            self.db, 
+            start_date,
             end_date, 
             start_hour, 
             end_hour
         )
-        # self.save_df_to_plot(df_traffic, 'bremicker_all')
-        # print(df_traffic)
-        frames = [
-            await self.format_real_air_by_key(
-                air_df,
-                key,
-                start_date, 
-                end_date, 
-                start_hour, 
-                end_hour) for key in self.real_emission_columns
-        ]
+        # print(df_hawa)
 
-        if not df_traffic.empty:
-            frames.append(df_traffic)
+        df = pd.concat([df_traffic, df_hawa], axis=1)
+        df = df.fillna(method='ffill')
+        return df.fillna(method='bfill')
 
-        return pd.concat(frames, axis=1)
 
     def save_df_to_plot(self, df, filename):
         if not df.empty:
@@ -227,7 +310,6 @@ class LinReg():
     # relative humidty: column RF_TU, %
     # temperature: column TT_TU, °C
 
-    
     #######################################################################################
     #################################AIR FUNCTIONS#########################################
     #######################################################################################

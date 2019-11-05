@@ -2,6 +2,7 @@ import os, sys
 import subprocess
 import xml.etree.ElementTree as ET
 from lxml import etree
+from random import choices
 from app.core.config import (
     AREA_OF_INTEREST,
     WEIGHT_INPUT, 
@@ -74,6 +75,18 @@ class PreProcessor():
         self.route_filepath = ROUTE_OUTPUT + self.sim_id + ".rou.xml"
         self.net_filepath = new_net_path if new_net_path != None else DEFAULT_NET_INPUT
         self.cfg_filepath = SUMO_CFG + self.sim_id + ".sumocfg"
+        
+        # self.veh_dist = {
+        #     diesel: {
+        #         'eu-4': 0.3,
+        #         'eu-6': 0.3
+        #     },
+        #     gasoline: {
+        #         'eu-4': 0.3,
+        #         'eu-6': 0.3
+        #     },
+        #     electric: 
+        # }
 
     def write_sumocfg_file(self):
         configuration_tag = ET.Element('configuration')
@@ -213,6 +226,8 @@ class PreProcessor():
 
     def write_random_trips_and_routes(self):
         # path_to_script = tools + '/randomTrips.py'
+        choice = choices(['d_eu4', 'd_eu6', 'g_eu4', 'g_eu6', 'el'], weights=[0.20, 0.25, 0.25, 0.25, 0.05])
+        print(choice)
         print("Writing random trips and route files...")
         cmd = "python %s -n %s -e %s -o %s --route-file %s --validate --fringe-factor %s -p %s --weights-prefix %s"\
                 % ( RANDOM_TRIP_TOOL,
@@ -225,6 +240,7 @@ class PreProcessor():
                     self.weights_filepath_prefix
                 )
         subprocess.call(cmd.split())
+        
 
     async def preprocess_simulation_input(self):
         # if self.new_net_path is not None:

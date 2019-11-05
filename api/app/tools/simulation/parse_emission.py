@@ -66,12 +66,16 @@ class Parser():
         # numpy arrays in-place* so we don’t want to keep them anyway. 
         df['lng'], df['lat'] = net.convertXY2LonLat(df.x.to_numpy(), df.y.to_numpy())
         df.drop(coords, axis=1, inplace=True)
-
+        # df = df.reset_index()
         # # 'group' data by rounding the latitude and longitude
         # # effectively creating areas of 1/10000th degrees per side
         latlng = ['lat', 'lng']
-        df[latlng] = df[latlng].round(4)
-        return df.groupby(['time', 'lat', 'lng'])[entries].sum()
+        df[latlng] = df[latlng].round(3)
+        # df[entries] = df[entries].resample('60s', how='sum')
+        # df = df.groupby(['time', 'lat', 'lng'])[entries].sum()
+        # df = df.reset_index()
+        return df.groupby([df.time // 60, 'lat', 'lng'])[entries].sum()
+        # return df.groupby(['time', 'lat', 'lng'])[entries].sum()
         # return df
         # aggregate the results and return summed dataframe
         # return df.groupby(latlng)[entries].sum()

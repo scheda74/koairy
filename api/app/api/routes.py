@@ -94,16 +94,17 @@ async def start_linreg(inputs: Inputs = example_body, db: AsyncIOMotorClient=Dep
     Next, it'll predict the specified output with the data given to this request
     """
     sim_id = generate_id(inputs)
-    lr = LinReg(db, sim_id)
-    # df_pm10_pred = await lr.predict_emission(input_keys=['veh', 'TEMP', 'HUMIDITY', 'PMx'], output_key='pm10')
-    # df_no2_pred = await lr.predict_emission(input_keys=['veh', 'TEMP', 'HUMIDITY', 'NOx'], output_key='no2')
-    # print(df_pm10_pred)
-    # print(df_no2_pred)
-    # df_combined = pd.concat([df_no2_pred, df_pm10_pred], axis=1)
-    # print(df_combined)
-    # return df_combined.to_dict(orient='list')
+    lr = LinReg(db, sim_id, boxID=672)
+    df_pm10_pred = await lr.predict_emission(boxID=672, input_keys=['temp', 'hum', 'PMx'], output_key='pm10')
+    df_no2_pred = await lr.predict_emission(boxID=672, input_keys=['temp', 'hum', 'NOx'], output_key='no2')
+    print(df_pm10_pred)
+    print(df_no2_pred)
+    df_combined = pd.concat([df_no2_pred, df_pm10_pred], axis=1)
+    print(df_combined)
+    return df_combined.to_dict(orient='list')
 
-    return await lr.get_sim_em_distribution()
+    # return await lr.get_sim_em_distribution()
+    # return await lr.predict_emission()
     
     # result = await get_bremicker(db)
     # return result
@@ -111,7 +112,14 @@ async def start_linreg(inputs: Inputs = example_body, db: AsyncIOMotorClient=Dep
     # print(result)
     # return result.to_dict(orient='list')
     # await lr.get_air_sensor_data()
-    
+
+
+@router.post('/start/cnn')
+async def start_conv(inputs: Inputs = example_body, db: AsyncIOMotorClient=Depends(get_database)):
+    sim_id = generate_id(inputs)
+    lr = LinReg(db, sim_id, boxID=672)
+    await lr.start_cnn()
+
 @router.post('/get/mean/vehicle')
 async def get_mean_vehicles(inputs: Inputs = example_body, db: AsyncIOMotorClient=Depends(get_database)):
     """
