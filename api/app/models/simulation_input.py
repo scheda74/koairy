@@ -4,7 +4,7 @@ from pydantic import BaseModel, Schema
 
 class Inputs(BaseModel):
     weatherScenario: int = Schema(0, description='Choose between different weather scenarios')
-    vehicleDistribution: list = Schema([], description='Distribution of emission classes')
+    vehicleDistribution: Dict[str, float] = Schema(..., description='Distribution of emission classes')
     srcWeights: Dict[str, float] = Schema(..., description='Percentage of how many vehicles (agents) start from an area')
     dstWeights: Dict[str, float] = Schema(..., description='Percentage of how many vehicles (agents) end in an area')
     vehicleNumber: int = 9500
@@ -13,7 +13,13 @@ class Inputs(BaseModel):
 example_body = Body(
     ...,
     example={
-        'vehicleDistribution': [],
+        'vehicleDistribution': {
+            'HBEFA3/PC_D_EU4': 0.20, 
+            'HBEFA3/PC_D_EU6': 0.25, 
+            'HBEFA3/PC_G_EU4': 0.25, 
+            'HBEFA3/PC_G_EU6': 0.25, 
+            'HBEFA3/PC_Alternative': 0.05
+        },
         'weatherScenario': 0,
         'srcWeights': {
             'aschheim_west': 0.1,

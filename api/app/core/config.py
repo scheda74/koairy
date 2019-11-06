@@ -12,6 +12,9 @@ PROJECT_NAME = os.getenv("PROJECT_NAME", "EM-ViZ FastAPI")
 HAWA_DAWA_API_KEY = '22e28dcf-8207-4626-ced1-5afaff1834d6'
 HAWA_DAWA_URL = 'https://data.hawadawa.com/airapi/bytopic/kirchheim/hour?'
 
+BREMICKER_URL = 'http://smart-mobility.ge57.spacenet.de/bremicker/measures'
+BREMICKER_API_KEY = 'r4LwN9jVYVHHV1iu'
+
 MONGODB_URL = os.getenv("MONGODB_URL", "")  # deploying without docker-compose
 if not MONGODB_URL:
     MONGO_HOST = os.getenv("MONGO_HOST", "0.0.0.0")
@@ -44,7 +47,7 @@ TRIP_OUTPUT = BASEDIR + "/data/traffic-input/trip-"
 ROUTE_OUTPUT = BASEDIR + "/data/traffic-input/route-"
 WEIGHT_INPUT = BASEDIR + "/data/traffic-input/weight-"
 EMISSION_OUTPUT_BASE = BASEDIR + "/data/emission-output/"
-EMISSION_OUTPUT = BASEDIR + "/data/emission-output/emission_output.xml"
+EMISSION_OUTPUT = BASEDIR + "/data/emission-output/test_emission_output.xml"
 SUMO_CFG = BASEDIR + "/data/traffic-input/simulation-"
 
 SUMO_ROOT = os.environ['SUMO_HOME']

@@ -2,6 +2,7 @@ import os, sys
 import subprocess
 import xml.etree.ElementTree as ET
 from lxml import etree
+from random import choices
 from app.core.config import (
     AREA_OF_INTEREST,
     WEIGHT_INPUT, 
@@ -56,6 +57,13 @@ class PreProcessor():
             'kirchheim_residential': 0.05,
             'unassigned_edges': 0.05
         },
+        veh_dist={
+            'd_eu4': 0.20, 
+            'd_eu6': 0.25, 
+            'g_eu4': 0.25, 
+            'g_eu6': 0.25, 
+            'el': 0.05
+        },
         fringe_factor=1
     ):
         self.sim_id = sim_id
@@ -63,6 +71,7 @@ class PreProcessor():
         self.agents = agents
         self.src_weights = src_weights
         self.dst_weights = dst_weights
+        self.veh_dist = veh_dist
         # self.weight_type = weight_type
         self.fringe_factor = fringe_factor
         self.new_net_path = new_net_path
@@ -74,6 +83,18 @@ class PreProcessor():
         self.route_filepath = ROUTE_OUTPUT + self.sim_id + ".rou.xml"
         self.net_filepath = new_net_path if new_net_path != None else DEFAULT_NET_INPUT
         self.cfg_filepath = SUMO_CFG + self.sim_id + ".sumocfg"
+        
+        # self.veh_dist = {
+        #     diesel: {
+        #         'eu-4': 0.3,
+        #         'eu-6': 0.3
+        #     },
+        #     gasoline: {
+        #         'eu-4': 0.3,
+        #         'eu-6': 0.3
+        #     },
+        #     electric: 
+        # }
 
     def write_sumocfg_file(self):
         configuration_tag = ET.Element('configuration')
@@ -226,6 +247,26 @@ class PreProcessor():
                 )
         subprocess.call(cmd.split())
 
+        self.add_vehicle_type_to_routes()
+    
+    def add_vehicle_type_to_routes(self):
+        emission_classes = list(self.veh_dist.keys())
+        emission_weights = list(self.veh_dist.values())
+
+        tree = ET.parse(self.route_filepath)
+        root = tree.getroot()
+        
+        for elem in emission_classes:
+            el = ET.Element('vType', {'id': elem, 'emissionClass': elem})
+            root.insert(0, el)
+        
+        for vehicle in root.iter('vehicle'):
+            choice = choices(emission_classes, weights=emission_weights)
+            print(choice)
+            vehicle.set('type', choice[0])
+
+        tree.write(self.route_filepath)
+
     async def preprocess_simulation_input(self):
         # if self.new_net_path is not None:
         #     write_taz_file(
@@ -235,6 +276,7 @@ class PreProcessor():
         #     )
         print("path: %s" % self.weights_filepath)
         if not os.path.exists(self.weights_filepath):
+            self.write_sumocfg_file()
             self.write_weight_file('src', self.src_weights) # create .src file
             self.write_weight_file('dst', self.dst_weights) # create .dst file
             self.write_random_trips_and_routes()
