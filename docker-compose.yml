@@ -12,14 +12,14 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=example
     env_file:
-      - .env
-  web_app:
+      - ./api/.env
+  backend:
     build:
       dockerfile: Dockerfile
-      context: .
-    image: fastapi_image:latest
+      context: ./api
+    image: emviz_backend:latest
     env_file:
-      - .env
+      - ./api/.env
     depends_on:
       - db
     ports:

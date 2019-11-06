@@ -11,7 +11,7 @@ import json
 import asyncio
 from lxml import etree
 from app.core.config import EMISSION_OUTPUT_BASE, SUMO_COMMANDLINE
-from app.crud.emissions import get_caqi_emissions_for_sim
+from app.crud.emissions import (get_caqi_emissions_for_sim, get_raw_emissions_from_sim)
 
 # export SUMO_HOME="/usr/local/opt/sumo/share/sumo"
 
@@ -46,7 +46,8 @@ class Simulator:
 
     async def start(self):
         caqi = await get_caqi_emissions_for_sim(self.db, self.sim_id)
-        if caqi != None:
+        raw = await get_raw_emissions_from_sim(self.db, self.sim_id)
+        if caqi != None or raw != None:
             print("[PARSER] Simulation has already been run. Fetching Data from DB...")
             return
         else: 

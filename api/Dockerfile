@@ -1,16 +1,14 @@
+# Forked from Jakob Smretschnig <jakob.smretschnig@tum.de>, based on
+# docker-image by Bo Gao <bogao@dcs.warwick.ac.uk> 
+# in collaboration with Ljube B. <@tum.de>
+
 # Use ubuntu as a parent image - 18.04 has LTS
-############################################################
-######################## SUMO ##############################
-############################################################
 FROM ubuntu:18.04
 
-# MAINTAINER David Schemm <david.schemm@tum.de>, based on docker-image 
-# by Bo Gao <bogao@dcs.warwick.ac.uk> and Jakob Smretschnig <jakob.smretschnig@tum.de>
-# LABEL Description="Dockerised SUMO (Simulation of Urban MObility)"
+LABEL Description = "Emission Simulation, Prediction and Visualization"
+ENV DEBIAN_FRONTEND=noninteractive 
 
-ENV DEBIAN_FRONTEND=noninteractive
-
-# # Install system dependencies
+# Install system dependencies
 RUN apt-get -qq update && apt-get -qq install \
     cmake g++ libxerces-c-dev libfox-1.6-dev libgdal-dev libproj-dev libgl2ps-dev swig git \
     ffmpeg \
@@ -21,22 +19,22 @@ RUN apt-get -qq update && apt-get -qq install \
     python3-pip \
     python3-rtree
 
-WORKDIR /
-# # Download and build sumo
-# RUN git clone --recursive https://github.com/eclipse/sumo --verbose --progress && mkdir sumo/build/cmake-build
-# WORKDIR /sumo/build/cmake-build
-# RUN cmake ../.. && make -j$(nproc)
+## Install SUMO
+RUN git clone --recursive https://github.com/eclipse/sumo --verbose --progress && mkdir sumo/build/cmake-build
+WORKDIR /sumo/build/cmake-build 
+RUN cmake ../.. && make -j$(nproc)
 
 ENV SUMO_HOME /sumo
+
+################# END OF 'COMMON' IMAGE ####################
+
 ############################################################
 ######################## API ###############################
 ############################################################
 RUN apt-get -qq install python3.7 python3.7-dev curl python3-distutils && curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python3.7 get-pip.py
-WORKDIR /
-# RUN apt-get -qq update && apt-get -qq install python3.7-dev 
-
 RUN cp /usr/bin/python3.7 /usr/bin/python
-RUN python --version
+
+WORKDIR /
 # Setting up poetry
 COPY poetry.lock /
 COPY pyproject.toml .
