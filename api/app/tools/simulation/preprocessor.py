@@ -57,6 +57,13 @@ class PreProcessor():
             'kirchheim_residential': 0.05,
             'unassigned_edges': 0.05
         },
+        veh_dist={
+            'd_eu4': 0.20, 
+            'd_eu6': 0.25, 
+            'g_eu4': 0.25, 
+            'g_eu6': 0.25, 
+            'el': 0.05
+        },
         fringe_factor=1
     ):
         self.sim_id = sim_id
@@ -64,6 +71,7 @@ class PreProcessor():
         self.agents = agents
         self.src_weights = src_weights
         self.dst_weights = dst_weights
+        self.veh_dist = veh_dist
         # self.weight_type = weight_type
         self.fringe_factor = fringe_factor
         self.new_net_path = new_net_path
@@ -226,8 +234,6 @@ class PreProcessor():
 
     def write_random_trips_and_routes(self):
         # path_to_script = tools + '/randomTrips.py'
-        choice = choices(['d_eu4', 'd_eu6', 'g_eu4', 'g_eu6', 'el'], weights=[0.20, 0.25, 0.25, 0.25, 0.05])
-        print(choice)
         print("Writing random trips and route files...")
         cmd = "python %s -n %s -e %s -o %s --route-file %s --validate --fringe-factor %s -p %s --weights-prefix %s"\
                 % ( RANDOM_TRIP_TOOL,
@@ -240,7 +246,26 @@ class PreProcessor():
                     self.weights_filepath_prefix
                 )
         subprocess.call(cmd.split())
+
+        self.add_vehicle_type_to_routes()
+    
+    def add_vehicle_type_to_routes(self):
+        emission_classes = list(self.veh_dist.keys())
+        emission_weights = list(self.veh_dist.values())
+
+        tree = ET.parse(self.route_filepath)
+        root = tree.getroot()
         
+        for elem in emission_classes:
+            el = ET.Element('vType', {'id': elem, 'emissionClass': elem})
+            root.insert(0, el)
+        
+        for vehicle in root.iter('vehicle'):
+            choice = choices(emission_classes, weights=emission_weights)
+            print(choice)
+            vehicle.set('type', choice[0])
+
+        tree.write(self.route_filepath)
 
     async def preprocess_simulation_input(self):
         # if self.new_net_path is not None:
@@ -251,6 +276,7 @@ class PreProcessor():
         #     )
         print("path: %s" % self.weights_filepath)
         if not os.path.exists(self.weights_filepath):
+            self.write_sumocfg_file()
             self.write_weight_file('src', self.src_weights) # create .src file
             self.write_weight_file('dst', self.dst_weights) # create .dst file
             self.write_random_trips_and_routes()

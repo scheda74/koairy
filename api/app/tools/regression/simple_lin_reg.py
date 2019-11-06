@@ -39,11 +39,10 @@ from sklearn.metrics import mean_absolute_error
 from sklearn.neural_network import MLPRegressor
 
 class LinReg():
-    def __init__(self, db: AsyncIOMotorClient, sim_id=None, existing_regr=None, boxID=672):
+    def __init__(self, db: AsyncIOMotorClient, sim_id=None, existing_regr=None):
         self.db = db
         self.sim_id = sim_id
         self.existing_regr = existing_regr
-        self.boxID = boxID
         self.raw_emission_columns = ['CO', 'NOx', 'PMx']
         self.real_emission_columns = ['no2', 'pm2.5', 'pm10', 'o3']
 
@@ -71,8 +70,9 @@ class LinReg():
         df_test[output_key + '_predicted'] = model.predict(df_test[input_keys])
         result = df_test[[output_key, '%s_predicted' % output_key]]
         print(result)
-        print(mean_absolute_error(result[output_key].to_numpy(), result['%s_predicted' % output_key].to_numpy()))
-        self.save_df_to_plot(result, '%s_mlp_regressor' % output_key.replace('.', '-'))
+        print("Mean Abs Error: " + str(mean_absolute_error(result[output_key].to_numpy(), result['%s_predicted' % output_key].to_numpy())))
+        self.save_df_to_plot(result, '%s_mlp_dist_regressor' % output_key.replace('.', '-'))
+        return result
 
 
     def normalize_data(self, column):
@@ -95,8 +95,8 @@ class LinReg():
         df_combined = await self.aggregate_data(boxID)
         df_train = df_combined.iloc[:400]
         df_test = df_combined.iloc[400:]
-        print(df_train)
-        print(df_test)
+        # print(df_train)
+        # print(df_test)
         regr = await self.train_model(df_train, input_keys, output_key)
 
         if data != None:
@@ -109,10 +109,10 @@ class LinReg():
         # df_test = df_test.assign({output_key + '_predicted': regr.predict(Z)})
         df_test[output_key + '_predicted'] = regr.predict(Z)
         print(df_test)
-        # self.save_df_to_plot(df_test[[output_key, '%s_predicted' % output_key]], '%s_prediction_better' % output_key)
+        self.save_df_to_plot(df_test[[output_key, '%s_predicted' % output_key]], '%s_lin_dist_prediction' % output_key)
         df_test = df_test.reset_index()
         result = df_test[[output_key, '%s_predicted' % output_key]]
-        print(mean_absolute_error(result[output_key].to_numpy(), result['%s_predicted' % output_key].to_numpy()))
+        print("Mean Abs Error: " + str(mean_absolute_error(result[output_key].to_numpy(), result['%s_predicted' % output_key].to_numpy())))
         return result
 
     async def train_model(self, df, input_keys, output_key):
@@ -137,20 +137,25 @@ class LinReg():
         df_sim = await self.fetch_simulated_emissions(boxID)
         df_sim = df_sim.groupby('time')[self.raw_emission_columns].sum()
         # print(df_sim)
+
         df_nox = df_sim['NOx']
-        var = df_nox.var(axis=0)
-        std = df_nox.std(axis=0)
-        mean = df_nox.mean(axis=0)
-        print('Var: \n', var)
-        print('Std: \n', std)
-        print('Mean: \n', mean)
-        ratio = std / mean
+        df_pmx = df_sim['PMx']
+        nox_var = df_nox.var(axis=0)
+        nox_std = df_nox.std(axis=0)
+        nox_mean = df_nox.mean(axis=0)
+        pmx_var = df_pmx.var(axis=0)
+        pmx_std = df_pmx.std(axis=0)
+        pmx_mean = df_pmx.mean(axis=0)
+        print('Var: \n', nox_var, pmx_var)
+        print('Std: \n', nox_std, pmx_std)
+        print('Mean: \n', nox_mean, pmx_mean)
+        ratio = ((nox_std / nox_mean) + (pmx_std / pmx_mean)) / 2
         new_frames = [df_sim[['NOx', 'PMx']] * val for val in np.arange(1 - ratio, 1 + ratio, 1 / (df_air.shape[0] / 4))]
         df = pd.concat([frame.groupby(frame.index // 60).sum() for frame in new_frames], axis=0, ignore_index=True)
-        print(df)
+        # print(df)
         df_combined = pd.concat([df_air.reset_index(), df], axis=1).fillna(method='ffill')
         # self.save_df_to_plot(df, 'resampled_sim_nox_hour', legend=None)
-        print(df_combined)
+        # print(df_combined)
         return df_combined.set_index('time')
         # print(df)
         # return df_sim
@@ -213,7 +218,7 @@ class LinReg():
         
         mask = (round(df['lat'], 3) == lat) & (round(df['lng'], 3) == lng)
         df = df.loc[mask]
-        print(df)
+        # print(df)
         
         # df.plot.hist(x='time', y='PMx', grid=True, bins=150, rwidth=0.9, figsize=(12, 8), zorder=2, color='#86bf91')
         # plt.savefig(PLOT_BASEDIR + '/' + 'hist_pmx')

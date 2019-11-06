@@ -11,11 +11,12 @@ from lxml import etree
 from operator import itemgetter
 from timeit import default_timer as timer
 # from app.db.mongodb import DB
-from app.tools.simulation import calc_caqi as caqi
+from app.tools.simulation.calc_caqi import calc_indices
 from app.tools.simulation import preprocessor as ip
 from app.core.config import DEFAULT_NET_INPUT, EMISSION_OUTPUT_BASE
 from app.crud.emissions import (
     get_caqi_emissions_for_sim,
+    get_raw_emissions_from_sim,
     insert_caqi_emissions,
     insert_raw_emissions
 )
@@ -89,17 +90,22 @@ class Parser():
             print("[PARSER] parsing XML emission outputs from traffic simulation")
             timer_start = timer()
             emissions = self.parse_emissions(self.sim_output_path)
+            # emissions = await get_raw_emissions_from_sim(self.db, self.sim_id)
             seconds = timer() - timer_start
-            print(emissions)
+            # print(emissions)
             print("[etree] Finished parsing XML in %s seconds" % seconds)
             
             print("[PARSER] Saving raw simulated emissions to database")
+            # emissions = pd.DataFrame.from_dict(json.loads(emissions["emissions"]), orient='index')
+            # emissions = emissions.groupby(['time', 'lat', 'lng'])[['CO2', 'CO', 'NOx', 'PMx', 'fuel']].sum()
+            print(emissions)
             raw_emissions = emissions.reset_index().to_json(orient='index')
             await insert_raw_emissions(self.db, self.sim_id, raw_emissions)
 
             print("[CAQI] calculating subindices and overall CAQI")
-            caqi_emissions = emissions.apply(caqi.calc_indices, axis=1)
+            caqi_emissions = emissions.apply(calc_indices, axis=1)
             result = caqi_emissions.reset_index().to_json(orient='index')
+            # print(result)
 
             print("[PARSER] Saving calculated inidzes to database")
             await insert_caqi_emissions(self.db, self.sim_id, result)

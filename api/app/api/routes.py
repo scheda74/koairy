@@ -73,7 +73,8 @@ async def start_simulation(inputs: Inputs = example_body, db: AsyncIOMotorClient
         timesteps=inputs.timesteps,
         agents=inputs.vehicleNumber, 
         src_weights=inputs.srcWeights, 
-        dst_weights=inputs.dstWeights
+        dst_weights=inputs.dstWeights,
+        veh_dist=inputs.vehicleDistribution
     )
     cfg_filepath = await processor.preprocess_simulation_input()
     # print(cfg_filepath)
@@ -84,8 +85,24 @@ async def start_simulation(inputs: Inputs = example_body, db: AsyncIOMotorClient
     print("Parsing results...")
     parser = Parser(db, sim_id)
     return await parser.get_caqi_data()
-    # return await parser.parse_emissions()
-    # return "OK"
+
+# @router.post('/test/veh_dist')
+# async def start_veh_dist(inputs: Inputs = example_body, db: AsyncIOMotorClient=Depends(get_database)):
+#     """
+#     Starts a new simulation with given input parameters...
+#     """
+#     # body = await request.get_json()
+#     sim_id = generate_id(inputs)
+#     print("Starting PreProcessor...")
+#     processor = PreProcessor(
+#         sim_id=sim_id,
+#         timesteps=inputs.timesteps,
+#         agents=inputs.vehicleNumber, 
+#         src_weights=inputs.srcWeights, 
+#         dst_weights=inputs.dstWeights,
+#         veh_dist=inputs.vehicleDistribution
+#     )
+#     processor.add_vehicle_type_to_routes()
 
 @router.post('/start/linreg')
 async def start_linreg(inputs: Inputs = example_body, db: AsyncIOMotorClient=Depends(get_database)):
@@ -94,7 +111,7 @@ async def start_linreg(inputs: Inputs = example_body, db: AsyncIOMotorClient=Dep
     Next, it'll predict the specified output with the data given to this request
     """
     sim_id = generate_id(inputs)
-    lr = LinReg(db, sim_id, boxID=672)
+    lr = LinReg(db, sim_id)
     df_pm10_pred = await lr.predict_emission(boxID=672, input_keys=['temp', 'hum', 'PMx'], output_key='pm10')
     df_no2_pred = await lr.predict_emission(boxID=672, input_keys=['temp', 'hum', 'NOx'], output_key='no2')
     print(df_pm10_pred)
@@ -117,8 +134,14 @@ async def start_linreg(inputs: Inputs = example_body, db: AsyncIOMotorClient=Dep
 @router.post('/start/cnn')
 async def start_conv(inputs: Inputs = example_body, db: AsyncIOMotorClient=Depends(get_database)):
     sim_id = generate_id(inputs)
-    lr = LinReg(db, sim_id, boxID=672)
-    await lr.start_cnn()
+    lr = LinReg(db, sim_id)
+    df_pm10_pred = await lr.start_cnn(boxID=672, input_keys=['temp', 'hum', 'PMx'], output_key='pm10')
+    df_pm25_pred = await lr.start_cnn(boxID=672, input_keys=['temp', 'hum', 'PMx'], output_key='pm2.5')
+    df_no2_pred = await lr.start_cnn(boxID=672, input_keys=['temp', 'hum', 'NOx'], output_key='no2')
+    df_combined = pd.concat([df_no2_pred, df_pm10_pred, df_pm25_pred], axis=1)
+    print(df_combined)
+    return df_combined.to_dict(orient='list')
+
 
 @router.post('/get/mean/vehicle')
 async def get_mean_vehicles(inputs: Inputs = example_body, db: AsyncIOMotorClient=Depends(get_database)):
@@ -156,5 +179,5 @@ async def get_plot(inputs: PlotInput = example_plot_input, db: AsyncIOMotorClien
 def generate_id(inputs):
     src_weights = "".join([str(v).replace('.', '') for v in inputs.srcWeights.values()])
     dst_weights = "".join([str(v).replace('.', '') for v in inputs.dstWeights.values()])
-    veh_dist = "".join([str(v).replace('.', '') for v in inputs.vehicleDistribution])
+    veh_dist = "".join([str(v).replace('.', '') for v in inputs.vehicleDistribution.values()])
     return ("%s_%s_%s_%s_%s_%s" % (src_weights, dst_weights, veh_dist, inputs.vehicleNumber, inputs.timesteps, inputs.weatherScenario))
