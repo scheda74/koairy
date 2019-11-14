@@ -104,6 +104,22 @@ async def start_simulation(inputs: Inputs = example_body, db: AsyncIOMotorClient
 #     )
 #     processor.add_vehicle_type_to_routes()
 
+@router.post('/start/tbats')
+async def start_tbats(inputs: Inputs = example_body, db: AsyncIOMotorClient=Depends(get_database)):
+    sim_id = generate_id(inputs)
+    lr = LinReg(db, sim_id)
+
+    df_tbats = await lr.start_tbats(boxID=672, input_keys=['temp', 'hum', 'PMx', 'WIND_SPEED', 'WIND_DIR'], output_key='pm2.5')
+
+
+@router.post('/start/lstm')
+async def start_lstm(inputs: Inputs = example_body, db: AsyncIOMotorClient=Depends(get_database)):
+    sim_id = generate_id(inputs)
+    lr = LinReg(db, sim_id)
+
+    df_lstm = await lr.start_lstm(boxID=672, input_keys=['temp', 'hum', 'PMx', 'WIND_SPEED', 'WIND_DIR'], output_key='no2')
+
+
 @router.post('/start/linreg')
 async def start_linreg(inputs: Inputs = example_body, db: AsyncIOMotorClient=Depends(get_database)):
     """
@@ -112,13 +128,20 @@ async def start_linreg(inputs: Inputs = example_body, db: AsyncIOMotorClient=Dep
     """
     sim_id = generate_id(inputs)
     lr = LinReg(db, sim_id)
-    df_pm10_pred = await lr.predict_emission(boxID=672, input_keys=['temp', 'hum', 'PMx'], output_key='pm10')
-    df_no2_pred = await lr.predict_emission(boxID=672, input_keys=['temp', 'hum', 'NOx'], output_key='no2')
-    print(df_pm10_pred)
-    print(df_no2_pred)
-    df_combined = pd.concat([df_no2_pred, df_pm10_pred], axis=1)
+    df_lin = await lr.predict_emission(boxID=672, input_keys=['temp', 'hum', 'PMx', 'WIND_SPEED', 'WIND_DIR'], output_key='pm2.5')
+    df_mlp = await lr.start_cnn(boxID=672, input_keys=['temp', 'hum', 'PMx', 'WIND_SPEED', 'WIND_DIR'], output_key='pm2.5')
+    # df_no2_pred = await lr.predict_emission(boxID=672, input_keys=['temp', 'hum', 'NOx', 'WIND_SPEED', 'WIND_DIR'], output_key='no2')
+    # print(df_pm10_pred)
+    # print(df_no2_pred)
+    # print(df_pm10_lin)
+    df_combined = pd.concat([df_mlp, df_lin['pm2.5_lin_predicted']], axis=1)
     print(df_combined)
-    return df_combined.to_dict(orient='list')
+    # df_combined.plot(figsize=(18, 5))
+    # plt.savefig(PLOT_BASEDIR + '/pm25_lin_mlp')
+    # print(df_combined)
+    # return df_combined.to_dict(orient='list')
+
+    # return df_pm10_mlp
 
     # return await lr.get_sim_em_distribution()
     # return await lr.predict_emission()
@@ -135,12 +158,16 @@ async def start_linreg(inputs: Inputs = example_body, db: AsyncIOMotorClient=Dep
 async def start_conv(inputs: Inputs = example_body, db: AsyncIOMotorClient=Depends(get_database)):
     sim_id = generate_id(inputs)
     lr = LinReg(db, sim_id)
-    df_pm10_pred = await lr.start_cnn(boxID=672, input_keys=['temp', 'hum', 'PMx'], output_key='pm10')
-    df_pm25_pred = await lr.start_cnn(boxID=672, input_keys=['temp', 'hum', 'PMx'], output_key='pm2.5')
-    df_no2_pred = await lr.start_cnn(boxID=672, input_keys=['temp', 'hum', 'NOx'], output_key='no2')
-    df_combined = pd.concat([df_no2_pred, df_pm10_pred, df_pm25_pred], axis=1)
-    print(df_combined)
-    return df_combined.to_dict(orient='list')
+    # res = await lr.aggregate_data(start_date='2019-08-01', end_date='2019-10-30', start_hour='0:00', end_hour='23:00')
+    # return res.to_dict(orient='index')
+
+    df_pm10_pred = await lr.start_cnn(boxID=672, input_keys=['temp', 'hum', 'PMx', 'WIND_SPEED', 'WIND_DIR'], output_key='pm10')
+    print(df_pm10_pred)
+    # df_pm25_pred = await lr.start_cnn(boxID=672, input_keys=['temp', 'hum', 'PMx'], output_key='pm2.5')
+    # df_no2_pred = await lr.start_cnn(boxID=672, input_keys=['temp', 'hum', 'NOx'], output_key='no2')
+    # df_combined = pd.concat([df_no2_pred, df_pm10_pred, df_pm25_pred], axis=1)
+    # print(df_combined)
+    # return df_combined.to_dict(orient='list')
 
 
 @router.post('/get/mean/vehicle')

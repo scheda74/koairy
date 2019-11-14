@@ -14,11 +14,17 @@ example_body = Body(
     ...,
     example={
         'vehicleDistribution': {
-            'HBEFA3/PC_D_EU4': 0.20, 
-            'HBEFA3/PC_D_EU6': 0.25, 
-            'HBEFA3/PC_G_EU4': 0.25, 
-            'HBEFA3/PC_G_EU6': 0.25, 
-            'HBEFA3/PC_Alternative': 0.05
+            'HBEFA3/PC_D_EU2': 0.007,
+            'HBEFA3/PC_D_EU3': 0.0251,
+            'HBEFA3/PC_D_EU4': 0.0934,
+            'HBEFA3/PC_D_EU5': 0.0890, 
+            'HBEFA3/PC_D_EU6': 0.1,
+            'HBEFA3/PC_G_EU2': 0.0764,
+            'HBEFA3/PC_G_EU3': 0.0342,
+            'HBEFA3/PC_G_EU4': 0.1907,
+            'HBEFA3/PC_G_EU5': 0.1802, 
+            'HBEFA3/PC_G_EU6': 0.163, 
+            'HBEFA3/PC_Alternative': 0.02
         },
         'weatherScenario': 0,
         'srcWeights': {

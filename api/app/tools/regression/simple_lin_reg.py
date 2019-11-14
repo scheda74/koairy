@@ -3,6 +3,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import datetime
 import json
+import math
+from tbats import BATS, TBATS
 
 from fastapi import Depends
 from app.db.mongodb import AsyncIOMotorClient, get_database
@@ -33,10 +35,17 @@ from app.core.config import (
     EMISSION_OUTPUT
 )
 
+from app.tools.regression.utils.weather import fetch_weather_data
+
 import numpy as np
+# from tensorflow import keras
+from keras.models import Sequential
+from keras.layers import Dense
+from keras.layers import LSTM
 from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_absolute_error
+from sklearn.metrics import (mean_absolute_error, mean_squared_error)
 from sklearn.neural_network import MLPRegressor
+from sklearn import preprocessing as pre
 
 class LinReg():
     def __init__(self, db: AsyncIOMotorClient, sim_id=None, existing_regr=None):
@@ -47,15 +56,29 @@ class LinReg():
         self.real_emission_columns = ['no2', 'pm2.5', 'pm10', 'o3']
 
     
-    async def start_cnn(self, data=None, boxID=672, input_keys=['temp', 'hum', 'PMx'], output_key='pm2.5'):
+    async def start_cnn(
+        self,
+        start_date='2019-08-01', 
+        end_date='2019-10-20', 
+        start_hour='7:00', 
+        end_hour='10:00', 
+        data=None, 
+        boxID=672, 
+        input_keys=['temp', 'hum', 'PMx', 'WIND_SPEED', 'WIND_DIR'], 
+        output_key='pm10'
+    ):
         input_keys.append(boxID)
-        df = await self.aggregate_data(boxID)
-        df_train = df.iloc[:400]
-        df_test = df.iloc[400:]
-        # df_input = df[input_keys]
-        # print(df_input)
-        # df_input = df_input.apply(self.normalize_data)
-        # print(df_input)
+        df = await self.aggregate_data(boxID, start_date, end_date, start_hour, end_hour)
+        # print('aggregated')
+        # print(df)
+
+        rows = round(df.shape[0] * 0.8)
+        df_train = df.iloc[:rows]
+        df_test = df.iloc[rows:]
+        scaler = pre.StandardScaler()
+        train_scaled = scaler.fit_transform(df.iloc[:rows][input_keys])
+        test_scaled = scaler.fit_transform(df.iloc[rows:][input_keys])
+
         model = MLPRegressor(
             hidden_layer_sizes=(10,),
             activation='relu',
@@ -65,13 +88,14 @@ class LinReg():
             learning_rate_init=0.01,
             alpha=0.01
         )
-        model.fit(df_train[input_keys], df_train[output_key])
+        model.fit(train_scaled, df_train[output_key])
         
-        df_test[output_key + '_predicted'] = model.predict(df_test[input_keys])
-        result = df_test[[output_key, '%s_predicted' % output_key]]
-        print(result)
-        print("Mean Abs Error: " + str(mean_absolute_error(result[output_key].to_numpy(), result['%s_predicted' % output_key].to_numpy())))
-        self.save_df_to_plot(result, '%s_mlp_dist_regressor' % output_key.replace('.', '-'))
+        # df_test[output_key + '_mlp_predicted'] = model.predict(df_test[input_keys])
+        df_test[output_key + '_mlp_predicted'] = model.predict(test_scaled)
+        result = df_test[[output_key, '%s_mlp_predicted' % output_key]]
+        # print(result)
+        print("Mean Abs Error MLP: " + str(mean_absolute_error(result[output_key].to_numpy(), result['%s_mlp_predicted' % output_key].to_numpy())))
+        # self.save_df_to_plot(result, '%s_mlp_dist_regressor' % output_key.replace('.', '-'))
         return result
 
 
@@ -83,36 +107,178 @@ class LinReg():
         print('Std: \n', std)
         print('Mean: \n', mean)
         return (column - mean) / std
+    
+    async def start_tbats(
+        self,
+        start_date='2019-08-01', 
+        end_date='2019-10-20', 
+        start_hour='7:00', 
+        end_hour='10:00', 
+        data=None, 
+        boxID=672, 
+        input_keys=['temp', 'hum', 'PMx', 'WIND_SPEED', 'WIND_DIR'], 
+        output_key='pm10'
+    ):
+        input_keys.append(boxID)
+        df = await self.aggregate_data(boxID, start_date, end_date, start_hour, end_hour)
+        # print('aggregated')
+        # print(df)
+
+        rows = round(df.shape[0] * 0.8)
+        df_train = df.iloc[:rows]
+        df_test = df.iloc[rows:]
+        # scaler = pre.StandardScaler()
+        scaler = pre.MinMaxScaler(feature_range=(0, 100))
+        df_train[['pm10']] = scaler.fit_transform(df_train[['pm10']])
+        print(df_train)
+        # test_scaled = scaler.fit_transform(df_test[input_keys])
+        #[val for val in np.arange(4, 320, 80)]
+        
+        # periods = [val for val in np.arange(4, 256, 4)]
+        # print(periods)
+        # estimator = TBATS(seasonal_periods=periods)
+        
+        # # fitted_model = estimator.fit(df_train[['temp', 'hum', 'WIND_SPEED', 'WIND_DIR', 'pm10']])
+        # fitted_model = estimator.fit(df_train[['pm10']])
+        # y_forecasted = fitted_model.forecast(steps=64)
+        # print(fitted_model.summary())
+
+        # # Time series analysis
+        # print(fitted_model.y_hat) # in sample prediction
+        # print(fitted_model.resid) # in sample residuals
+        # print(fitted_model.aic)
+
+        # print(fitted_model.params.alpha)
+        # print(fitted_model.params.beta)
+        # print(fitted_model.params.x0)
+        # print(fitted_model.params.components.use_box_cox)
+        # print(fitted_model.params.components.seasonal_harmonics)
+        # print(y_forecasted)
+        # # print(df_test)
+        # df_test['predicted'] = y_forecasted
+        # print(df_test)
+        # self.save_df_to_plot(df_test[['pm10', 'predicted']], 'tbats_pm10_forecast')
+    # convert an array of values into a dataset matrix
+
+    def create_dataset(self, dataset, look_back=1):
+        dataX, dataY = [], []
+        for i in range(len(dataset)-look_back-1):
+            a = dataset[i:(i+look_back), 0]
+            dataX.append(a)
+            dataY.append(dataset[i + look_back, 0])
+        return np.array(dataX), np.array(dataY)
+
+    async def start_lstm(
+        self,
+        start_date='2019-08-01', 
+        end_date='2019-10-20', 
+        start_hour='7:00', 
+        end_hour='10:00', 
+        data=None, 
+        boxID=672, 
+        input_keys=['temp', 'hum', 'PMx', 'WIND_SPEED', 'WIND_DIR'], 
+        output_key='pm10'
+    ):
+        input_keys.append(boxID)
+        df = await self.aggregate_data(boxID, start_date, end_date, start_hour, end_hour)
+        # feature_range=(0, 100)
+        scaler = pre.MinMaxScaler()
+        df_scaled = df
+        df_scaled[[output_key]] = scaler.fit_transform(df[[output_key]])
+        dataset = df_scaled[[output_key]]
+        rows = round(df.shape[0] * 0.8)
+        df_train = df_scaled[[output_key]].iloc[:rows]
+        df_test = df_scaled[[output_key]].iloc[rows:]
+
+        print(dataset)
+        # self.save_df_to_plot(dataset, 'unscaled_%s' % output_key)
+        # df_train = df_train.reset_index()
+        # df_test = df_test.reset_index()
+        # print(df_train)
+        # print(df_train[['pm10']])
+
+        look_back = 1
+        trainX, trainY = self.create_dataset(df_train[[output_key]].values, look_back)
+        testX, testY = self.create_dataset(df_test[[output_key]].values, look_back)
+
+        # reshape input to be [samples, time steps, features]
+        trainX = np.reshape(trainX, (trainX.shape[0], 1, trainX.shape[1]))
+        testX = np.reshape(testX, (testX.shape[0], 1, testX.shape[1]))
+        
+        # create and fit the LSTM network
+        model = Sequential()
+        model.add(LSTM(4, input_shape=(1, look_back)))
+        model.add(Dense(1))
+        model.compile(loss='mean_squared_error', optimizer='adam')
+        model.fit(trainX, trainY, epochs=100, batch_size=1, verbose=2)
+
+        # make predictions
+        trainPredict = model.predict(trainX)
+        testPredict = model.predict(testX)
+        # invert predictions
+        trainPredict = scaler.inverse_transform(trainPredict)
+        trainY = scaler.inverse_transform([trainY])
+        testPredict = scaler.inverse_transform(testPredict)
+        testY = scaler.inverse_transform([testY])
+        # calculate root mean squared error
+        trainScore = math.sqrt(mean_squared_error(trainY[0], trainPredict[:,0]))
+        print('Train Score: %.2f RMSE' % (trainScore))
+        testScore = math.sqrt(mean_squared_error(testY[0], testPredict[:,0]))
+        print('Test Score: %.2f RMSE' % (testScore))
+
+        # shift train predictions for plotting
+        trainPredictPlot = np.empty_like(dataset)
+        trainPredictPlot[:, :] = np.nan
+        trainPredictPlot[look_back:len(trainPredict)+look_back, :] = trainPredict
+        # shift test predictions for plotting
+        testPredictPlot = np.empty_like(dataset)
+        testPredictPlot[:, :] = np.nan
+        testPredictPlot[len(trainPredict)+(look_back*2)+1:len(dataset)-1, :] = testPredict
+        # plot baseline and predictions
+        # print(scaler.inverse_transform(dataset))
+        plt_dataset, = plt.plot(scaler.inverse_transform(dataset))
+        plt_train_pred, = plt.plot(trainPredictPlot)
+        plt_test_pred, = plt.plot(testPredictPlot)
+        plt.legend([plt_dataset, plt_train_pred, plt_test_pred], ['%s Real Data' % output_key, '%s Training Prediction' % output_key, '%s Testing Prediction' % output_key])
+        plt.show()
+
 
     # async def predict_emission(self, data=None, input_keys=['veh', 'TEMP', 'HUMIDITY', 'PMx'], output_key='pm10'):
-    async def predict_emission(self, data=None, boxID=672, input_keys=['temp', 'hum', 'PMx'], output_key='pm10'):
-        # df_combined = await self.aggregate_data('2019-08-22', '2019-10-15', '6:00', '11:00')
-        # df_combined = df_combined.dropna()
-        # print(df_combined)
+    async def predict_emission(
+        self,
+        start_date='2019-08-01', 
+        end_date='2019-10-20', 
+        start_hour='7:00', 
+        end_hour='10:00',
+        data=None, 
+        boxID=672, 
+        input_keys=['temp', 'hum', 'PMx', 'WIND_SPEED', 'WIND_DIR'], 
+        output_key='pm10'
+    ):
         input_keys.append(boxID)
+
+        df_combined = await self.aggregate_data(boxID, start_date, end_date, start_hour, end_hour)
+        rows = round(df_combined.shape[0] * 0.8)
+        df_train = df_combined.iloc[:rows]
+        df_test = df_combined.iloc[rows:]
         
-        
-        df_combined = await self.aggregate_data(boxID)
-        df_train = df_combined.iloc[:400]
-        df_test = df_combined.iloc[400:]
-        # print(df_train)
-        # print(df_test)
-        regr = await self.train_model(df_train, input_keys, output_key)
+        # regr = await self.train_model(df_train, input_keys, output_key)
 
         if data != None:
             df_test = data
         
-        # df_test = await self.aggregate_data('2019-10-16', '2019-10-22', '6:00', '11:00')
-        # df_test = df_test.dropna()
-        Z = df_test[input_keys]
-        # print(regr.predict(Z))
-        # df_test = df_test.assign({output_key + '_predicted': regr.predict(Z)})
-        df_test[output_key + '_predicted'] = regr.predict(Z)
-        print(df_test)
-        self.save_df_to_plot(df_test[[output_key, '%s_predicted' % output_key]], '%s_lin_dist_prediction' % output_key)
-        df_test = df_test.reset_index()
-        result = df_test[[output_key, '%s_predicted' % output_key]]
-        print("Mean Abs Error: " + str(mean_absolute_error(result[output_key].to_numpy(), result['%s_predicted' % output_key].to_numpy())))
+        model = LinearRegression()
+        model.fit(df_train[input_keys], df_train[output_key])
+
+        print('Intercept: \n', model.intercept_)
+        print('Coefficients: \n', model.coef_)
+        df_test[output_key + '_lin_predicted'] = model.predict(df_test[input_keys])
+        # print(df_test)
+        # self.save_df_to_plot(df_test[[output_key, '%s_predicted' % output_key]], '%s_lin_dist_prediction' % output_key)
+        # df_test = df_test.reset_index()
+        result = df_test[[output_key, '%s_lin_predicted' % output_key]]
+        print("Mean Abs Error LinReg: " + str(mean_absolute_error(result[output_key].to_numpy(), result['%s_lin_predicted' % output_key].to_numpy())))
+        print(result)
         return result
 
     async def train_model(self, df, input_keys, output_key):
@@ -129,11 +295,13 @@ class LinReg():
     ######################################################################################################
     ################################## DATA AGGREGATION FUNCTIONS ########################################
     ######################################################################################################
-    async def aggregate_data(self, boxID=672, start_date='2019-07-01', end_date='2019-10-20', start_hour='7:00', end_hour='10:00'):
+    async def aggregate_data(self, boxID=672, start_date='2019-08-01', end_date='2019-10-20', start_hour='7:00', end_hour='10:00'):
         df_air = await self.fetch_air_and_traffic(
             boxID, start_date, end_date, start_hour, end_hour
         )
-        # print(df_air)
+
+        df_air.index.name = 'time'
+        
         df_sim = await self.fetch_simulated_emissions(boxID)
         df_sim = df_sim.groupby('time')[self.raw_emission_columns].sum()
         # print(df_sim)
@@ -149,42 +317,36 @@ class LinReg():
         print('Var: \n', nox_var, pmx_var)
         print('Std: \n', nox_std, pmx_std)
         print('Mean: \n', nox_mean, pmx_mean)
-        ratio = ((nox_std / nox_mean) + (pmx_std / pmx_mean)) / 2
-        new_frames = [df_sim[['NOx', 'PMx']] * val for val in np.arange(1 - ratio, 1 + ratio, 1 / (df_air.shape[0] / 4))]
-        df = pd.concat([frame.groupby(frame.index // 60).sum() for frame in new_frames], axis=0, ignore_index=True)
-        # print(df)
-        df_combined = pd.concat([df_air.reset_index(), df], axis=1).fillna(method='ffill')
-        # self.save_df_to_plot(df, 'resampled_sim_nox_hour', legend=None)
-        # print(df_combined)
-        return df_combined.set_index('time')
-        # print(df)
-        # return df_sim
-        # print(df_sim.shape)
-        # print(df_sim)
-        # return df_sim
-        # .apply(aqi.calc_nox_index)
-        # df_nox = df_sim['NOx']
-        # print(df_nox)
+        # print(df_air.shape)
+        # ratio = ((nox_std / nox_mean) + (pmx_std / pmx_mean)) / 2
+        sim_rows = df_sim.shape[0]
+        air_rows = df_air.shape[0]
+        rows_needed = (air_rows / (sim_rows / 60))
+        ratio_nox = 1 - (nox_std / nox_mean)
+        ratio_pmx = 1 - (pmx_std / pmx_mean)
+        
+        # print("%s rows needed" % rows_needed)
+        # print("%s ratio_nox" % ratio_nox)
+        # print("%s ratio_pmx" % ratio_pmx)
+        
+        nox_frames = [df_sim[['NOx']] * val for val in np.arange(1 - ratio_nox, 1 + ratio_nox, (ratio_nox * 2) / rows_needed)]
+        df_nox = pd.concat(nox_frames, axis=0, ignore_index=True)
+        df_nox = df_nox.groupby(df_nox.index // 60).sum()
+        # self.save_df_to_plot(df_nox, 'nox_simulated_oversampled')
 
-        # print(var)
-        # print(std)
-        # print(df_nox)
-        # , figsize=(18, 5)
-        # df_nox.plot.hist(grid=True, bins=300, rwidth=0.9, color='#333333')
-        # plt.savefig(PLOT_BASEDIR + '/' + 'hist_nox')
-    # async def aggregate_data(self, start_date='2019-08-16', end_date='2019-10-24', start_hour='6:00', end_hour='11:00'):
-    #     df_sim = await self.fetch_simulated_emissions(672)
-    #     df_weather = await fetch_weather_data(start_date, end_date, start_hour, end_hour)
-    #     df_air_traffic = await self.fetch_air_and_traffic(start_date, end_date, start_hour, end_hour)
-    #     # print(df_air_traffic)
-    #     df_combined = pd.concat([df_air_traffic, df_weather], axis=1)
-    #     # print(df_combined)
+        pmx_frames = [df_sim[['PMx']] * val for val in np.arange(1 - ratio_pmx, 1 + ratio_pmx, (ratio_pmx * 2) / rows_needed)]
+        df_pmx = pd.concat(pmx_frames, axis=0, ignore_index=True)
+        df_pmx = df_pmx.groupby(df_pmx.index // 60).sum()
+        # self.save_df_to_plot(df_pmx, 'pmx_simulated_oversampled')
 
-    #     # NOTE: Combine all dataframes
-    #     length, _ = df_combined.shape
-    #     df_sim_repeated = pd.concat([df_sim]*int(abs((length / 6))), ignore_index=True)
-    #     df_combined = df_combined.reset_index().rename(columns={'index': 'time'}) # prepare for concat with sim values
-    #     return pd.concat([df_combined, df_sim_repeated], axis=1).set_index(['time'])
+        df = pd.concat([df_nox, df_pmx], axis=1)
+
+        df_combined = pd.concat([df_air.reset_index(), df], axis=1).set_index('time')
+        df_combined = df_combined[df_combined.index.notnull()]
+        
+        # .fillna(method='ffill')
+        return df_combined.interpolate(method='time')
+
 
 
     #####################################################################################################
@@ -215,14 +377,16 @@ class LinReg():
         # df = df[latlng + self.raw_emission_columns]
         # print(df)
         # df = df.groupby([df.index // 60] + latlng)[self.raw_emission_columns].mean().reset_index(latlng)
-        
+        # test = df[['time', 'PMx']].set_index('time')
+        # print(df.groupby(['time', 'lat', 'lng'])[self.raw_emission_columns].sum())
+        # self.save_df_to_plot(test, 'pmx_by_time_simulation')
         mask = (round(df['lat'], 3) == lat) & (round(df['lng'], 3) == lng)
         df = df.loc[mask]
         # print(df)
         
         # df.plot.hist(x='time', y='PMx', grid=True, bins=150, rwidth=0.9, figsize=(12, 8), zorder=2, color='#86bf91')
         # plt.savefig(PLOT_BASEDIR + '/' + 'hist_pmx')
-        return df
+        return df.fillna(method='ffill')
         # return df
         # print(df)
         # plt.hist(df.time, df.NOx)
@@ -249,7 +413,7 @@ class LinReg():
 
         
 
-    async def fetch_air_and_traffic(self, boxID, start_date='2019-08-01', end_date='2019-11-01', start_hour='0:00', end_hour='23:00'):
+    async def fetch_air_and_traffic(self, boxID, start_date='2019-08-01', end_date='2019-11-01', start_hour='7:00', end_hour='10:00'):
         # NOTE: Get real weather data and format it accordingly. Here we'll look at 2019 from 7:00 to 10:00
         df_traffic = await get_bremicker_by_time(
             self.db,
@@ -268,12 +432,16 @@ class LinReg():
             end_date, 
             start_hour, 
             end_hour
-        )
+        )  
         # print(df_hawa)
 
-        df = pd.concat([df_traffic, df_hawa], axis=1)
-        df = df.fillna(method='ffill')
-        return df.fillna(method='bfill')
+        df_wind = await fetch_weather_data(start_date, end_date, start_hour, end_hour)
+        # print(df_wind)
+        df = pd.concat([df_traffic, df_hawa, df_wind], axis=1)
+        # print(df)
+        # df = df.fillna(method='ffill')
+        # return df.fillna(method='bfill')
+        return df
 
 
     def save_df_to_plot(self, df, filename):
@@ -297,8 +465,8 @@ class LinReg():
         df_sum = df_traffic.reset_index()
         # print(df_avg)
         df_sum = df_sum.groupby(by=df_sum['time'].dt.date).sum()
-        print(df_sum)
-        print(df_sum.mean())
+        # print(df_sum)
+        # print(df_sum.mean())
         return df_sum
         # self.save_df_to_plot(df_traffic, 'number_vehicles_sum_diesel_7am-11am')
         # print(df_sum)
@@ -374,10 +542,10 @@ class LinReg():
 
 
 
-    async def get_air_sensor_data(self):
+    # async def get_air_sensor_data(self):
         # result = await get_all_hawa_dawa(self.db)
-        result = await get_hawa_dawa_by_time(self.db)
-        print(result)
+        # result = await get_hawa_dawa_by_time(self.db)
+        # print(result)
         # months = []
         # for elem in result:
         #     data = json.loads(elem['data'])

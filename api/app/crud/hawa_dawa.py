@@ -73,7 +73,7 @@ async def format_to_df(response):
                     frames.append(df_pol)
                 months.append( pd.concat(frames, axis=1).dropna() )
     result = pd.concat(months)
-    print(result)
+    # print(result)
     return result
 
 async def insert_air_traffic(conn: AsyncIOMotorClient, date, data: dict):

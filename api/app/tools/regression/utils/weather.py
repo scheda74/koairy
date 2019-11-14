@@ -53,8 +53,20 @@ async def fetch_weather_data(start_date='2019-01-01', end_date='2019-10-28', sta
         start_hour=start_hour, 
         end_hour=end_hour
     )
+
+    df_wind_dir = format_weather_by_key(
+        df=df_wind, 
+        key='WIND_DIR', 
+        start_date=start_date, 
+        end_date=end_date, 
+        start_hour=start_hour, 
+        end_hour=end_hour
+    )
+    # print(df_wind_dir)
+    # df_wind['MESS_DATUM'] = pd.to_datetime(df_wind['MESS_DATUM'])
+    # print(df_wind)
     # save_df_to_plot(df_wind_speed, 'pressure-nn_02-06_morning')
-    return pd.concat([frame for frame in [df_temp, df_humidity, df_pressure_nn, df_wind_speed] if not frame.empty], axis=1)
+    return pd.concat([frame for frame in [df_temp, df_humidity, df_pressure_nn, df_wind_speed, df_wind_dir] if not frame.empty], axis=1)
 
 
 
@@ -75,7 +87,7 @@ def get_pressure():
 def get_wind():
     df = pd.read_csv(WEATHER_WIND, delimiter=';')
     df.columns = df.columns.str.strip()
-    df = df.rename(columns={"FF": "WIND_SPEED", "DD": "WIND_DIR"})
+    df = df.rename(columns={"F": "WIND_SPEED", "D": "WIND_DIR"})
     return df[['MESS_DATUM', 'WIND_SPEED', 'WIND_DIR']]
 
 def format_weather_by_key(df, key, start_date, end_date, start_hour, end_hour):
