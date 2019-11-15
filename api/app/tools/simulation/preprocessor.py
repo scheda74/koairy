@@ -26,7 +26,7 @@ from app.core.config import (
 # '../data/input-simulation/scenario{0}'.format(scenario_id),
 
 
-class PreProcessor():
+class SimulationPreProcessor():
     def __init__(
         self,
         sim_id,

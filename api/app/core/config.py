@@ -2,9 +2,9 @@ import os
 from dotenv import load_dotenv
 from databases import DatabaseURL
 import app.tools.simulation as simulation
-import app.tools.regression.data.weather as weather
-import app.tools.regression.data.airquality as airquality
-import app.tools.regression.data.plots as plots
+import app.tools.predictor.data.weather as weather
+import app.tools.predictor.data.airquality as airquality
+import app.tools.predictor.data.plots as plots
 
 load_dotenv(".env")
 

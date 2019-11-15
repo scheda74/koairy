@@ -12,7 +12,7 @@ from operator import itemgetter
 from timeit import default_timer as timer
 # from app.db.mongodb import DB
 from app.tools.simulation.calc_caqi import calc_indices
-from app.tools.simulation import preprocessor as ip
+from app.tools.simulation.preprocessor import SimulationPreProcessor as ip
 from app.core.config import DEFAULT_NET_INPUT, EMISSION_OUTPUT_BASE
 from app.crud.emissions import (
     get_caqi_emissions_for_sim,
