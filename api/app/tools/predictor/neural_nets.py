@@ -39,7 +39,7 @@ class NeuralNet():
         output_key='pm10'
     ):
         input_keys.append(boxID)
-        df = await self.aggregate_data(boxID, start_date, end_date, start_hour, end_hour)
+        df = await self.mp.aggregate_data(boxID, start_date, end_date, start_hour, end_hour)
         # feature_range=(0, 100)
         scaler = pre.MinMaxScaler()
         df_scaled = df
@@ -57,8 +57,8 @@ class NeuralNet():
         # print(df_train[['pm10']])
 
         look_back = 1
-        trainX, trainY = self.create_dataset(df_train[[output_key]].values, look_back)
-        testX, testY = self.create_dataset(df_test[[output_key]].values, look_back)
+        trainX, trainY = self.mp.create_dataset(df_train[[output_key]].values, look_back)
+        testX, testY = self.mp.create_dataset(df_test[[output_key]].values, look_back)
 
         # reshape input to be [samples, time steps, features]
         trainX = np.reshape(trainX, (trainX.shape[0], 1, trainX.shape[1]))
@@ -113,4 +113,4 @@ class NeuralNet():
         input_keys=['temp', 'hum', 'PMx', 'WIND_SPEED', 'WIND_DIR'], 
         output_key='pm10'
     ):
-        print(lstm)
+        print("")
