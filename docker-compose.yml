@@ -1,0 +1,26 @@
+
+version: '3'
+
+services:
+  db:
+    image: mongo
+    container_name: mongo-db
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=example
+    env_file:
+      - ./api/.env
+  backend:
+    build:
+      dockerfile: Dockerfile
+      context: ./emviz-backend
+    image: emviz_backend:latest
+    env_file:
+      - ./emviz-backend/.env
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"

@@ -1,11 +1,8 @@
-/em-viz/node_modules
-sumo/simulation/emission-input/*
-sumo/simulation/emission-output/*
-flask/app/main/simulation/data
-api/simulation/data/*
-api/app/simulation/data/*
-api/app/simulation/data/*/*
+emviz-frontend/node_modules
 
+emviz-backend/simulation/data/*
+emviz-backend/app/simulation/data/*
+emviz-backend/app/simulation/data/*/*
 
-api/app/tools/simulation/data/*
-api/app/tools/simulation/data/*/*
+emviz-backend/app/tools/simulation/data/*
+emviz-backend/app/tools/simulation/data/*/*
