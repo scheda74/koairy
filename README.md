@@ -1,6 +1,15 @@
 # [EM-ViZ] Documentation
 ## Documentation for EM-ViZ - an emission visualization tool based on SUMO, FastAPI and React
 
+## Starting the Backend
+
+# Environment Variables
+You need to set the following variables in order to start the server:
+On MacOS:
+```
+export SUMO_HOME="/usr/local/opt/sumo/share/sumo"
+```
+
 ## Installation
 building a docker image:
 

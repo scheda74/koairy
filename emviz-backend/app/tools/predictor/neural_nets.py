@@ -27,7 +27,7 @@ class NeuralNet():
         self.real_emission_columns = ['no2', 'pm2.5', 'pm10', 'o3', 'WIND_SPEED', 'WIND_DIR']
         self.mp = ModelPreProcessor(self.db, self.sim_id)
 
-    async def start_single_lstm(
+    async def start_lstm(
         self,
         start_date='2019-08-01', 
         end_date='2019-10-20', 
@@ -102,15 +102,15 @@ class NeuralNet():
         plt.show()
 
 
-    async def start_lstm(
-        self,
-        start_date='2019-08-01', 
-        end_date='2019-10-20', 
-        start_hour='7:00', 
-        end_hour='10:00', 
-        data=None, 
-        boxID=672, 
-        input_keys=['temp', 'hum', 'PMx', 'WIND_SPEED', 'WIND_DIR'], 
-        output_key='pm10'
-    ):
-        print("")
+    # async def start_lstm(
+    #     self,
+    #     start_date='2019-08-01', 
+    #     end_date='2019-10-20', 
+    #     start_hour='7:00', 
+    #     end_hour='10:00', 
+    #     data=None, 
+    #     boxID=672, 
+    #     input_keys=['temp', 'hum', 'PMx', 'WIND_SPEED', 'WIND_DIR'], 
+    #     output_key='pm10'
+    # ):
+    #     print("")

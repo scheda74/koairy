@@ -13,7 +13,7 @@ from app.tools.simulation.simulator import Simulator
 from app.tools.simulation.preprocessor import SimulationPreProcessor
 from app.tools.predictor.lin_reg import LinReg
 # from db.database import DB
-from app.models.simulation_input import Inputs, example_body
+from app.models.simulation_input import SimulationInput, example_simulation_input
 from app.models.prediction_input import PlotInput, example_plot_input
 # import db.query_database as query
 from app.db.mongodb import AsyncIOMotorClient, get_database
@@ -30,7 +30,7 @@ from app.core.config import PLOT_BASEDIR
 router = APIRouter()
 
 @router.post('/get/caqi')
-async def get_caqi(inputs: Inputs = example_body, db: AsyncIOMotorClient=Depends(get_database)):
+async def get_caqi(inputs: SimulationInput = example_simulation_input, db: AsyncIOMotorClient=Depends(get_database)):
     """
     Returns CAQI values. If not available new simulation will be started
     """
@@ -41,7 +41,7 @@ async def get_caqi(inputs: Inputs = example_body, db: AsyncIOMotorClient=Depends
     return await parser.get_caqi_data()
 
 @router.post('/get/mean/vehicle')
-async def get_mean_vehicles(inputs: Inputs = example_body, db: AsyncIOMotorClient=Depends(get_database)):
+async def get_mean_vehicles(inputs: SimulationInput = example_simulation_input, db: AsyncIOMotorClient=Depends(get_database)):
     """
     Starts training a simple Linear Regression Model with the specified independents (= inputs) and dependent (= output)
     Next, it'll predict the specified output with the data given to this request

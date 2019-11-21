@@ -11,8 +11,7 @@ from app.tools.simulation.simulator import Simulator
 from app.tools.simulation.preprocessor import SimulationPreProcessor
 from app.tools.predictor.lin_reg import LinReg
 # from db.database import DB
-from app.models.simulation_input import Inputs, example_body
-from app.models.prediction_input import PlotInput, example_plot_input
+from app.models.simulation_input import SimulationInput, example_simulation_input
 # import db.query_database as query
 from app.db.mongodb import AsyncIOMotorClient, get_database
 from app.crud.emissions import get_caqi_emissions_for_sim
@@ -28,7 +27,7 @@ from app.core.config import PLOT_BASEDIR
 router = APIRouter()
 
 @router.post('/start/simulation')
-async def start_simulation(inputs: Inputs = example_body, db: AsyncIOMotorClient=Depends(get_database)):
+async def start_simulation(inputs: SimulationInput = example_simulation_input, db: AsyncIOMotorClient=Depends(get_database)):
     """
     Starts a new simulation with given input parameters...
     """
@@ -55,7 +54,7 @@ async def start_simulation(inputs: Inputs = example_body, db: AsyncIOMotorClient
 
 
 @router.get('/generate/weights')
-async def generate_weights(inputs: Inputs = example_body, db: AsyncIOMotorClient=Depends(get_database)):
+async def generate_weights(inputs: SimulationInput = example_simulation_input, db: AsyncIOMotorClient=Depends(get_database)):
     """
     Writes new weights with the given inputs from area distribution
     """

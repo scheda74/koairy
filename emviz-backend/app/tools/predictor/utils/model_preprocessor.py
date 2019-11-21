@@ -37,7 +37,7 @@ from sklearn import preprocessing as pre
 
 
 class ModelPreProcessor():
-    def __init__(self, db: AsyncIOMotorClient, sim_id=None):
+    def __init__(self, db: AsyncIOMotorClient=Depends(get_database), sim_id=None):
         self.db = db
         self.sim_id = sim_id
         self.raw_emission_columns = ['CO', 'NOx', 'PMx']
@@ -176,52 +176,52 @@ class ModelPreProcessor():
     ###############################################################################################
     ################################## BREMICKER FUNCTIONS ########################################
     ###############################################################################################
-    async def get_bremicker(self):
-        traffic_frames = [await self.get_bremicker_from_file(AIR_BASEDIR + '/air_2019_%0*d.json' % (2, index)) for index in range(1, 11)]
-        return pd.concat(traffic_frames, keys=['%d' % index for index in range(1, 11)]).dropna()
+    # async def get_bremicker(self):
+    #     traffic_frames = [await self.get_bremicker_from_file(AIR_BASEDIR + '/air_2019_%0*d.json' % (2, index)) for index in range(1, 11)]
+    #     return pd.concat(traffic_frames, keys=['%d' % index for index in range(1, 11)]).dropna()
 
-    async def get_bremicker_from_file(self, filepath):
-        data = json.load(open(filepath))
-        return pd.DataFrame(
-            dict([ (k, pd.Series(v)) for k, v in data['features'][1]['properties']['timeValueSeries'].items() ])
-        )
+    # async def get_bremicker_from_file(self, filepath):
+    #     data = json.load(open(filepath))
+    #     return pd.DataFrame(
+    #         dict([ (k, pd.Series(v)) for k, v in data['features'][1]['properties']['timeValueSeries'].items() ])
+    #     )
 
-    async def get_bremicker_sensors_from_file(self, filepath):
-        data = json.load(open(filepath))
-        traffic_frames = []
-        for feature in data['features']:
-            if feature['properties']['type'] == 'bremicker':
-                sensor = {}
-                sensor['coordinates'] = feature['geometry']['coordinates']
-                df = pd.DataFrame(
-                    dict([ (k, pd.Series(v)) for k, v in feature['properties']['timeValueSeries'].items() ])
-                )
-                sensor['vehicleNumber'] = feature['properties']['timeValueSeries'].items()
-                traffic_frames.append(sensor)
-        return traffic_frames
+    # async def get_bremicker_sensors_from_file(self, filepath):
+    #     data = json.load(open(filepath))
+    #     traffic_frames = []
+    #     for feature in data['features']:
+    #         if feature['properties']['type'] == 'bremicker':
+    #             sensor = {}
+    #             sensor['coordinates'] = feature['geometry']['coordinates']
+    #             df = pd.DataFrame(
+    #                 dict([ (k, pd.Series(v)) for k, v in feature['properties']['timeValueSeries'].items() ])
+    #             )
+    #             sensor['vehicleNumber'] = feature['properties']['timeValueSeries'].items()
+    #             traffic_frames.append(sensor)
+    #     return traffic_frames
 
 
     #######################################################################################
     #################################AIR FUNCTIONS#########################################
     #######################################################################################
-    async def format_real_air_by_key(self, df, key, start_date, end_date, start_hour, end_hour):
-        df = pd.DataFrame(df[key].tolist())
-        df['time'] = pd.to_datetime(df['time'])
-        df = df[['time', 'value']]
-        mask = (df['time'] > start_date) & (df['time'] <= end_date)
-        df = df.loc[mask].set_index('time')
-        df = df.rename(columns={ 'value': key })
-        return df.between_time(start_hour, end_hour)
+    # async def format_real_air_by_key(self, df, key, start_date, end_date, start_hour, end_hour):
+    #     df = pd.DataFrame(df[key].tolist())
+    #     df['time'] = pd.to_datetime(df['time'])
+    #     df = df[['time', 'value']]
+    #     mask = (df['time'] > start_date) & (df['time'] <= end_date)
+    #     df = df.loc[mask].set_index('time')
+    #     df = df.rename(columns={ 'value': key })
+    #     return df.between_time(start_hour, end_hour)
 
-    async def get_real_air(self):
-        air_frames = [await self.get_real_air_from_file(AIR_BASEDIR + '/air_2019_%0*d.json' % (2, index)) for index in range(1, 11)]
-        return pd.concat(air_frames, keys=['%d' % index for index in range(1, 11)]).dropna()
+    # async def get_real_air(self):
+    #     air_frames = [await self.get_real_air_from_file(AIR_BASEDIR + '/air_2019_%0*d.json' % (2, index)) for index in range(1, 11)]
+    #     return pd.concat(air_frames, keys=['%d' % index for index in range(1, 11)]).dropna()
 
-    async def get_real_air_from_file(self, filepath):
-        data = json.load(open(filepath))
-        return pd.DataFrame(
-            dict([ (k, pd.Series(v)) for k, v in data['features'][6]['properties']['timeValueSeries'].items() ])
-        )
+    # async def get_real_air_from_file(self, filepath):
+    #     data = json.load(open(filepath))
+    #     return pd.DataFrame(
+    #         dict([ (k, pd.Series(v)) for k, v in data['features'][6]['properties']['timeValueSeries'].items() ])
+    #     )
 
 
     def save_df_to_plot(self, df, filename):

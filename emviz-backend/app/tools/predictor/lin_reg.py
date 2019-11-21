@@ -98,10 +98,10 @@ class LinReg():
         boxID=672, 
         input_keys=['temp', 'hum', 'PMx', 'WIND_SPEED', 'WIND_DIR'], 
         output_key='pm10'
-    ):
+    ):  
         input_keys.append(boxID)
 
-        df_combined = await self.aggregate_data(boxID, start_date, end_date, start_hour, end_hour)
+        df_combined = await self.mp.aggregate_data(boxID, start_date, end_date, start_hour, end_hour)
         rows = round(df_combined.shape[0] * 0.8)
         df_train = df_combined.iloc[:rows]
         df_test = df_combined.iloc[rows:]
@@ -117,10 +117,11 @@ class LinReg():
         print('Intercept: \n', model.intercept_)
         print('Coefficients: \n', model.coef_)
         df_test[output_key + '_lin_predicted'] = model.predict(df_test[input_keys])
+        df_test['MeanAbsErr'] = str(mean_absolute_error(df_test[output_key].to_numpy(), df_test['%s_lin_predicted' % output_key].to_numpy()))
         # print(df_test)
         # self.save_df_to_plot(df_test[[output_key, '%s_predicted' % output_key]], '%s_lin_dist_prediction' % output_key)
         # df_test = df_test.reset_index()
-        result = df_test[[output_key, '%s_lin_predicted' % output_key]]
+        result = df_test[['MeanAbsErr', output_key, '%s_lin_predicted' % output_key]]
         print("Mean Abs Error LinReg: " + str(mean_absolute_error(result[output_key].to_numpy(), result['%s_lin_predicted' % output_key].to_numpy())))
         print(result)
         return result
