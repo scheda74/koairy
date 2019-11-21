@@ -16,10 +16,10 @@ services:
   backend:
     build:
       dockerfile: Dockerfile
-      context: ./api
+      context: ./emviz-backend
     image: emviz_backend:latest
     env_file:
-      - ./api/.env
+      - ./emviz-backend/.env
     depends_on:
       - db
     ports:
