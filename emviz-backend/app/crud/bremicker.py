@@ -18,7 +18,7 @@ from app.core.config import (
     bremicker_collection_name
 )
 
-async def get_bremicker_by_time(conn, boxID, start_date='2019-08-01', end_date='2019-11-01', start_hour='07:00', end_hour='10:00'):
+async def get_bremicker_by_time(conn: AsyncIOMotorClient, boxID, start_date='2019-08-01', end_date='2019-11-01', start_hour='07:00', end_hour='10:00'):
     bremicker = await get_bremicker(conn, start_date, end_date)
     df_traffic = pd.DataFrame(pd.read_json(bremicker['data']))
     df_traffic.index.name = 'time'
@@ -29,11 +29,9 @@ async def get_bremicker_by_time(conn, boxID, start_date='2019-08-01', end_date='
 
 
 async def get_bremicker(conn: AsyncIOMotorClient, start_date='2019-09-01', end_date='2019-09-30'):
-    start_date = datetime.datetime.strptime(start_date, '%Y-%m-%d').date()
-    end_date = datetime.datetime.strptime(end_date, '%Y-%m-%d').date()
     data = await conn[database_name][bremicker_collection_name].find_one({}, projection={"_id": False})
     if not data:
-        await fetch_bremicker(conn)
+        await fetch_bremicker(conn, start_date, end_date)
         # await get_bremicker(conn, start_date.strftime('%Y-%m-%d'), end_date.strftime('%Y-%m-%d'))
     # print(data)
     return data

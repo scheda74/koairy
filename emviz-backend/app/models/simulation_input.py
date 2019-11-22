@@ -2,7 +2,7 @@ from fastapi import FastAPI, Body
 from typing import Dict
 from pydantic import BaseModel, Schema
 
-class Inputs(BaseModel):
+class SimulationInput(BaseModel):
     weatherScenario: int = Schema(0, description='Choose between different weather scenarios')
     vehicleDistribution: Dict[str, float] = Schema(..., description='Distribution of emission classes')
     srcWeights: Dict[str, float] = Schema(..., description='Percentage of how many vehicles (agents) start from an area')
@@ -10,7 +10,7 @@ class Inputs(BaseModel):
     vehicleNumber: int = 9500
     timesteps: int = Schema(10800, description="Seconds of simulation, default 10800s => 3 hours")
 
-example_body = Body(
+example_simulation_input = Body(
     ...,
     example={
         'vehicleDistribution': {

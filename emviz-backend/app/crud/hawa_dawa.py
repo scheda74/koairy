@@ -5,7 +5,7 @@ import requests
 import datetime
 import calendar
 import json
-from bson.json_util import dumps
+# from bson.json_util import dumps
 from dateutil.relativedelta import relativedelta
 
 from app.db.mongodb import AsyncIOMotorClient
@@ -18,8 +18,6 @@ from app.core.config import (
     HAWA_DAWA_URL,
     HAWA_DAWA_API_KEY
 )
-
-
 
 # async def get_all_hawa_dawa(conn: AsyncIOMotorClient):
 #     result = []
@@ -43,7 +41,9 @@ async def get_hawa_dawa_by_time(conn: AsyncIOMotorClient, start_date='2019-09-01
             if measure_date >= start_date and measure_date <= end_date:
                 result.append(data)
         else:
-            break
+            await fetch_air_traffic(conn)
+            return await get_hawa_dawa_by_time(conn, start_date, end_date, start_hour, end_hour)
+            # break
 
     if len(result) == 0: 
         await fetch_air_traffic(conn, '2019-01-01')
@@ -84,7 +84,7 @@ async def insert_air_traffic(conn: AsyncIOMotorClient, date, data: dict):
     await conn[database_name][air_hawa_collection_name].insert_one(raw_doc)
 
 ### NOTE: Fetch data from HawaDawa server
-async def fetch_air_traffic(conn: AsyncIOMotorClient, date):
+async def fetch_air_traffic(conn: AsyncIOMotorClient, date="2019-01-01"):
     date = datetime.datetime.strptime(date, '%Y-%m-%d').date()
     current_date = datetime.date.today()
     result = []
