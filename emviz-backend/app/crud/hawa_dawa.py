@@ -5,7 +5,7 @@ import requests
 import datetime
 import calendar
 import json
-from bson.json_util import dumps
+# from bson.json_util import dumps
 from dateutil.relativedelta import relativedelta
 
 from app.db.mongodb import AsyncIOMotorClient
@@ -18,8 +18,6 @@ from app.core.config import (
     HAWA_DAWA_URL,
     HAWA_DAWA_API_KEY
 )
-
-
 
 # async def get_all_hawa_dawa(conn: AsyncIOMotorClient):
 #     result = []

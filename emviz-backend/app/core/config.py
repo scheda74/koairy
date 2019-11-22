@@ -59,7 +59,7 @@ RANDOM_TRIP_TOOL = tools + "/randomTrips.py"
 WEATHER_BASEDIR = os.path.dirname(weather.__file__)
 WEATHER_WIND = WEATHER_BASEDIR + "/wind_munich_2019.txt"
 WEATHER_PRESSURE = WEATHER_BASEDIR + "/pressure_munich_2019.txt"
-WEATHER_TEMP_HUMID = WEATHER_BASEDIR + "/temp_humidty_munich_2019.txt"
+WEATHER_TEMP_HUMID = WEATHER_BASEDIR + "/temp_humidity_munich_2019.txt"
 
 AIR_BASEDIR = os.path.dirname(airquality.__file__)
 

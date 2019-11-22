@@ -102,6 +102,7 @@ class LinReg():
         input_keys.append(boxID)
 
         df_combined = await self.mp.aggregate_data(boxID, start_date, end_date, start_hour, end_hour)
+        print(df_combined)
         rows = round(df_combined.shape[0] * 0.8)
         df_train = df_combined.iloc[:rows]
         df_test = df_combined.iloc[rows:]

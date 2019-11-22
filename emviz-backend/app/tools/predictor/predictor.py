@@ -25,14 +25,30 @@ class Predictor(object):
     
     async def predict_emissions(self):
         if self.context == 'lin-reg':
-            return await LinearRegressionStrategy(self.prediction_params, self.db, self.sim_id).predict_emissions()
+            return await LinearRegressionStrategy(
+                self.prediction_params,
+                self.db,
+                self.sim_id
+            ).predict_emissions()
         elif self.context == 'lstm':
-            return await LongShortTermMemoryRecurrentNeuralNetworkStrategy(self.prediction_params, self.sim_id).predict_emissions()
+            return await LongShortTermMemoryRecurrentNeuralNetworkStrategy(
+                self.prediction_params,
+                self.db,
+                self.sim_id
+            ).predict_emissions()
         elif self.context == 'mlp':
-            return await MLPRegressorStrategy(self.prediction_params, self.sim_id).predict_emissions()
+            return await MLPRegressorStrategy(
+                self.prediction_params,
+                self.db,
+                self.sim_id
+            ).predict_emissions()
         elif self.context == 'cnn':
             print('cnn not yet specified, lin reg started')
-            return await LinearRegressionStrategy(self.prediction_params, self.sim_id).predict_emissions()
+            return await LinearRegressionStrategy(
+                self.prediction_params,
+                self.db,
+                self.sim_id
+            ).predict_emissions()
         else:
             print('Specified strategy not found!')
 

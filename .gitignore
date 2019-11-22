@@ -1,8 +1,7 @@
 emviz-frontend/node_modules
 
 emviz-backend/simulation/data/*
-emviz-backend/app/simulation/data/*
-emviz-backend/app/simulation/data/*/*
 
-emviz-backend/app/tools/simulation/data/*
-emviz-backend/app/tools/simulation/data/*/*
+emviz-backend/app/tools/simulation/data/emission-input/*
+emviz-backend/app/tools/simulation/data/emission-output/*
+emviz-backend/app/tools/simulation/data/traffic-input/*

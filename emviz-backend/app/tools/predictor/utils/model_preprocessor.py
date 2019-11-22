@@ -153,7 +153,7 @@ class ModelPreProcessor():
         )
         # traffic_mean = df_traffic[boxID].mean()
         # df_traffic = df_traffic.fillna(round(traffic_mean, 2))
-        # print(df_traffic)
+        print(df_traffic)
         df_hawa = await get_hawa_dawa_by_time(
             self.db, 
             start_date,
@@ -161,12 +161,12 @@ class ModelPreProcessor():
             start_hour, 
             end_hour
         )  
-        # print(df_hawa)
+        print(df_hawa)
 
         df_wind = await fetch_weather_data(start_date, end_date, start_hour, end_hour)
-        # print(df_wind)
-        df = pd.concat([df_traffic, df_hawa, df_wind], axis=1)
-        # print(df)
+        print(df_wind)
+        # df = df_hawa.join([df_traffic, df_wind])
+        df = pd.concat([df_hawa, df_traffic, df_wind], axis=1).fillna(method='ffill').fillna(method='bfill')
         # df = df.fillna(method='ffill')
         # return df.fillna(method='bfill')
         return df

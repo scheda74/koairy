@@ -58,7 +58,7 @@ async def start_linreg(inputs: PredictionInput = example_prediction_input, db: A
     Next, it'll predict the specified output with the data given to this request
     """
     sim_id = generate_id(inputs)
-    return await Predictor(db, inputs, sim_id, context='lin-reg').predict_emissions()
+    return (await Predictor(db, inputs, sim_id, context='lin-reg').predict_emissions()).to_dict(orient='list')
     
     
     # lr = LinReg(db, sim_id)
@@ -80,7 +80,7 @@ async def start_mlp(inputs: PredictionInput = example_prediction_input):
     Training and prediction using a Multi-Layer-Perceptron Regression Network
     """
     sim_id = generate_id(inputs)
-    return await Predictor(inputs, sim_id, context='cnn').predict_emissions()
+    return (await Predictor(inputs, sim_id, context='cnn').predict_emissions()).to_dict(orient='list')
 
 @router.post('/prediction/cnn')
 async def start_conv(inputs: PredictionInput = example_prediction_input):
@@ -88,7 +88,7 @@ async def start_conv(inputs: PredictionInput = example_prediction_input):
     Training and prediction using a Convolutional Neural Network
     """
     sim_id = generate_id(inputs)
-    return await Predictor(inputs, sim_id, context='cnn').predict_emissions()
+    return await (Predictor(inputs, sim_id, context='cnn').predict_emissions()).to_dict(orient='list')
     
     
     # sim_id = generate_id(inputs.simulation_input)
