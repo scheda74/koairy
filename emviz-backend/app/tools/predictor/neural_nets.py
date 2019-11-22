@@ -40,6 +40,22 @@ class NeuralNet():
     ):
         input_keys.append(boxID)
         df = await self.mp.aggregate_data(boxID, start_date, end_date, start_hour, end_hour)
+        data = df
+        data.index = data.index.strftime('%Y-%m-%d %H:%M')
+        values = data.values
+
+        # specify columns to plot
+        groups = [0, 1, 2, 3, 5, 6, 7, 10, 11, 12, 13]
+        i = 1
+        # plot each column
+        plt.figure()
+        for group in groups:
+            plt.subplot(len(groups), 1, i)
+            plt.plot(values[:, group])
+            plt.title(data.columns[group], y=0.5, loc='right')
+            i += 1
+        plt.show()
+
         # feature_range=(0, 100)
         scaler = pre.MinMaxScaler()
         df_scaled = df
@@ -95,11 +111,24 @@ class NeuralNet():
         testPredictPlot[len(trainPredict)+(look_back*2)+1:len(dataset)-1, :] = testPredict
         # plot baseline and predictions
         # print(scaler.inverse_transform(dataset))
-        plt_dataset, = plt.plot(scaler.inverse_transform(dataset))
-        plt_train_pred, = plt.plot(trainPredictPlot)
-        plt_test_pred, = plt.plot(testPredictPlot)
-        plt.legend([plt_dataset, plt_train_pred, plt_test_pred], ['%s Real Data' % output_key, '%s Training Prediction' % output_key, '%s Testing Prediction' % output_key])
-        plt.show()
+        # plt_dataset, = plt.plot(scaler.inverse_transform(dataset))
+        # plt_train_pred, = plt.plot(trainPredictPlot)
+        # plt_test_pred, = plt.plot(testPredictPlot)
+        # plt.legend([plt_dataset, plt_train_pred, plt_test_pred], ['%s Real Data' % output_key, '%s Training Prediction' % output_key, '%s Testing Prediction' % output_key])
+        # plt.show()
+        print(df.iloc[rows:])
+        # testPredict = pd.DataFrame(pd.Series(testPredict.flatten()))
+        testPredict = pd.DataFrame(testPredict.flatten())
+        print(testPredict)
+        df_pred = df.iloc[rows:]
+        df_pred["%s_predicted" % output_key] = testPredict
+        # print(df_pred[[output_key]])
+        # result = pd.concat([df.iloc[rows:][[output_key]], df_pred])
+        # result = df_pred[[output_key]].join(df_pred[["%s_predicted" % output_key]])
+        # result = pd.concat([, df_pred])
+        print(df_pred)
+        # result.index = result.index.strftime('%Y-%m-%d %H:%M')
+        return {}
 
 
     # async def start_lstm(

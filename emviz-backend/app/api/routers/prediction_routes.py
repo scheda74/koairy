@@ -40,12 +40,12 @@ router = APIRouter()
 # https://machinelearningmastery.com/time-series-prediction-lstm-recurrent-neural-networks-python-keras/
 
 @router.post('/prediction/lstm')
-async def start_lstm(inputs: PredictionInput = example_prediction_input):
+async def start_lstm(inputs: PredictionInput = example_prediction_input, db: AsyncIOMotorClient=Depends(get_database)):
     """
     Training and prediction using a Long-Short-Term-Memory Recurrent Neural Network
     """
     sim_id = generate_id(inputs)
-    return await Predictor(inputs, sim_id, context='lstm').predict_emissions()
+    return await Predictor(db, inputs, sim_id, context='lstm').predict_emissions()
     # nn = NeuralNet(db, sim_id)
 
     # df_lstm = await nn.start_lstm(boxID=672, input_keys=['temp', 'hum', 'PMx', 'WIND_SPEED', 'WIND_DIR'], output_key='no2')
@@ -58,37 +58,23 @@ async def start_linreg(inputs: PredictionInput = example_prediction_input, db: A
     Next, it'll predict the specified output with the data given to this request
     """
     sim_id = generate_id(inputs)
-    return (await Predictor(db, inputs, sim_id, context='lin-reg').predict_emissions()).to_dict(orient='list')
-    
-    
-    # lr = LinReg(db, sim_id)
-    # nn = NeuralNet(db, sim_id)
-    # df_lin = await lr.start_lin_reg(boxID=672, input_keys=['temp', 'hum', 'PMx', 'WIND_SPEED', 'WIND_DIR'], output_key='pm2.5')
-    # df_mlp = await nn.start_cnn(boxID=672, input_keys=['temp', 'hum', 'PMx', 'WIND_SPEED', 'WIND_DIR'], output_key='pm2.5')
-    
-    # print(df_pm10_pred)
-    # print(df_no2_pred)
-    # print(df_pm10_lin)
-    
-    
-    # df_combined = pd.concat([df_mlp, df_lin['pm2.5_lin_predicted']], axis=1)
-    # print(df_combined)
-    # , db: AsyncIOMotorClient=Depends(get_database)
+    return (await Predictor(db, inputs, sim_id, context='lin-reg').predict_emissions()).to_json(orient='index')
+
 @router.post('/prediction/mlp')
-async def start_mlp(inputs: PredictionInput = example_prediction_input):
+async def start_mlp(inputs: PredictionInput = example_prediction_input, db: AsyncIOMotorClient=Depends(get_database)):
     """
     Training and prediction using a Multi-Layer-Perceptron Regression Network
     """
     sim_id = generate_id(inputs)
-    return (await Predictor(inputs, sim_id, context='cnn').predict_emissions()).to_dict(orient='list')
+    return (await Predictor(db, inputs, sim_id, context='mlp').predict_emissions()).to_json(orient='index')
 
 @router.post('/prediction/cnn')
-async def start_conv(inputs: PredictionInput = example_prediction_input):
+async def start_conv(inputs: PredictionInput = example_prediction_input, db: AsyncIOMotorClient=Depends(get_database)):
     """
     Training and prediction using a Convolutional Neural Network
     """
     sim_id = generate_id(inputs)
-    return await (Predictor(inputs, sim_id, context='cnn').predict_emissions()).to_dict(orient='list')
+    return await (Predictor(db, inputs, sim_id, context='cnn').predict_emissions()).to_json(orient='index')
     
     
     # sim_id = generate_id(inputs.simulation_input)

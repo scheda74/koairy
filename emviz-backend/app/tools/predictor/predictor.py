@@ -96,13 +96,13 @@ class MLPRegressorStrategy(PredictorStrategyAbstract):
         """Start MLP Model Training and Prediction"""
         lr = LinReg(self.db, self.sim_id)
         return await lr.start_mlp(
-            self.start_date, 
-            self.end_date, 
-            self.start_hour, 
-            self.end_hour, 
-            self.boxID, 
-            self.input_keys, 
-            self.output_key
+            start_date=self.start_date,
+            end_date=self.end_date,
+            start_hour=self.start_hour,
+            end_hour=self.end_hour,
+            boxID=self.boxID,
+            input_keys=self.input_keys,
+            output_key=self.output_key
         )
 
 class LongShortTermMemoryRecurrentNeuralNetworkStrategy(PredictorStrategyAbstract):
@@ -110,13 +110,13 @@ class LongShortTermMemoryRecurrentNeuralNetworkStrategy(PredictorStrategyAbstrac
         """Start LSTM Model Training and Prediction"""
         nn = NeuralNet(self.db, self.sim_id)
         return await nn.start_lstm(
-            self.start_date, 
-            self.end_date, 
-            self.start_hour, 
-            self.end_hour, 
-            self.boxID, 
-            self.input_keys,
-            self.output_key
+            start_date=self.start_date,
+            end_date=self.end_date,
+            start_hour=self.start_hour,
+            end_hour=self.end_hour,
+            boxID=self.boxID,
+            input_keys=self.input_keys,
+            output_key=self.output_key
         )
 
 class ConvolutionalNeuralNetworkStrategy(PredictorStrategyAbstract):

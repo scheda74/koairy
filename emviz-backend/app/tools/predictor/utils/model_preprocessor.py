@@ -151,27 +151,23 @@ class ModelPreProcessor():
             start_hour,
             end_hour
         )
-        # traffic_mean = df_traffic[boxID].mean()
-        # df_traffic = df_traffic.fillna(round(traffic_mean, 2))
-        print(df_traffic)
+
+        # df_traffic = df_traffic.loc[~df_traffic.duplicated(keep='first')]
         df_hawa = await get_hawa_dawa_by_time(
             self.db, 
             start_date,
             end_date, 
             start_hour, 
             end_hour
-        )  
-        print(df_hawa)
+        )
+        df_hawa = df_hawa.loc[~df_hawa.index.duplicated(keep='first')]
 
         df_wind = await fetch_weather_data(start_date, end_date, start_hour, end_hour)
-        print(df_wind)
-        # df = df_hawa.join([df_traffic, df_wind])
-        df = pd.concat([df_hawa, df_traffic, df_wind], axis=1).fillna(method='ffill').fillna(method='bfill')
-        # df = df.fillna(method='ffill')
-        # return df.fillna(method='bfill')
+        # df_wind = df_wind.loc[~df_wind.index.duplicated(keep='first')]
+
+        df = pd.concat([df_hawa, df_traffic, df_wind], axis=1)
+        # .fillna(method='ffill').fillna(method='bfill')
         return df
-
-
 
     ###############################################################################################
     ################################## BREMICKER FUNCTIONS ########################################
