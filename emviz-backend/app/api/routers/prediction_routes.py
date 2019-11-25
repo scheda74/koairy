@@ -26,16 +26,17 @@ from app.db.mongodb import AsyncIOMotorClient, get_database
 # from app.crud.bremicker import (
 #     get_bremicker
 # )
-from app.core.config import PLOT_BASEDIR
+# from app.core.config import PLOT_BASEDIR
 
 router = APIRouter()
 
-# @router.post('/prediction/tbats')
-# async def start_tbats(inputs: PredictionInput = example_prediction_input, db: AsyncIOMotorClient=Depends(get_database)):
-#     sim_id = generate_id(inputs.simulation_input)
-    # lr = LinReg(db, sim_id)
-
-    # df_tbats = await lr.start_tbats(boxID=672, input_keys=['temp', 'hum', 'PMx', 'WIND_SPEED', 'WIND_DIR'], output_key='pm2.5')
+@router.post('/prediction')
+async def start_prediction(inputs: PredictionInput = example_prediction_input, db: AsyncIOMotorClient=Depends(get_database)):
+    """
+    Training and prediction using a Long-Short-Term-Memory Recurrent Neural Network
+    """
+    sim_id = generate_id(inputs)
+    return await Predictor(db, inputs, sim_id, context=inputs.context).predict_emissions()
 
 # https://machinelearningmastery.com/time-series-prediction-lstm-recurrent-neural-networks-python-keras/
 
