@@ -36,7 +36,8 @@ async def start_prediction(inputs: PredictionInput = example_prediction_input, d
     Training and prediction using a Long-Short-Term-Memory Recurrent Neural Network
     """
     sim_id = generate_id(inputs)
-    return await Predictor(db, inputs, sim_id, predictionModel=inputs.predictionModel).predict_emissions()
+    df = await Predictor(db, inputs, sim_id, predictionModel=inputs.predictionModel).predict_emissions()
+    return df.to_json(orient='index')
 
 # https://machinelearningmastery.com/time-series-prediction-lstm-recurrent-neural-networks-python-keras/
 

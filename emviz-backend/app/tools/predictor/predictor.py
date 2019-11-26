@@ -63,7 +63,7 @@ class PredictorStrategyAbstract(object):
     ):
         self.db = db
         self.sim_id = sim_id
-        self.boxID = prediction_params.boxID
+        self.boxID = str(prediction_params.boxID)
         self.input_keys = prediction_params.input_keys
         self.output_key = prediction_params.output_key
         self.start_date = prediction_params.start_date
