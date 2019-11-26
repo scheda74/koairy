@@ -1,7 +1,8 @@
 from fastapi import FastAPI, Body
 from pydantic import BaseModel, Schema
+from app.models.simulation_input import (SimulationInput, example_simulation_input)
 
-class DataInput(BaseModel):
+class DataInput(SimulationInput):
     start_date: str = Schema(..., description='Choose starting date')
     end_date: str = Schema(..., description='Choose an end date')
     start_hour: str = Schema(..., description='Hour when to start')

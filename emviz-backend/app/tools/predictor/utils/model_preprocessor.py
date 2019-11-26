@@ -8,7 +8,9 @@ import math
 from fastapi import Depends
 from app.db.mongodb import AsyncIOMotorClient, get_database
 from app.crud.emissions import (
-    get_raw_emissions_from_sim
+    get_raw_emissions_from_sim,
+    get_aggregated_data_from_sim,
+    insert_aggregated_data
 )
 from app.crud.hawa_dawa import get_hawa_dawa_by_time
 from app.crud.bremicker import get_bremicker_by_time
@@ -70,7 +72,17 @@ class ModelPreProcessor():
     ######################################################################################################
     ################################## DATA AGGREGATION FUNCTIONS ########################################
     ######################################################################################################
-    async def aggregate_data(self, boxID=672, start_date='2019-08-01', end_date='2019-10-20', start_hour='7:00', end_hour='10:00'):
+    async def aggregate_data(self, boxID=672, start_date='2019-08-01', end_date='2019-11-10', start_hour='7:00', end_hour='10:00'):
+        data = await get_aggregated_data_from_sim(self.db, self.sim_id)
+        if data is not None:
+            try:
+                df = pd.DataFrame.from_dict(data["aggregated"], orient='index')
+                df.index = pd.to_datetime(df.index)
+                return df
+            except Exception as e:
+                print("[MODEL PREPROCESSOR] Error while formatting aggregated data from db: %s" % str(e))
+
+        print("[MODEL PREPROCESSOR] Aggregated data for simulation not found! Fetching from sources...")
         df_air = await self.fetch_air_and_traffic(boxID, start_date, end_date, start_hour, end_hour)
 
         df_air.index.name = 'time'
@@ -118,7 +130,13 @@ class ModelPreProcessor():
         df_combined = df_combined[df_combined.index.notnull()]
         
         # .fillna(method='ffill')
-        return df_combined.interpolate(method='time')
+        df_combined = df_combined.interpolate(method='time')
+        df_formatted = df_combined.copy()
+        df_formatted.index = df_formatted.index.strftime("%Y-%m-%d %H:%M")
+        df_formatted = df_formatted.rename(columns={'pm2.5': 'pm25'})
+        df_formatted.columns = df_formatted.columns.astype(str)
+        await insert_aggregated_data(self.db, self.sim_id, df_formatted.to_dict(orient='index'))
+        return df_combined
 
 
     async def aggregate_real_data(self, boxID=672, start_date='2019-08-01', end_date='2019-10-20', start_hour='7:00', end_hour='10:00'):
@@ -137,7 +155,7 @@ class ModelPreProcessor():
         lat, lng = [round(bremicker_boxes[box_id]['lat'], 3), round(bremicker_boxes[box_id]['lng'], 3)]
         # print(lat, lng)
         raw_emissions = await get_raw_emissions_from_sim(self.db, self.sim_id)
-        if raw_emissions == None:
+        if raw_emissions is None:
             raw_emissions = parser.parse_emissions()
         df = pd.DataFrame(pd.read_json(raw_emissions["emissions"], orient='index'))
         mask = (round(df['lat'], 3) == lat) & (round(df['lng'], 3) == lng)
