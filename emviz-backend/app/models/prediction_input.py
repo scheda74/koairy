@@ -29,7 +29,7 @@ class PredictionInput(SimulationInput):
     input_keys: list = Schema(['temp', 'hum', 'PMx', 'WIND_SPEED', 'WIND_DIR'], description='Give a list of keys which will train your model')
     output_key: str = Schema('pm10', description='Give pollutant key you wish to predict')
     boxID: int = Schema(672, description='Specify the bremicker sensor location')
-    context: str = Schema('lstm', description='Specify what ML model should be used.')
+    predictionModel: str = Schema('lstm', description='Specify what ML model should be used.')
 
 example_prediction_input = Body(
     ...,
@@ -81,7 +81,7 @@ example_prediction_input = Body(
         'input_keys': ['temp', 'hum', 'PMx', 'WIND_SPEED', 'WIND_DIR'],
         'output_key': 'pm10',
         'boxID': 672,
-        'context': 'lstm'
+        'predictionModel': 'lstm'
     }
 )
 

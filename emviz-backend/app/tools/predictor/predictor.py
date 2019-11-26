@@ -16,33 +16,33 @@ class Predictor(object):
         db,
         prediction_params: PredictionInput = example_prediction_input,
         sim_id=None,
-        context='lin-reg'
+        predictionModel='lin-reg'
     ):  
         self.db = db
         self.sim_id = sim_id
-        self.context = context
+        self.predictionModel = prediction_params.predictionModel
         self.prediction_params = prediction_params
     
     async def predict_emissions(self):
-        if self.context == 'lin-reg':
+        if self.predictionModel == 'lin-reg':
             return await LinearRegressionStrategy(
                 self.prediction_params,
                 self.db,
                 self.sim_id
             ).predict_emissions()
-        elif self.context == 'lstm':
+        elif self.predictionModel == 'lstm':
             return await LongShortTermMemoryRecurrentNeuralNetworkStrategy(
                 self.prediction_params,
                 self.db,
                 self.sim_id
             ).predict_emissions()
-        elif self.context == 'mlp':
+        elif self.predictionModel == 'mlp':
             return await MLPRegressorStrategy(
                 self.prediction_params,
                 self.db,
                 self.sim_id
             ).predict_emissions()
-        elif self.context == 'cnn':
+        elif self.predictionModel == 'cnn':
             print('cnn not yet specified, lin reg started')
             return await LinearRegressionStrategy(
                 self.prediction_params,
