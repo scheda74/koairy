@@ -14,10 +14,7 @@ RUN apt-get -qq update && apt-get -qq install \
     ffmpeg \
     wget \
     sudo \
-    xorg \
-    python3-dev \
-    python3-pip \
-    python3-rtree
+    xorg
 
 ## Install SUMO
 RUN git clone --recursive https://github.com/eclipse/sumo --verbose --progress && mkdir sumo/build/cmake-build
@@ -31,6 +28,12 @@ ENV SUMO_HOME /sumo
 ############################################################
 ######################## API ###############################
 ############################################################
+
+RUN sudo apt-get install -qq \
+    python3-dev \
+    python3-pip \
+    python3-rtree
+
 RUN apt-get -qq install python3.7 python3.7-dev curl python3-distutils && curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python3.7 get-pip.py
 RUN cp /usr/bin/python3.7 /usr/bin/python
 
