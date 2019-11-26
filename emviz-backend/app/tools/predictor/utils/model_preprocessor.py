@@ -120,6 +120,13 @@ class ModelPreProcessor():
         # .fillna(method='ffill')
         return df_combined.interpolate(method='time')
 
+
+    async def aggregate_real_data(self, boxID=672, start_date='2019-08-01', end_date='2019-10-20', start_hour='7:00', end_hour='10:00'):
+        df_air = await self.fetch_air_and_traffic(boxID, start_date, end_date, start_hour, end_hour)
+        df_air.index.name = 'time'
+
+        return df_air
+
     #####################################################################################################
     ################################## DATA COLLECTION FUNCTIONS ########################################
     #####################################################################################################

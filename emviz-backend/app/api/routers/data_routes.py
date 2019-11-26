@@ -1,5 +1,3 @@
-
-
 import os
 import json
 import datetime
@@ -14,9 +12,11 @@ from app.tools.simulation.preprocessor import SimulationPreProcessor
 from app.tools.predictor.lin_reg import LinReg
 # from db.database import DB
 from app.models.simulation_input import SimulationInput, example_simulation_input
+from app.models.data_input import DataInput, example_data_input
 from app.models.prediction_input import PlotInput, example_plot_input
 # import db.query_database as query
 from app.db.mongodb import AsyncIOMotorClient, get_database
+from app.tools.predictor.utils.model_preprocessor import ModelPreProcessor
 from app.crud.emissions import get_caqi_emissions_for_sim
 from app.crud.hawa_dawa import (
     get_hawa_dawa_by_time
@@ -28,6 +28,24 @@ from app.crud.bremicker import (
 from app.core.config import PLOT_BASEDIR
 
 router = APIRouter()
+
+
+@router.post('/traffic/current')
+async def get_traffic(inputs: SimulationInput = example_simulation_input, db: AsyncIOMotorClient=Depends(get_database)):
+    """
+    Returns CAQI values. If not available new simulation will be started
+    """
+    print(inputs)
+    simulation_id = generate_id(inputs)
+    print("[PARSER] Get CAQI data from simulation with id {simulation_id}")
+    parser = Parser(db, simulation_id)
+    return await parser.get_caqi_data()
+
+@router.post('/traffic')
+async def get_training(inputs: DataInput = example_data_input, db: AsyncIOMotorClient=Depends(get_database)):
+    df = await ModelPreProcessor(db=db).aggregate_real_data(inputs.boxID, inputs.start_date, inputs.end_date, inputs.start_hour, inputs.end_hour)
+    df.index = df.index.strftime("%Y-%m-%d %H:%M")
+    return df.to_json(orient='index')
 
 @router.post('/get/caqi')
 async def get_caqi(inputs: SimulationInput = example_simulation_input, db: AsyncIOMotorClient=Depends(get_database)):
