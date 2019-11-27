@@ -16,33 +16,33 @@ class Predictor(object):
         db,
         prediction_params: PredictionInput = example_prediction_input,
         sim_id=None,
-        context='lin-reg'
+        predictionModel='lin-reg'
     ):  
         self.db = db
         self.sim_id = sim_id
-        self.context = context
+        self.predictionModel = prediction_params.predictionModel
         self.prediction_params = prediction_params
     
     async def predict_emissions(self):
-        if self.context == 'lin-reg':
+        if self.predictionModel == 'lin-reg':
             return await LinearRegressionStrategy(
                 self.prediction_params,
                 self.db,
                 self.sim_id
             ).predict_emissions()
-        elif self.context == 'lstm':
+        elif self.predictionModel == 'lstm':
             return await LongShortTermMemoryRecurrentNeuralNetworkStrategy(
                 self.prediction_params,
                 self.db,
                 self.sim_id
             ).predict_emissions()
-        elif self.context == 'mlp':
+        elif self.predictionModel == 'mlp':
             return await MLPRegressorStrategy(
                 self.prediction_params,
                 self.db,
                 self.sim_id
             ).predict_emissions()
-        elif self.context == 'cnn':
+        elif self.predictionModel == 'cnn':
             print('cnn not yet specified, lin reg started')
             return await LinearRegressionStrategy(
                 self.prediction_params,
@@ -63,7 +63,7 @@ class PredictorStrategyAbstract(object):
     ):
         self.db = db
         self.sim_id = sim_id
-        self.boxID = prediction_params.boxID
+        self.boxID = str(prediction_params.boxID)
         self.input_keys = prediction_params.input_keys
         self.output_key = prediction_params.output_key
         self.start_date = prediction_params.start_date
@@ -96,13 +96,13 @@ class MLPRegressorStrategy(PredictorStrategyAbstract):
         """Start MLP Model Training and Prediction"""
         lr = LinReg(self.db, self.sim_id)
         return await lr.start_mlp(
-            self.start_date, 
-            self.end_date, 
-            self.start_hour, 
-            self.end_hour, 
-            self.boxID, 
-            self.input_keys, 
-            self.output_key
+            start_date=self.start_date,
+            end_date=self.end_date,
+            start_hour=self.start_hour,
+            end_hour=self.end_hour,
+            boxID=self.boxID,
+            input_keys=self.input_keys,
+            output_key=self.output_key
         )
 
 class LongShortTermMemoryRecurrentNeuralNetworkStrategy(PredictorStrategyAbstract):
@@ -110,13 +110,13 @@ class LongShortTermMemoryRecurrentNeuralNetworkStrategy(PredictorStrategyAbstrac
         """Start LSTM Model Training and Prediction"""
         nn = NeuralNet(self.db, self.sim_id)
         return await nn.start_lstm(
-            self.start_date, 
-            self.end_date, 
-            self.start_hour, 
-            self.end_hour, 
-            self.boxID, 
-            self.input_keys,
-            self.output_key
+            start_date=self.start_date,
+            end_date=self.end_date,
+            start_hour=self.start_hour,
+            end_hour=self.end_hour,
+            boxID=self.boxID,
+            input_keys=self.input_keys,
+            output_key=self.output_key
         )
 
 class ConvolutionalNeuralNetworkStrategy(PredictorStrategyAbstract):

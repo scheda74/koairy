@@ -40,6 +40,22 @@ class NeuralNet():
     ):
         input_keys.append(boxID)
         df = await self.mp.aggregate_data(boxID, start_date, end_date, start_hour, end_hour)
+        data = df.copy()
+        data.index = data.index.strftime('%Y-%m-%d %H:%M')
+
+        # values = data.values
+        # specify columns to plot
+        # groups = [0, 1, 2, 3, 5, 6, 7, 10, 11, 12, 13]
+        # i = 1
+        # # plot each column
+        # plt.figure()
+        # for group in groups:
+        #     plt.subplot(len(groups), 1, i)
+        #     plt.plot(values[:, group])
+        #     plt.title(data.columns[group], y=0.5, loc='right')
+        #     i += 1
+        # plt.show()
+
         # feature_range=(0, 100)
         scaler = pre.MinMaxScaler()
         df_scaled = df
@@ -49,7 +65,6 @@ class NeuralNet():
         df_train = df_scaled[[output_key]].iloc[:rows]
         df_test = df_scaled[[output_key]].iloc[rows:]
 
-        print(dataset)
         # self.save_df_to_plot(dataset, 'unscaled_%s' % output_key)
         # df_train = df_train.reset_index()
         # df_test = df_test.reset_index()
@@ -95,22 +110,75 @@ class NeuralNet():
         testPredictPlot[len(trainPredict)+(look_back*2)+1:len(dataset)-1, :] = testPredict
         # plot baseline and predictions
         # print(scaler.inverse_transform(dataset))
-        plt_dataset, = plt.plot(scaler.inverse_transform(dataset))
-        plt_train_pred, = plt.plot(trainPredictPlot)
-        plt_test_pred, = plt.plot(testPredictPlot)
-        plt.legend([plt_dataset, plt_train_pred, plt_test_pred], ['%s Real Data' % output_key, '%s Training Prediction' % output_key, '%s Testing Prediction' % output_key])
-        plt.show()
+        # plt_dataset, = plt.plot(scaler.inverse_transform(dataset))
+        # plt_train_pred, = plt.plot(trainPredictPlot)
+        # plt_test_pred, = plt.plot(testPredictPlot)
+        # plt.legend([plt_dataset, plt_train_pred, plt_test_pred], ['%s Real Data' % output_key, '%s Training Prediction' % output_key, '%s Testing Prediction' % output_key])
+        # plt.show()
+        print(df.iloc[rows:])
+        # testPredict = pd.DataFrame(pd.Series(testPredict.flatten()))
+        testPredict = pd.DataFrame(testPredict.flatten())
+        print(testPredict)
+        df_pred = df.iloc[rows:]
+        # df_pred["%s_predicted" % output_key] = testPredict
+        # print(df_pred[[output_key]])
+        result = pd.concat([data.iloc[:rows][[output_key]].reset_index(), testPredict], axis=1).dropna()
+        result = result.set_index('index').rename(columns={0: '%s_predicted' % output_key})
+        print(result)
+        # result.index = result.index.strftime('%Y-%m-%d %H:%M')
+        return result
 
 
-    # async def start_lstm(
+    # async def start_multi_lstm(
     #     self,
-    #     start_date='2019-08-01', 
-    #     end_date='2019-10-20', 
-    #     start_hour='7:00', 
-    #     end_hour='10:00', 
-    #     data=None, 
-    #     boxID=672, 
-    #     input_keys=['temp', 'hum', 'PMx', 'WIND_SPEED', 'WIND_DIR'], 
+    #     start_date='2019-08-01',
+    #     end_date='2019-10-20',
+    #     start_hour='7:00',
+    #     end_hour='10:00',
+    #     data=None,
+    #     boxID=672,
+    #     input_keys=['temp', 'hum', 'PMx', 'WIND_SPEED', 'WIND_DIR'],
     #     output_key='pm10'
     # ):
-    #     print("")
+    #     # load dataset
+    #     input_keys.append(boxID)
+    #     dataset = await self.mp.aggregate_data(boxID, start_date, end_date, start_hour, end_hour)
+    #     values = dataset.values
+    #
+    #     # integer encode direction
+    #     encoder = pd.LabelEncoder()
+    #     values[:, 4] = encoder.fit_transform(values[:, 4])
+    #     # ensure all data is float
+    #     values = values.astype('float32')
+    #     # normalize features
+    #     scaler = MinMaxScaler(feature_range=(0, 1))
+    #     scaled = scaler.fit_transform(values)
+    #     # frame as supervised learning
+    #     reframed = series_to_supervised(scaled, 1, 1)
+    #     # drop columns we don't want to predict
+    #     reframed.drop(reframed.columns[[9, 10, 11, 12, 13, 14, 15]], axis=1, inplace=True)
+    #     print(reframed.head())
+    #
+    # # convert series to supervised learning
+    # def series_to_supervised(data, n_in=1, n_out=1, dropnan=True):
+    #     n_vars = 1 if type(data) is list else data.shape[1]
+    #     df = pd.DataFrame(data)
+    #     cols, names = list(), list()
+    #     # input sequence (t-n, ... t-1)
+    #     for i in range(n_in, 0, -1):
+    #         cols.append(df.shift(i))
+    #         names += [('var%d(t-%d)' % (j + 1, i)) for j in range(n_vars)]
+    #     # forecast sequence (t, t+1, ... t+n)
+    #     for i in range(0, n_out):
+    #         cols.append(df.shift(-i))
+    #         if i == 0:
+    #             names += [('var%d(t)' % (j + 1)) for j in range(n_vars)]
+    #         else:
+    #             names += [('var%d(t+%d)' % (j + 1, i)) for j in range(n_vars)]
+    #     # put it all together
+    #     agg = pd.concat(cols, axis=1)
+    #     agg.columns = names
+    #     # drop rows with NaN values
+    #     if dropnan:
+    #         agg.dropna(inplace=True)
+    #     return agg
