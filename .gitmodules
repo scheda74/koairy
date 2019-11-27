@@ -1,3 +1,6 @@
-[submodule "emviz-frontend"]
-	path = emviz-frontend
-	url = git@bitbucket.ase.in.tum.de:7999/basch/emviz-frontend.git
+[submodule "koairy-frontend"]
+	path = koairy-frontend
+	url = git@bitbucket.ase.in.tum.de:7999/basch/koairy-frontend.git
+[submodule "koairy-backend"]
+	path = koairy-backend
+	url = git@bitbucket.ase.in.tum.de:7999/basch/koairy-backend.git
