@@ -16,11 +16,20 @@ services:
   backend:
     build:
       dockerfile: Dockerfile
-      context: ./emviz-backend
-    image: emviz_backend:latest
+      context: ./koairy-backend
+    image: koairy-backend:latest
     env_file:
-      - ./emviz-backend/.env
+      - ./koairy-backend/.env
     depends_on:
       - db
     ports:
       - "8000:8000"
+  frontend:
+    build:
+      dockerfile: Dockerfile
+      context: ./koairy-frontend
+    image: koairy-frontend:latest
+    depends_on:
+      - db
+    ports:
+      - "3000:3000"

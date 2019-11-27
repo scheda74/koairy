@@ -1,7 +1,11 @@
 koairy-frontend/node_modules
 
-emviz-backend/simulation/data/*
+koairy-backend/simulation/data/*
 
-emviz-backend/app/tools/simulation/data/emission-input/*
-emviz-backend/app/tools/simulation/data/emission-output/*
-emviz-backend/app/tools/simulation/data/traffic-input/*
+koairy-backend/app/tools/simulation/data/emission-input/*
+koairy-backend/app/tools/simulation/data/emission-output/*
+koairy-backend/app/tools/simulation/data/traffic-input/*
+
+.vscode
+koairy-backend
+koairy-frontend
