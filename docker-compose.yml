@@ -14,6 +14,7 @@ services:
     env_file:
       - ./koairy-backend/.env
   backend:
+    container_name: backend
     build:
       dockerfile: Dockerfile
       context: ./koairy-backend
@@ -25,6 +26,7 @@ services:
     ports:
       - "8000:8000"
   frontend:
+    container_name: frontend
     build:
       dockerfile: Dockerfile
       context: ./koairy-frontend
