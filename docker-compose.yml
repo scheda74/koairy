@@ -29,6 +29,9 @@ services:
       dockerfile: Dockerfile
       context: ./koairy-frontend
     image: koairy-frontend:latest
+    volumes:
+      - '.:/app'
+      - '/app/node_modules'
     depends_on:
       - db
     ports:
