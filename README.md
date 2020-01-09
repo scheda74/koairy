@@ -26,6 +26,12 @@ Your virtual machine needs more RAM! At least 4096MB. (Happens on MacOS as defau
 ## References
 
 ## Important Commands / Common Errors:
+```.shell script
+vboxmanage modifyvm api --memory 4096
+vboxmanage modifyvm api --natpf1 "backend,tcp,,8000,,8000"
+vboxmanage modifyvm api --natpf1 "frontend,tcp,,3000,,3000"
+vboxmanage modifyvm api --natpf1 "db,tcp,,27017,,27017"
+```
 
 ### No space left on device error
 Remove images that are not linked to a container
