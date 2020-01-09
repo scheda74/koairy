@@ -7,11 +7,16 @@ services:
     restart: always
     ports:
       - "27017:27017"
+    volumes:
+      - ./data/db:/data/db
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=root
-      - MONGO_INITDB_ROOT_PASSWORD=example
-    env_file:
-      - ./koairy-backend/.env
+      MONGO_INITDB_DATABASE: "mongo-db"
+      MONGO_INITDB_ROOT_USERNAME: "root"
+      MONGO_INITDB_ROOT_PASSWORD: "example"
+#    environment:
+#      MONGO_INITDB_ROOT_USERNAME: root
+#      MONGO_INITDB_ROOT_PASSWORD: example
+#      MONGO_INITDB_DATABASE: mongo-db
   backend:
     build:
       dockerfile: Dockerfile
