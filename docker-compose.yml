@@ -1,4 +1,4 @@
-version: '3'
+version: '3.7'
 
 services:
   db:
@@ -13,27 +13,52 @@ services:
       MONGO_INITDB_DATABASE: "mongo-db"
       MONGO_INITDB_ROOT_USERNAME: "root"
       MONGO_INITDB_ROOT_PASSWORD: "example"
-#    environment:
-#      MONGO_INITDB_ROOT_USERNAME: root
-#      MONGO_INITDB_ROOT_PASSWORD: example
-#      MONGO_INITDB_DATABASE: mongo-db
+    networks:
+      reverse_proxy:
+        aliases:
+          - koairy_container
+
   backend:
     build:
       dockerfile: Dockerfile
       context: ./koairy-backend
-    image: koairy-backend:latest
+    container_name: "koairy-backend"
     env_file:
       - ./koairy-backend/.env
     depends_on:
       - db
     ports:
       - "8000:8000"
+    networks:
+      reverse_proxy:
+        aliases:
+          - koairy_container
+
   frontend:
     build:
       dockerfile: Dockerfile
       context: ./koairy-frontend
-    image: koairy-frontend:latest
-    depends_on:
-      - db
+    container_name: "koairy-frontend"
     ports:
-      - "5000:5000"
+      - "3000:3000"
+    networks:
+      reverse_proxy:
+        aliases:
+          - koairy_container
+    command: bash -c "npm install && npm run client"
+
+networks:
+  reverse_proxy:
+    external: true
+    name: reverse_proxy
+
+
+#  frontend:
+#    build:
+#      dockerfile: Dockerfile
+#      context: ./koairy-frontend
+#    image: koairy-frontend:latest
+#    depends_on:
+#      - db
+#    ports:
+#      - "5000:5000"
