@@ -51,14 +51,3 @@ networks:
   reverse_proxy:
     external: true
     name: reverse_proxy
-
-
-#  frontend:
-#    build:
-#      dockerfile: Dockerfile
-#      context: ./koairy-frontend
-#    image: koairy-frontend:latest
-#    depends_on:
-#      - db
-#    ports:
-#      - "5000:5000"
