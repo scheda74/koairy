@@ -15,7 +15,7 @@ In order to run a SUMO simulation, either XLaunch for Windows or XQuartz for mac
 4. Optional: In the repository go to path *koairy-frontend/* and enter the command ```docker build -t koairy-frontend .``` 
 5. Optional: In the repository go to path *koairy-backend/* and enter the command ```docker build -t koairy-backend .``` 
 6. Go to the root of the repository and enter the command ```docker-compose up```.
-7. In your web browser open ```localhost:3000``` in order to see the KoAiry user interface.
+7. In your web browser open ```0.0.0.0:3000/koairy``` in order to see the KoAiry user interface.
 
 If problems during building or running SUMO arise, check the SUMO documentation (*https://sumo.dlr.de/docs/Downloads.html*).
 
