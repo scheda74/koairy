@@ -3,4 +3,4 @@
 	url = https://github.com/scheda74/koairy-frontend.git
 [submodule "koairy-backend"]
 	path = koairy-backend
-	url = https://github.com/scheda74/koairy-frontend.git
+	url = https://github.com/scheda74/koairy-backend.git
