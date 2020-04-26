@@ -1,6 +1,6 @@
 [submodule "koairy-frontend"]
 	path = koairy-frontend
-	url = https://bitbucket.ase.in.tum.de/scm/basch/koairy-frontend.git
+	url = https://github.com/scheda74/koairy-frontend.git
 [submodule "koairy-backend"]
 	path = koairy-backend
-	url = https://bitbucket.ase.in.tum.de/scm/basch/koairy-backend.git
+	url = https://github.com/scheda74/koairy-frontend.git
